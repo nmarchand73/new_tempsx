@@ -1,13 +1,13 @@
-"""Script pour valider et corriger les URLs d'images dans les fichiers markdown.
+"""Script pour convertir les URLs d'images Wikimedia Commons du format thumb au format direct.
 
-Ce script vérifie chaque URL d'image et supprime celles qui ne sont pas accessibles.
+Format thumb: https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/ASIMO_4.28.11.jpg/800px-ASIMO_4.28.11.jpg
+Format direct: https://upload.wikimedia.org/wikipedia/commons/3/3d/ASIMO_4.28.11.jpg
 """
 
 import re
 import requests
 from pathlib import Path
 import logging
-from urllib.parse import urlparse
 
 logging.basicConfig(level=logging.INFO, format='%(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -24,17 +24,39 @@ def find_image_urls_in_markdown(content: str) -> list:
     return matches
 
 
+def convert_thumb_to_direct(url: str) -> str:
+    """Convertit une URL thumb Wikimedia Commons en URL directe.
+    
+    Args:
+        url: URL au format thumb
+        
+    Returns:
+        URL au format direct, ou URL originale si la conversion n'est pas possible
+    """
+    # Pattern pour extraire le chemin depuis une URL thumb
+    # Exemple: /thumb/3/3d/ASIMO_4.28.11.jpg/800px-ASIMO_4.28.11.jpg
+    # -> chemin = 3/3d/ASIMO_4.28.11.jpg
+    thumb_pattern = r'/thumb/(.+?)/(\d+px-.+)$'
+    match = re.search(thumb_pattern, url)
+    
+    if match:
+        path = match.group(1)
+        # Construire l'URL directe
+        base_url = 'https://upload.wikimedia.org/wikipedia/commons/'
+        direct_url = base_url + path
+        return direct_url
+    
+    # Si ce n'est pas une URL thumb, retourner l'URL originale
+    return url
+
+
 def is_valid_image_url(url: str, timeout: int = 3) -> bool:
     """Vérifie si une URL d'image est accessible."""
     try:
-        # Utiliser HEAD pour être plus rapide
         response = requests.head(url, timeout=timeout, allow_redirects=True)
         if response.status_code == 200:
             content_type = response.headers.get('Content-Type', '')
             return 'image' in content_type.lower()
-        return False
-    except requests.exceptions.Timeout:
-        logger.debug(f"Timeout pour {url}")
         return False
     except Exception as e:
         logger.debug(f"Erreur pour {url}: {e}")
@@ -42,14 +64,14 @@ def is_valid_image_url(url: str, timeout: int = 3) -> bool:
 
 
 def fix_markdown_file(file_path: Path, dry_run: bool = False) -> int:
-    """Corrige les URLs d'images dans un fichier markdown.
+    """Convertit les URLs thumb en URLs directes dans un fichier markdown.
     
     Args:
         file_path: Chemin vers le fichier markdown
         dry_run: Si True, ne modifie pas le fichier, affiche seulement ce qui serait fait
         
     Returns:
-        Nombre d'images supprimées
+        Nombre d'URLs converties
     """
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
@@ -59,52 +81,41 @@ def fix_markdown_file(file_path: Path, dry_run: bool = False) -> int:
         return 0
     
     original_content = content
-    removed_count = 0
+    converted_count = 0
     image_matches = find_image_urls_in_markdown(content)
     
     # Traiter chaque image de la fin vers le début pour préserver les positions
     for match, url, alt_text in reversed(image_matches):
-        # Vérifier si l'URL est valide
-        if not is_valid_image_url(url):
-            logger.warning(f"Image invalide dans {file_path.name}: {alt_text[:50]}... ({url[:60]}...)")
+        # Vérifier si c'est une URL thumb Wikimedia Commons
+        if '/thumb/' in url and 'upload.wikimedia.org' in url:
+            # Convertir en URL directe
+            direct_url = convert_thumb_to_direct(url)
             
-            if not dry_run:
-                # Supprimer l'image et la ligne vide avant si elle existe
-                start = match.start()
-                end = match.end()
-                
-                # Supprimer la ligne vide avant
-                if start > 0 and content[start-1] == '\n':
-                    line_start = content.rfind('\n', 0, start-1) + 1
-                    if line_start < start and content[line_start:start-1].strip() == '':
-                        start = line_start
-                
-                # Supprimer la ligne vide après
-                if end < len(content) and content[end] == '\n':
-                    next_newline = content.find('\n', end + 1)
-                    if next_newline > end and content[end+1:next_newline].strip() == '':
-                        end = next_newline + 1
-                
-                content = content[:start] + content[end:]
-                removed_count += 1
-            else:
-                removed_count += 1
-        else:
-            logger.debug(f"Image valide: {url[:60]}...")
+            if direct_url != url:
+                # Vérifier que l'URL directe est valide
+                if is_valid_image_url(direct_url):
+                    if not dry_run:
+                        # Remplacer l'URL dans le contenu
+                        new_image = f"![{alt_text}]({direct_url})"
+                        content = content[:match.start()] + new_image + content[match.end():]
+                    converted_count += 1
+                    logger.info(f"Conversion: {url[:60]}... -> {direct_url[:60]}...")
+                else:
+                    logger.warning(f"URL directe invalide pour {url[:60]}...")
     
     # Écrire le fichier modifié seulement s'il y a eu des changements
     if content != original_content and not dry_run:
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(content)
-            logger.info(f"✅ {file_path.name}: {removed_count} image(s) supprimée(s)")
+            logger.info(f"✅ {file_path.name}: {converted_count} URL(s) convertie(s)")
         except Exception as e:
             logger.error(f"Erreur lors de l'écriture de {file_path}: {e}")
             return 0
-    elif removed_count > 0 and dry_run:
-        logger.info(f"🔍 {file_path.name}: {removed_count} image(s) seraient supprimée(s)")
+    elif converted_count > 0 and dry_run:
+        logger.info(f"🔍 {file_path.name}: {converted_count} URL(s) seraient convertie(s)")
     
-    return removed_count
+    return converted_count
 
 
 def main():
@@ -118,7 +129,7 @@ def main():
         logger.error(f"Le répertoire {output_dir} n'existe pas")
         return
     
-    total_removed = 0
+    total_converted = 0
     files_processed = 0
     
     # Parcourir tous les répertoires de runs
@@ -132,14 +143,14 @@ def main():
         
         # Parcourir tous les fichiers markdown
         for md_file in sorted(markdown_dir.glob("*.md")):
-            removed = fix_markdown_file(md_file, dry_run=dry_run)
-            total_removed += removed
-            if removed > 0:
+            converted = fix_markdown_file(md_file, dry_run=dry_run)
+            total_converted += converted
+            if converted > 0:
                 files_processed += 1
     
-    logger.info(f"\n{'[DRY RUN] ' if dry_run else ''}✅ Correction terminée:")
+    logger.info(f"\n{'[DRY RUN] ' if dry_run else ''}✅ Conversion terminée:")
     logger.info(f"   - Fichiers modifiés: {files_processed}")
-    logger.info(f"   - Images invalides supprimées: {total_removed}")
+    logger.info(f"   - URLs converties: {total_converted}")
 
 
 if __name__ == "__main__":

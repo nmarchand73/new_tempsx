@@ -282,7 +282,10 @@ La meilleure histoire de la Quatrième Dimension dure parce qu'elle est fondamen
    1. Ouvre l'outil Browser
    2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable
    3. Recherche des images qui correspondent aux scènes importantes de l'histoire
-   4. Copie l'URL directe de l'image depuis Wikimedia Commons
+   4. **⚠️ FORMAT OBLIGATOIRE** : Copie l'URL directe de l'image depuis Wikimedia Commons (format direct, SANS /thumb/)
+      - Format correct : `https://upload.wikimedia.org/wikipedia/commons/3/39/ASIMO_4.28.11.jpg`
+      - Format incorrect : `https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/ASIMO_4.28.11.jpg/800px-ASIMO_4.28.11.jpg`
+      - Si tu obtiens une URL avec `/thumb/`, convertis-la en format direct en enlevant `/thumb/` et le suffixe de taille
    5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
       - L'image doit s'afficher correctement
       - Pas d'erreur 404 ou "Not Found"
