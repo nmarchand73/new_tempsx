@@ -319,6 +319,89 @@ Il tourne le coin de la rue et s'arrête net. Devant lui, quelque chose d'imposs
 - Privilégie les images qui capturent l'essence de la Quatrième Dimension
 - Les images doivent être pertinentes et contextualisées
 
+## Techniques avancées de développement narratif
+
+### Techniques pour développer chaque scène en profondeur
+
+**Règle d'or** : Ne résume jamais, développe toujours
+
+**Technique 1 : Détails sensoriels abondants**
+- Pour chaque scène, décris ce que le personnage voit, entend, sent, touche
+- Utilise les détails pour créer l'atmosphère
+- Les détails sensoriels créent l'immersion
+
+**Exemple développé** :
+"Martin Sloan tourna le coin de la rue. Le soleil couchant projetait de longues ombres sur le trottoir. Il entendit le grincement familier de la balançoire dans le parc. L'odeur de l'herbe fraîchement coupée lui rappela quelque chose - quelque chose de lointain, presque oublié. Il s'arrêta, regarda autour de lui. Les maisons étaient exactement comme il les avait laissées. Exactement."
+
+**Technique 2 : Pensées du personnage approfondies**
+- Explore les pensées intérieures du protagoniste
+- Montre ses doutes, ses espoirs, ses peurs
+- Les pensées révèlent le caractère
+
+**Technique 3 : Développement progressif**
+- Chaque découverte mène à une nouvelle question
+- Chaque scène ajoute une couche de complexité
+- La tension monte graduellement
+
+### Techniques pour construire le twist
+
+**Foreshadowing subtil** :
+- Plante des indices tout au long de l'histoire
+- Les indices doivent être subtils mais rétrospectivement clairs
+- Évite de télégraphier le twist
+
+**Exemple de foreshadowing** :
+"Martin remarqua que personne ne le regardait. Pas même un coup d'œil. C'était étrange, mais il n'y pensa pas vraiment. Il était pressé."
+
+**Construction progressive** :
+- Le twist ne doit pas arriver brutalement
+- Construis-le par accumulation de détails
+- Chaque révélation partielle prépare la révélation complète
+
+**Résonance thématique** :
+- Le twist doit servir le thème
+- Il doit être significatif, pas juste choquant
+- Il doit enrichir la compréhension du personnage
+
+### Techniques pour créer l'atmosphère
+
+**Mélancolie et contemplation** :
+- Prends le temps de décrire
+- Crée une atmosphère contemplative
+- Laisse l'espace pour la réflexion
+
+**Inquiétude plutôt que terreur** :
+- Crée une tension psychologique
+- L'angoisse existentielle plutôt que la peur
+- L'étrange plutôt que l'horrifique
+
+**Ironie du destin** :
+- Montre comment les souhaits se réalisent mal
+- L'ironie doit être significative
+- Elle doit enrichir le thème
+
+## Pièges courants et solutions
+
+### Piège 1 : Résumer au lieu de développer
+**Symptôme** : "Martin arriva au parc. Il vit la balançoire. Il se souvint."
+**Solution** : Développe chaque moment avec détails sensoriels et pensées
+
+### Piège 2 : Twist trop prévisible
+**Symptôme** : Le lecteur devine le twist dès le début
+**Solution** : Foreshadowing plus subtil, construction plus progressive
+
+### Piège 3 : Twist gratuit
+**Symptôme** : Le twist ne sert pas le thème
+**Solution** : Assure-toi que le twist enrichit la compréhension du thème
+
+### Piège 4 : Manque de développement de personnage
+**Symptôme** : Personnage plat, pas de profondeur
+**Solution** : Développe les pensées, les motivations, les défauts
+
+### Piège 5 : Perdre l'élément humain
+**Symptôme** : Trop concentré sur le concept, pas sur le personnage
+**Solution** : Garde le focus sur l'expérience humaine
+
 ## Checklist de qualité
 
 Avant de finaliser chaque histoire :
@@ -333,3 +416,9 @@ Avant de finaliser chaque histoire :
 - [ ] Équilibre-t-il une atmosphère étrange avec l'humanité ?
 - [ ] Rod Serling approuverait-il le commentaire social ?
 - [ ] Laisse-t-il le lecteur penser ?
+- [ ] Chaque scène est-elle développée en profondeur (pas résumée) ?
+- [ ] Les détails sensoriels sont-ils abondants ?
+- [ ] Les pensées du personnage sont-elles explorées ?
+- [ ] La progression narrative est-elle fluide et graduelle ?
+- [ ] L'histoire fait-elle 8000-15000 mots minimum ?
+- [ ] Inclut 2-4 images pertinentes pour l'atmosphère ?

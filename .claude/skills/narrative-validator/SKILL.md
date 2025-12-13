@@ -225,6 +225,48 @@ Rejette si tu détectes :
 - ❌ **Liens non pertinents** : Sources qui ne correspondent pas au sujet
 - ❌ **Liens de mauvaise qualité** : Sites spam, sources douteuses
 
+## Techniques avancées de validation
+
+### Validation structurelle approfondie
+
+**Vérification de la longueur** :
+- Acte I : 100-200 mots (introduction concise)
+- Acte II : 200-400 mots (explication développée)
+- Acte III : 150-300 mots (tension narrative)
+- Acte IV : 150-300 mots (fiction immersive)
+- Acte V : 200-400 mots (réflexion approfondie)
+- Acte VI : 200-400 mots (connexion temporelle)
+- Acte VII : 150-300 mots (transmission)
+
+**Vérification de la progression** :
+- Les actes s'enchaînent-ils logiquement ?
+- Y a-t-il une accumulation narrative ?
+- La tension monte-t-elle progressivement ?
+
+### Validation thématique approfondie
+
+**Cohérence thématique** :
+- Chaque acte développe-t-il son thème assigné ?
+- Les thèmes s'articulent-ils entre eux ?
+- Y a-t-il une progression logique des idées ?
+
+**Résonance thématique** :
+- Les thèmes résonnent-ils avec le sujet scientifique ?
+- Y a-t-il une profondeur thématique suffisante ?
+- Les implications sont-elles explorées ?
+
+### Validation de qualité approfondie
+
+**Ton et style** :
+- Le ton est-il cohérent avec l'esprit Temps X ?
+- Y a-t-il une résonance intellectuelle ou émotionnelle ?
+- Le contenu évite-t-il les pièges (blog post, Wikipedia, hype) ?
+
+**Profondeur** :
+- Y a-t-il une profondeur suffisante dans chaque acte ?
+- Les implications sont-elles explorées en profondeur ?
+- La réflexion est-elle nuancée et réfléchie ?
+
 ## Indicateurs de validation
 
 Valide si tu détectes :
@@ -234,4 +276,8 @@ Valide si tu détectes :
 - ✅ Cohérence narrative globale
 - ✅ Résonance intellectuelle et/ou émotionnelle
 - ✅ Pas de sensationalisme
+- ✅ Longueurs appropriées pour chaque acte
+- ✅ Progression narrative fluide
+- ✅ Images présentes et pertinentes
+- ✅ Références valides et accessibles
 

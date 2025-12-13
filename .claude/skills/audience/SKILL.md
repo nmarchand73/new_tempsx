@@ -220,6 +220,82 @@ Et nous, face à cette question, que choisissons-nous de croire ?
 5. **Transmettre** au public de manière subtile
 6. **Fermer** en ouvrant la réflexion
 
+## Techniques avancées de transmission
+
+### Techniques pour créer une question ouverte puissante
+
+**Caractéristiques d'une bonne question ouverte** :
+- **Profonde** : Va au-delà de la surface
+- **Non résolue** : Pas de réponse simple ou évidente
+- **Résonnante** : Fait écho à tout l'épisode
+- **Engageante** : Invite le lecteur à réfléchir
+- **Actuelle** : Résonne avec les préoccupations d'aujourd'hui
+
+**Types de questions efficaces** :
+- **Question de choix** : "Que choisissons-nous de croire ?"
+- **Question de responsabilité** : "Quelle responsabilité avons-nous ?"
+- **Question d'identité** : "Qui sommes-nous vraiment ?"
+- **Question de frontière** : "Où se trouve la limite ?"
+- **Question d'avenir** : "Vers quel avenir nous dirigeons-nous ?"
+
+### Techniques de transmission au public
+
+**Méthode 1 : Adresse subtile**
+- Utilise "nous" ou "vous" de manière naturelle
+- Crée une connexion sans être directif
+- Laisse l'espace pour la réflexion
+
+**Exemple** : "Et nous, face à cette question, que choisissons-nous de croire ?"
+
+**Méthode 2 : Transmission immersive**
+- Crée une expérience partagée
+- Montre plutôt que dire
+- Laisse le lecteur tirer ses conclusions
+
+**Méthode 3 : Question finale percutante**
+- Termine par une question qui résonne
+- Laisse la réflexion ouverte
+- Crée une impression durable
+
+### Techniques pour éviter les pièges
+
+**Piège 1 : Question rhétorique**
+- ❌ "N'est-ce pas incroyable ?" (réponse évidente)
+- ✅ "Comment savoir si nous créons des machines qui comprennent, ou simplement des machines qui imitent la compréhension ?" (vraie question)
+
+**Piège 2 : Ton moralisateur**
+- ❌ "Nous devons faire attention à..."
+- ✅ "Et nous, face à cette question, que choisissons-nous ?"
+
+**Piège 3 : Conclusion fermée**
+- ❌ "La réponse est claire : nous devons..."
+- ✅ "Cette question n'est pas seulement technique. Elle touche à notre propre compréhension de ce que signifie être conscient, être intelligent, être humain."
+
+## Structures avancées
+
+### Structure A : Synthèse puis question
+
+1. **Synthèse subtile** (1-2 phrases) : Résume sans répéter
+2. **Développement de la question** (2-3 paragraphes) : Explore la question profonde
+3. **Transmission** (1-2 phrases) : Transmet au public
+
+### Structure B : Question directe
+
+1. **Question ouverte** (2-3 paragraphes) : Développe directement la question
+2. **Transmission immersive** : Transmet au public de manière immersive
+3. **Fermeture ouverte** : Phrase finale qui ouvre la réflexion
+
+## Checklist de qualité
+
+- [ ] Question vraiment ouverte (pas rhétorique)
+- [ ] Question profonde et résonnante
+- [ ] Transmission subtile au public
+- [ ] Équilibre entre fermeture et ouverture
+- [ ] Ton documentaire réfléchi
+- [ ] Inclut 1 image pertinente
+- [ ] Fait écho à tous les actes précédents
+- [ ] Conclusion satisfaisante
+
 ## Connexion avec l'arc narratif
 
 L'Acte VII doit :
@@ -227,3 +303,4 @@ L'Acte VII doit :
 - Faire écho à tous les actes précédents
 - Créer une conclusion satisfaisante
 - Laisser une question qui enrichit tout l'épisode
+- Transmettre la réflexion au public de manière engageante

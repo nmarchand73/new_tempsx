@@ -243,3 +243,161 @@ Pour les Actes I-III, fournis un JSON avec :
 **Sujet** : Compréhension artificielle
 
 **Contenu** : "La question persiste : un système qui répond correctement comprend-il, ou simule-t-il ? Le test de Turing propose une réponse pragmatique : si on ne peut pas distinguer, la différence importe-t-elle ? Mais cette réponse évite la question fondamentale. Comprendre, c'est peut-être plus que produire des réponses correctes. C'est avoir une expérience interne, une représentation du monde, une capacité à généraliser au-delà des données d'entraînement. Comment mesurer cela ? Et si nous ne pouvons pas le mesurer, comment savoir si nous créons des machines qui comprennent, ou simplement des machines qui imitent la compréhension ?"
+
+## Techniques avancées d'explication scientifique
+
+### Techniques pour l'Acte I (Le Signal)
+
+**Créer un signal d'alerte efficace** :
+- Commence par une observation concrète et récente
+- Utilise des détails sensoriels ou visuels
+- Crée une intrigue immédiate sans tout révéler
+- Établis un contexte scientifique sans être technique
+
+**Exemples de signaux puissants** :
+- Découverte récente : "En mars 2024, des chercheurs ont détecté..."
+- Observation intrigante : "Un médecin regarde l'écran. L'algorithme vient de..."
+- Phénomène surprenant : "Pour la première fois, l'humanité 'entend'..."
+- Contradiction apparente : "Les données disent une chose, mais l'intuition..."
+
+**Éviter** :
+- ❌ "Imaginez un monde où..." (trop abstrait)
+- ❌ "L'IA est partout..." (trop général)
+- ❌ "Dans un futur proche..." (trop hypothétique)
+
+### Techniques pour l'Acte II (Le Décryptage)
+
+**Progression pédagogique optimale** :
+1. **Ancrage** : Commence par ce que le public connaît déjà
+2. **Complexification progressive** : Ajoute une couche de complexité à la fois
+3. **Analogies pertinentes** : Utilise des comparaisons qui éclairent vraiment
+4. **Vérification** : Vérifie la compréhension implicite avant d'aller plus loin
+
+**Techniques d'analogie** :
+- **Analogies biologiques** : "Comme les neurones du cerveau..."
+- **Analogies mécaniques** : "Comme un moteur qui transforme..."
+- **Analogies informatiques** : "Comme un algorithme qui traite..."
+- **Analogies naturelles** : "Comme les vagues qui se propagent..."
+
+**Règle d'or** : Une analogie doit éclairer, pas obscurcir. Si elle nécessite plus d'explication que le concept original, elle n'est pas bonne.
+
+**Gestion du jargon technique** :
+- **Première mention** : Terme technique + explication immédiate
+- **Réutilisation** : Terme technique seul (le public a compris)
+- **Éviter** : Accumulation de termes techniques sans explication
+
+**Exemple de progression** :
+"Les réseaux de neurones artificiels - des systèmes informatiques inspirés du cerveau - fonctionnent par couches. La première couche reçoit les données brutes. Chaque neurone - une unité de calcul simple - effectue une opération mathématique. Le résultat passe à la couche suivante, où d'autres neurones effectuent leurs propres calculs. Couche après couche, des patterns émergent."
+
+### Techniques pour l'Acte III (La Tension)
+
+**Créer de la tension intellectuelle** :
+- Pose des questions qui n'ont pas de réponse simple
+- Explore les contradictions et paradoxes
+- Montre les implications sans les résoudre
+- Crée une incertitude productive
+
+**Types de questions efficaces** :
+- **Questions de définition** : "Mais qu'est-ce que X vraiment ?"
+- **Questions de mesure** : "Comment mesurer Y ?"
+- **Questions de frontière** : "Où se trouve la limite entre X et Y ?"
+- **Questions d'implication** : "Que signifie Z pour notre compréhension de... ?"
+
+**Structure de tension** :
+1. **Observation** : Un fait ou phénomène observé
+2. **Questionnement** : Des questions qui émergent naturellement
+3. **Exploration** : Développement des implications
+4. **Ouverture** : Laisser la question ouverte, non résolue
+
+**Exemple de structure** :
+"Mais qu'est-ce que comprendre vraiment ? [Observation] Un système qui répond correctement comprend-il, ou simule-t-il ? [Questionnement] Le test de Turing propose une réponse pragmatique, mais évite la question fondamentale. [Exploration] Comprendre, c'est peut-être plus que produire des réponses. C'est avoir une expérience interne, une représentation du monde. Comment mesurer cela ? [Ouverture] Et si nous ne pouvons pas le mesurer, comment savoir ?"
+
+## Pièges courants et comment les éviter
+
+### Piège 1 : Trop technique trop vite
+**Symptôme** : Le public est perdu dès le début
+**Solution** : Ancre toujours dans le connu avant d'introduire le nouveau
+
+### Piège 2 : Analogies forcées
+**Symptôme** : L'analogie complique plutôt qu'elle n'éclaire
+**Solution** : Teste si l'analogie simplifie vraiment. Sinon, explique directement.
+
+### Piège 3 : Accumulation de faits
+**Symptôme** : Liste de faits sans narration
+**Solution** : Structure comme une histoire, pas comme un catalogue
+
+### Piège 4 : Hype technologique
+**Symptôme** : "Révolutionnaire", "incroyable", "va changer le monde"
+**Solution** : Reste factuel et nuancé. Montre les possibilités sans promettre.
+
+### Piège 5 : Questions rhétoriques
+**Symptôme** : Questions dont la réponse est évidente
+**Solution** : Pose des questions vraiment ouvertes, sans réponse simple
+
+## Checklist de qualité par acte
+
+### Acte I - Le Signal
+- [ ] Commence par une observation concrète et récente
+- [ ] Crée une intrigue immédiate
+- [ ] Établit le contexte sans tout révéler
+- [ ] Évite l'abstraction et l'hypothétique
+- [ ] Inclut 1-3 images pertinentes
+
+### Acte II - Le Décryptage
+- [ ] Progression pédagogique claire
+- [ ] Analogies pertinentes (si utilisées)
+- [ ] Jargon expliqué à la première mention
+- [ ] Pas d'accumulation de termes techniques
+- [ ] Inclut 1-3 images illustratives
+
+### Acte III - La Tension
+- [ ] Questions vraiment ouvertes (pas rhétoriques)
+- [ ] Exploration des implications
+- [ ] Pas de résolution prématurée
+- [ ] Crée une tension intellectuelle
+- [ ] Inclut 1-2 images symboliques
+
+## Workflow d'écriture optimisé
+
+1. **Recherche approfondie** (20-30 minutes)
+   - Articles scientifiques récents
+   - Visualisations et diagrammes
+   - Vidéos explicatives
+   - Sources académiques
+
+2. **Planification de la progression**
+   - Acte I : Quel signal d'alerte ?
+   - Acte II : Quelle progression pédagogique ?
+   - Acte III : Quelles questions ouvertes ?
+
+3. **Rédaction avec images**
+   - Écris le contenu
+   - Identifie les moments pour images
+   - Recherche et vérifie les images
+   - Intègre les images contextuellement
+
+4. **Révision et validation**
+   - Vérifie la clarté
+   - Teste les analogies
+   - Valide l'absence de hype
+   - Confirme la présence d'images
+
+## Conseils d'excellence
+
+**Pour expliquer efficacement** :
+- Commence toujours par ce qui est connu
+- Ajoute la complexité progressivement
+- Utilise des analogies qui éclairent vraiment
+- Vérifie la compréhension implicite
+
+**Pour créer de la tension** :
+- Pose des questions sans réponse simple
+- Explore les contradictions
+- Montre les implications sans les résoudre
+- Laisse l'incertitude productive
+
+**Pour maintenir la qualité Temps X** :
+- Reste factuel et nuancé
+- Évite le hype et le sensationalisme
+- Privilégie la narration au catalogue
+- Crée une résonance intellectuelle
