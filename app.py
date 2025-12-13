@@ -169,6 +169,12 @@ Exemples:
     )
     
     parser.add_argument(
+        '--images', '-i',
+        action='store_true',
+        help='Génère également les images à partir des prompts DALL-E (nécessite OPENAI_API_KEY)'
+    )
+    
+    parser.add_argument(
         '--run-name',
         type=str,
         default=None,
@@ -516,6 +522,32 @@ Que signifie vraiment 'comprendre' pour une machine ?"""
                     logger.info("💡 Pour générer l'audio, utilisez:")
                     logger.info(f"   python app.py \"{scenario[:50]}...\" --audio")
                     logger.info(f"   ou utilisez directement le module Python (voir README_AUDIO.md)")
+            
+            # Génération d'images (optionnelle)
+            if args.images:
+                try:
+                    from newtempsx.image_generator import ImageGenerator
+                    
+                    logger.info("🎨 Génération des images à partir des prompts DALL-E...")
+                    image_gen = ImageGenerator(output_dir=output_dir / "images")
+                    image_files = await image_gen.generate_episode_images(episode)
+                    
+                    total_images = sum(len(images) for images in image_files.values())
+                    if total_images > 0:
+                        logger.info(f"✅ {total_images} image(s) générée(s) dans {output_dir / 'images'}")
+                        logger.info("📸 Images intégrées automatiquement dans le contenu markdown")
+                        # Ré-exporter le markdown avec les images intégrées
+                        exporter.export_markdown(episode)
+                        if episode.twilight_zone_story:
+                            exporter.export_twilight_zone_story(episode.twilight_zone_story)
+                        # Ré-exporter le JSON avec le contenu mis à jour
+                        exporter.export_json(episode)
+                        logger.info("✅ Fichiers markdown et JSON mis à jour avec les images")
+                    else:
+                        logger.warning("⚠️  Aucune image générée. Vérifiez que les actes contiennent des image_prompts.")
+                except Exception as e:
+                    logger.warning(f"⚠️  Erreur lors de la génération d'images: {e}")
+                    logger.warning("   L'épisode a été généré, mais les images n'ont pas pu être créées.")
             
             logger.info(f"\n✅ Épisode généré avec succès!")
             logger.info(f"📁 Fichiers dans: {output_dir.absolute()}")

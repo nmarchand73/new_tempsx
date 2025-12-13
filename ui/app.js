@@ -36,8 +36,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Vérifier le support de la synthèse vocale
     if ('speechSynthesis' in window && window.speechSynthesis) {
         try {
-            speechSynthesis = window.speechSynthesis;
-            console.log('Synthèse vocale disponible');
+        speechSynthesis = window.speechSynthesis;
+        console.log('Synthèse vocale disponible');
         } catch (error) {
             console.warn('Erreur lors de l\'accès à la synthèse vocale:', error);
             speechSynthesis = null;
@@ -57,10 +57,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (currentRunName) {
         await loadEpisode();
         if (currentEpisode && allActs.length > 0) {
-            setupNavigation();
-            renderOverview();
-            renderActs();
-            updateNavigation();
+        setupNavigation();
+        renderOverview();
+        renderActs();
+        updateNavigation();
         } else {
             showError('Impossible de charger l\'épisode. Vérifiez que l\'épisode contient des actes.');
         }
@@ -234,16 +234,16 @@ function renderOverview() {
     const narrativeArcEl = document.getElementById('narrative-arc');
     if (narrativeArcEl) {
         if (currentEpisode.narrative_arc) {
-            if (typeof marked !== 'undefined') {
-                narrativeArcEl.innerHTML = marked.parse(currentEpisode.narrative_arc);
-            } else {
-                // Fallback si marked n'est pas disponible
-                const paragraphs = currentEpisode.narrative_arc.split('\n\n').filter(p => p.trim());
-                narrativeArcEl.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
-            }
-            
-            // Traiter les images dans l'arc narratif
-            processImages(narrativeArcEl);
+    if (typeof marked !== 'undefined') {
+        narrativeArcEl.innerHTML = marked.parse(currentEpisode.narrative_arc);
+    } else {
+        // Fallback si marked n'est pas disponible
+        const paragraphs = currentEpisode.narrative_arc.split('\n\n').filter(p => p.trim());
+        narrativeArcEl.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+    }
+    
+    // Traiter les images dans l'arc narratif
+    processImages(narrativeArcEl);
         } else {
             narrativeArcEl.innerHTML = '<p>Aucun arc narratif disponible.</p>';
         }
@@ -1039,7 +1039,7 @@ function getFrenchVoice(narrator = 'narrator_1') {
     }
     
     try {
-        const voices = speechSynthesis.getVoices();
+    const voices = speechSynthesis.getVoices();
     
     // Chercher une voix française
     const frenchVoices = voices.filter(voice => 
@@ -1338,7 +1338,7 @@ function toggleSpeech(index, isDoubleClick = false) {
     // Lancer la lecture
     try {
         if (speechSynthesis && 'speechSynthesis' in window && window.speechSynthesis) {
-            speechSynthesis.speak(utterance);
+    speechSynthesis.speak(utterance);
         } else {
             console.warn('Synthèse vocale non disponible');
             playIcon.style.display = 'block';
@@ -1359,7 +1359,7 @@ function toggleSpeech(index, isDoubleClick = false) {
 function stopSpeech() {
     if (speechSynthesis && 'speechSynthesis' in window && window.speechSynthesis) {
         try {
-            speechSynthesis.cancel();
+        speechSynthesis.cancel();
         } catch (error) {
             console.warn('Erreur lors de l\'arrêt de la synthèse vocale:', error);
         }
@@ -1396,36 +1396,36 @@ function stopSpeech() {
 if ('speechSynthesis' in window && speechSynthesis) {
     // Chrome nécessite que les voix soient chargées
     if (speechSynthesis.onvoiceschanged !== undefined) {
-        speechSynthesis.onvoiceschanged = () => {
+    speechSynthesis.onvoiceschanged = () => {
             if (!speechSynthesis) return;
-            const voices = speechSynthesis.getVoices();
-            console.log('Voix chargées:', voices.length);
+        const voices = speechSynthesis.getVoices();
+        console.log('Voix chargées:', voices.length);
+        
+        // Afficher les voix françaises disponibles pour debug
+        const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
+        if (frenchVoices.length > 0) {
+            console.log('Voix françaises disponibles:', frenchVoices.map(v => `${v.name} (${v.lang})${v.default ? ' [défaut]' : ''}`));
             
-            // Afficher les voix françaises disponibles pour debug
-            const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
-            if (frenchVoices.length > 0) {
-                console.log('Voix françaises disponibles:', frenchVoices.map(v => `${v.name} (${v.lang})${v.default ? ' [défaut]' : ''}`));
-                
-                // Afficher les voix disponibles pour chaque narrateur
-                const voice1 = getFrenchVoice('narrator_1');
-                const voice2 = getFrenchVoice('narrator_2');
-                if (voice1) {
-                    console.log('Voix Narrateur 1:', `${voice1.name} (${voice1.lang})`);
-                }
-                if (voice2) {
-                    console.log('Voix Narrateur 2:', `${voice2.name} (${voice2.lang})`);
-                }
+            // Afficher les voix disponibles pour chaque narrateur
+            const voice1 = getFrenchVoice('narrator_1');
+            const voice2 = getFrenchVoice('narrator_2');
+            if (voice1) {
+                console.log('Voix Narrateur 1:', `${voice1.name} (${voice1.lang})`);
             }
-        };
+            if (voice2) {
+                console.log('Voix Narrateur 2:', `${voice2.name} (${voice2.lang})`);
+            }
+        }
+    };
     }
     
     // Forcer le chargement des voix en créant un utterance vide
     // Cela force Chrome à charger les voix
     try {
-        const dummyUtterance = new SpeechSynthesisUtterance('');
-        dummyUtterance.volume = 0;
-        speechSynthesis.speak(dummyUtterance);
-        speechSynthesis.cancel();
+    const dummyUtterance = new SpeechSynthesisUtterance('');
+    dummyUtterance.volume = 0;
+    speechSynthesis.speak(dummyUtterance);
+    speechSynthesis.cancel();
     } catch (error) {
         console.warn('Erreur lors du chargement des voix:', error);
     }
@@ -1455,6 +1455,18 @@ function processImages(container) {
     
     const images = container.querySelectorAll('img');
     images.forEach((img, index) => {
+        // Convertir les chemins relatifs ../images/ en chemins API
+        if (img.src && img.src.includes('../images/')) {
+            const imageFilename = img.src.split('../images/')[1];
+            const runName = currentRunName || '';
+            img.src = `/api/images/${imageFilename}?run=${encodeURIComponent(runName)}`;
+        } else if (img.src && img.src.startsWith('http://localhost:8000/../images/')) {
+            // Gérer aussi les cas où le navigateur a résolu le chemin relatif
+            const imageFilename = img.src.split('/../images/')[1];
+            const runName = currentRunName || '';
+            img.src = `/api/images/${imageFilename}?run=${encodeURIComponent(runName)}`;
+        }
+        
         // Ajouter lazy loading
         if (!img.hasAttribute('loading')) {
             img.setAttribute('loading', 'lazy');

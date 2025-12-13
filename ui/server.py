@@ -46,6 +46,11 @@ class EpisodeHandler(http.server.SimpleHTTPRequestHandler):
             self.serve_audio_file(path)
             return
         
+        # Route pour l'API images
+        if path.startswith('/api/images/'):
+            self.serve_image_file(path)
+            return
+        
         # Route pour la racine
         if path == '/' or path == '/index.html':
             self.serve_file(UI_DIR / 'index.html', 'text/html')
@@ -292,6 +297,52 @@ class EpisodeHandler(http.server.SimpleHTTPRequestHandler):
             
         except Exception as e:
             self.send_error(500, f"Error serving audio: {str(e)}")
+    
+    def serve_image_file(self, path):
+        """Sert un fichier image en cherchant dans le répertoire images du run spécifié."""
+        try:
+            # Extraire le nom du fichier image et le run depuis le chemin
+            # Format: /api/images/filename.png?run=run_name
+            parsed_path = urlparse(self.path)
+            query_params = parse_qs(parsed_path.query)
+            run_name = query_params.get('run', [None])[0]
+            
+            # Extraire le nom du fichier du chemin (ex: /api/images/acte_1_xxx.png -> acte_1_xxx.png)
+            image_filename = path.replace('/api/images/', '').split('?')[0].strip()
+            if not image_filename:
+                self.send_error(400, "Image filename missing")
+                return
+            
+            # Si pas de run spécifié, utiliser le plus récent
+            if not run_name:
+                if OUTPUT_DIR.exists():
+                    run_dirs = [d for d in OUTPUT_DIR.iterdir() if d.is_dir() and (d / "episode.json").exists()]
+                    if run_dirs:
+                        run_dirs.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+                        run_name = run_dirs[0].name
+                    else:
+                        self.send_error(404, "No runs found")
+                        return
+                else:
+                    self.send_error(404, "Output directory not found")
+                    return
+            
+            # Chercher le fichier image dans le répertoire du run
+            images_dir = OUTPUT_DIR / run_name / "images"
+            if not images_dir.exists():
+                self.send_error(404, f"Images directory not found for run: {run_name}")
+                return
+            
+            image_file = images_dir / image_filename
+            if not image_file.exists():
+                self.send_error(404, f"Image file not found: {image_filename} in run {run_name}")
+                return
+            
+            # Servir le fichier image
+            self.serve_file(image_file, self.guess_content_type(image_file))
+            
+        except Exception as e:
+            self.send_error(500, f"Error serving image: {str(e)}")
     
     def guess_content_type(self, file_path):
         """Devine le type de contenu d'un fichier."""

@@ -323,6 +323,11 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                     "properties": {
                         "title": {"type": "string"},
                         "content": {"type": "string"},
+                        "image_prompts": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Liste des prompts DALL-E pour générer des images (1-3 prompts recommandés)"
+                        }
                     },
                     "required": ["title", "content"],
                     "additionalProperties": False,
@@ -332,6 +337,11 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                     "properties": {
                         "title": {"type": "string"},
                         "content": {"type": "string"},
+                        "image_prompts": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Liste des prompts DALL-E pour générer des images (1-3 prompts recommandés)"
+                        }
                     },
                     "required": ["title", "content"],
                     "additionalProperties": False,
@@ -341,6 +351,11 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                     "properties": {
                         "title": {"type": "string"},
                         "content": {"type": "string"},
+                        "image_prompts": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Liste des prompts DALL-E pour générer des images (1-3 prompts recommandés)"
+                        }
                     },
                     "required": ["title", "content"],
                     "additionalProperties": False,
@@ -380,6 +395,9 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                 act_dict["references"] = [Reference(**ref) for ref in act_dict["references"]]
             else:
                 act_dict["references"] = []
+            # S'assurer que image_prompts est présent (peut être vide)
+            if "image_prompts" not in act_dict:
+                act_dict["image_prompts"] = []
             return Act(**act_dict)
         
         return {
@@ -412,6 +430,11 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                         },
                         "required": ["title", "url"]
                     }
+                },
+                "image_prompts": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Liste des prompts DALL-E pour générer des images (1-3 prompts recommandés)"
                 }
             },
             "required": ["title", "content"],
@@ -443,6 +466,9 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             act_data["references"] = [Reference(**ref) for ref in act_data["references"]]
         else:
             act_data["references"] = []
+        # S'assurer que image_prompts est présent (peut être vide)
+        if "image_prompts" not in act_data:
+            act_data["image_prompts"] = []
         logger.debug(f"Acte IV parsé: {act_data.get('title', 'Sans titre')}")
         return Act(**act_data)
     
@@ -471,6 +497,11 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                         },
                         "required": ["title", "url"]
                     }
+                },
+                "image_prompts": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Liste des prompts DALL-E pour générer des images (1-3 prompts recommandés)"
                 }
             },
             "required": ["title", "content"],
@@ -503,6 +534,9 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             act_data["references"] = [Reference(**ref) for ref in act_data["references"]]
         else:
             act_data["references"] = []
+        # S'assurer que image_prompts est présent (peut être vide)
+        if "image_prompts" not in act_data:
+            act_data["image_prompts"] = []
         logger.debug(f"Acte V parsé: {act_data.get('title', 'Sans titre')}")
         return Act(**act_data)
     
@@ -531,6 +565,11 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                         },
                         "required": ["title", "url"]
                     }
+                },
+                "image_prompts": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Liste des prompts DALL-E pour générer des images (1-3 prompts recommandés)"
                 }
             },
             "required": ["title", "content"],
@@ -562,6 +601,9 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             act_data["references"] = [Reference(**ref) for ref in act_data["references"]]
         else:
             act_data["references"] = []
+        # S'assurer que image_prompts est présent (peut être vide)
+        if "image_prompts" not in act_data:
+            act_data["image_prompts"] = []
         logger.debug(f"Acte VI parsé: {act_data.get('title', 'Sans titre')}")
         return Act(**act_data)
     
@@ -590,6 +632,11 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                         },
                         "required": ["title", "url"]
                     }
+                },
+                "image_prompts": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Liste des prompts DALL-E pour générer des images (1-3 prompts recommandés)"
                 }
             },
             "required": ["title", "content"],
@@ -624,6 +671,9 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             act_data["references"] = [Reference(**ref) for ref in act_data["references"]]
         else:
             act_data["references"] = []
+        # S'assurer que image_prompts est présent (peut être vide)
+        if "image_prompts" not in act_data:
+            act_data["image_prompts"] = []
         logger.debug(f"Acte VII parsé: {act_data.get('title', 'Sans titre')}")
         return Act(**act_data)
     
@@ -697,7 +747,12 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             "properties": {
                 "title": {"type": "string"},
                 "story": {"type": "string"},
-                "theme": {"type": "string"}
+                "theme": {"type": "string"},
+                "image_prompts": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Liste des prompts DALL-E pour générer des images (2-4 prompts recommandés)"
+                }
             },
             "required": ["title", "story", "theme"],
             "additionalProperties": False,
@@ -755,7 +810,12 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             "properties": {
                 "title": {"type": "string"},
                 "story": {"type": "string"},
-                "theme": {"type": "string"}
+                "theme": {"type": "string"},
+                "image_prompts": {
+                    "type": "array",
+                    "items": {"type": "string"},
+                    "description": "Liste des prompts DALL-E pour générer des images (2-4 prompts recommandés)"
+                }
             },
             "required": ["title", "story", "theme"],
             "additionalProperties": False,
