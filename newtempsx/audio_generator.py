@@ -141,8 +141,15 @@ class AudioGenerator:
         Returns:
             Chemin du fichier audio généré, ou None en cas d'erreur
         """
-        # Utiliser la méthode asynchrone via asyncio
-        return asyncio.run(self._generate_act_audio_async(act, act_key, episode_title))
+        # Utiliser la méthode asynchrone via asyncio si pas déjà dans une boucle
+        try:
+            loop = asyncio.get_running_loop()
+            # Si on est déjà dans une boucle, cette méthode ne peut pas être utilisée
+            # Utilisez _generate_act_audio_async() avec await à la place
+            raise RuntimeError("generate_act_audio() ne peut pas être appelé depuis une fonction async. Utilisez _generate_act_audio_async() avec await.")
+        except RuntimeError:
+            # Pas de boucle en cours, on peut utiliser asyncio.run()
+            return asyncio.run(self._generate_act_audio_async(act, act_key, episode_title))
     
     async def _generate_act_audio_async(
         self, 
@@ -284,7 +291,7 @@ class AudioGenerator:
         
         return output_path
     
-    def generate_episode_audio(self, episode: Episode) -> dict[str, Optional[Path]]:
+    async def generate_episode_audio(self, episode: Episode) -> dict[str, Optional[Path]]:
         """Génère l'audio pour tous les actes d'un épisode (avec traitement batch).
         
         Args:
@@ -299,7 +306,7 @@ class AudioGenerator:
         
         # Utiliser le traitement batch asynchrone pour tous les providers
         logger.info(f"⚡ Mode batch activé: {self.max_concurrent} requêtes parallèles")
-        return asyncio.run(self._generate_episode_audio_batch(episode))
+        return await self._generate_episode_audio_batch(episode)
     
     async def _generate_episode_audio_batch(self, episode: Episode) -> dict[str, Optional[Path]]:
         """Génère l'audio pour tous les actes en parallèle (batch).
@@ -386,7 +393,7 @@ class AudioGenerator:
         
         return episode
     
-    def generate_audio_from_json(
+    async def generate_audio_from_json(
         self,
         json_path: Path,
         episode: Optional[Episode] = None
@@ -405,9 +412,9 @@ class AudioGenerator:
             episode = self.load_episode_from_json(json_path)
             logger.info(f"✅ Épisode chargé: {episode.episode_title}")
         
-        return self.generate_episode_audio(episode)
+        return await self.generate_episode_audio(episode)
     
-    def generate_twilight_zone_audio(
+    async def generate_twilight_zone_audio(
         self,
         twilight_story: TwilightZoneStory,
         episode_title: str
@@ -450,14 +457,10 @@ class AudioGenerator:
         try:
             if self.provider == TTSProvider.ELEVENLABS:
                 # Utiliser la voix spéciale Twilight Zone (Rod Serling ou similaire)
-                audio_path = asyncio.run(
-                    self._generate_elevenlabs_async(full_text, output_path, self.voice_id_twilight)
-                )
+                audio_path = await self._generate_elevenlabs_async(full_text, output_path, self.voice_id_twilight)
             elif self.provider == TTSProvider.OPENAI:
                 # OpenAI: utiliser "onyx" qui est une voix masculine profonde
-                audio_path = asyncio.run(
-                    self._generate_openai_async(full_text, output_path, "onyx")
-                )
+                audio_path = await self._generate_openai_async(full_text, output_path, "onyx")
             else:
                 raise ValueError(f"Provider non supporté: {self.provider}")
             

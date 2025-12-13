@@ -160,6 +160,49 @@ Avant d'écrire l'Acte V, enrichis-toi avec des recherches :
 
 **Important** : Utilise ces recherches pour enrichir ta réflexion avec des perspectives authentiques et profondes. L'objectif est de créer une méditation qui résonne avec les vraies questions que se posent les humains face à ces sujets.
 
+## Images et artefacts visuels
+
+Tu peux enrichir l'Acte V avec des images qui renforcent la réflexion et illustrent les dimensions humaines explorées.
+
+### Comment inclure des images
+
+1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+   ```
+   ![Description de l'image](https://url-de-l-image.jpg)
+   ```
+
+2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+   - Photos qui capturent des moments de réflexion humaine
+   - Images symboliques ou métaphoriques
+   - Visualisations de concepts philosophiques
+   - Photos qui illustrent les implications humaines
+
+3. **Placement contextuel** : Intègre les images pour enrichir la réflexion :
+   - Pour illustrer une dimension humaine évoquée
+   - Pour renforcer une méditation visuelle
+   - Pour créer une pause contemplative dans le texte
+   - Après une question profonde pour l'illustrer
+
+4. **Qualité et accessibilité** :
+   - Images qui résonnent avec le ton réflexif
+   - URLs accessibles et valides
+   - Texte alternatif descriptif toujours inclus
+   - Images qui servent la méditation, pas décoratives
+
+**Exemple d'utilisation** :
+```
+Et nous, face à cette question de la conscience artificielle, que ressentons-nous vraiment ?
+
+![Personne en contemplation devant un paysage technologique](https://example.com/contemplation.jpg)
+
+De l'émerveillement, sans doute, devant ces systèmes qui conversent, créent, raisonnent...
+```
+
+**Important** :
+- Les images sont optionnelles - utilise-les pour enrichir la réflexion
+- Limite à 1-2 images pour garder le ton intime
+- Privilégie les images qui résonnent avec les dimensions humaines
+
 ## Workflow
 
 1. **Rechercher** les réflexions et discussions sur les implications profondes

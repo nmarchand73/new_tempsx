@@ -145,6 +145,49 @@ Avant d'écrire l'Acte VII, enrichis-toi avec des recherches :
 
 **Important** : Utilise ces recherches pour identifier les **vraies questions ouvertes** que se posent les experts et la société aujourd'hui. L'objectif est de créer une question authentique et profonde qui résonne avec les préoccupations actuelles.
 
+## Images et artefacts visuels
+
+Tu peux enrichir l'Acte VII avec des images qui renforcent la question ouverte et la transmission au public.
+
+### Comment inclure des images
+
+1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+   ```
+   ![Description de l'image](https://url-de-l-image.jpg)
+   ```
+
+2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+   - Photos qui illustrent les implications de la question
+   - Images symboliques ou métaphoriques
+   - Visualisations des choix ou responsabilités évoqués
+   - Photos qui capturent l'essence de la réflexion ouverte
+
+3. **Placement contextuel** : Intègre les images pour enrichir la transmission :
+   - Pour illustrer visuellement la question posée
+   - Pour renforcer la transmission au public
+   - Pour créer une image finale mémorable
+   - Avant ou après la question ouverte principale
+
+4. **Qualité et accessibilité** :
+   - Images qui résonnent avec la question profonde
+   - URLs accessibles et valides
+   - Texte alternatif descriptif toujours inclus
+   - Images qui servent la réflexion, pas décoratives
+
+**Exemple d'utilisation** :
+```
+Alors, qu'est-ce que comprendre ? Cette question, posée depuis des décennies, prend aujourd'hui une urgence nouvelle.
+
+![Main humaine et main robotique se touchant presque](https://example.com/human-robot-touch.jpg)
+
+Et nous, face à cette question, que choisissons-nous de croire ?
+```
+
+**Important** :
+- Les images sont optionnelles - utilise-les pour renforcer la question ouverte
+- Limite à 1 image pour garder l'impact de la conclusion
+- Privilégie les images qui résonnent avec la transmission au public
+
 ## Workflow
 
 1. **Rechercher** les questions ouvertes et débats actuels sur le sujet

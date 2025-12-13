@@ -118,6 +118,56 @@ Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant l
 - Utilise ces recherches pour **actualiser** tes connaissances et **enrichir** tes explications, pas pour copier
 - L'objectif est de créer un contenu original, précis et accessible qui résonne avec la science actuelle
 
+## Images et artefacts visuels
+
+Tu peux enrichir le contenu des Actes I-III avec des images pertinentes pour illustrer les concepts scientifiques.
+
+### Comment inclure des images
+
+1. **Syntaxe markdown** : Utilise la syntaxe markdown standard pour les images :
+   ```
+   ![Description de l'image](https://url-de-l-image.jpg)
+   ```
+
+2. **Recherche d'images** : Utilise l'outil Browser pour rechercher des images pertinentes :
+   - Diagrammes scientifiques explicatifs
+   - Visualisations de données ou concepts
+   - Photos d'expériences ou de phénomènes
+   - Graphiques ou schémas pédagogiques
+   - Images d'actualité scientifique
+
+3. **Placement contextuel** : Place les images de manière contextuelle dans le contenu :
+   - Juste après avoir introduit un concept à illustrer
+   - Pour visualiser un mécanisme complexe
+   - Pour montrer un résultat ou une observation
+   - Pour enrichir une explication sans la remplacer
+
+4. **Qualité des images** : 
+   - Privilégie les images de qualité (résolution suffisante)
+   - Vérifie que les URLs sont accessibles et valides
+   - Choisis des images qui enrichissent vraiment le contenu
+   - Évite les images décoratives sans valeur pédagogique
+
+5. **Texte alternatif** : Toujours inclure un texte alternatif descriptif (`alt`) :
+   - Décrit ce que montre l'image
+   - Aide à la compréhension si l'image ne charge pas
+   - Accessible pour les lecteurs d'écran
+
+**Exemple d'utilisation** :
+```
+Les réseaux de neurones artificiels fonctionnent par couches. La première couche reçoit les données brutes.
+
+![Architecture d'un réseau de neurones montrant les couches d'entrée, cachées et de sortie](https://example.com/neural-network-diagram.png)
+
+Chaque neurone de cette couche effectue un calcul simple...
+```
+
+**Important** :
+- Les images sont optionnelles - utilise-les seulement si elles enrichissent vraiment le contenu
+- Ne remplace pas les explications textuelles par des images
+- Assure-toi que les URLs d'images sont accessibles et valides
+- Limite à 1-3 images par acte pour garder l'équilibre
+
 ## Format de sortie
 
 Pour les Actes I-III, fournis un JSON avec :

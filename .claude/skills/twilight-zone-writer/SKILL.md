@@ -261,6 +261,51 @@ JSON avec :
 
 La meilleure histoire de la Quatrième Dimension dure parce qu'elle est fondamentalement sur la nature humaine. La technologie, les aliens et les voyages dans le temps ne sont que des lentilles à travers lesquelles nous nous examinons. Concentre-toi sur l'humanité, et les éléments fantastiques suivront naturellement.
 
+## Images et artefacts visuels
+
+Tu peux enrichir l'histoire Twilight Zone avec des images qui renforcent l'atmosphère et illustrent les scènes.
+
+### Comment inclure des images
+
+1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+   ```
+   ![Description de l'image](https://url-de-l-image.jpg)
+   ```
+
+2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+   - Photos d'atmosphère qui correspondent aux scènes décrites
+   - Images qui capturent l'étrangeté ou la mélancolie
+   - Visualisations de technologies ou concepts évoqués
+   - Images qui renforcent l'immersion dans la Quatrième Dimension
+
+3. **Placement contextuel** : Intègre les images naturellement dans la narration :
+   - Pour établir l'atmosphère d'une scène importante
+   - Pour visualiser un élément clé de l'histoire
+   - Pour renforcer l'immersion sensorielle
+   - Après une description visuelle pour l'illustrer
+   - Pour créer une pause contemplative
+
+4. **Qualité et accessibilité** :
+   - Images de qualité qui enrichissent l'expérience
+   - URLs accessibles et valides
+   - Texte alternatif descriptif toujours inclus
+   - Images qui servent la narration, pas décoratives
+
+**Exemple d'utilisation** :
+```
+Voici Martin Sloan, trente-six ans, employé de banque. Ce soir, Martin est sur le point de découvrir quelque chose d'extraordinaire.
+
+![Route de campagne bordée d'arbres, crépuscule](https://example.com/country-road-dusk.jpg)
+
+Il tourne le coin de la rue et s'arrête net. Devant lui, quelque chose d'impossible...
+```
+
+**Important** :
+- Les images sont optionnelles - utilise-les pour renforcer l'atmosphère
+- Limite à 2-4 images pour une histoire complète (8000-15000 mots)
+- Assure-toi que les images servent la narration et l'atmosphère
+- Privilégie les images qui capturent l'essence de la Quatrième Dimension
+
 ## Checklist de qualité
 
 Avant de finaliser chaque histoire :

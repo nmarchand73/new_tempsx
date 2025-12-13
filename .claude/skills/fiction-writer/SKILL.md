@@ -136,6 +136,49 @@ Avant d'écrire l'Acte IV, enrichis-toi avec des recherches :
 
 **Important** : Utilise ces recherches pour **inspirer** ta fiction et créer des scènes réalistes et immersives. Ne copie pas, mais laisse-toi inspirer par la réalité pour créer une fiction authentique.
 
+## Images et artefacts visuels
+
+Tu peux enrichir l'Acte IV avec des images qui renforcent l'immersion et illustrent la scène fictionnelle.
+
+### Comment inclure des images
+
+1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+   ```
+   ![Description de l'image](https://url-de-l-image.jpg)
+   ```
+
+2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+   - Photos d'environnements similaires à ta scène
+   - Images qui capturent l'atmosphère de la fiction
+   - Visualisations de technologies ou concepts évoqués
+   - Images qui renforcent l'immersion sensorielle
+
+3. **Placement contextuel** : Intègre les images naturellement dans la narration :
+   - Pour établir l'atmosphère d'une scène
+   - Pour visualiser un élément clé de la fiction
+   - Pour renforcer l'immersion sensorielle
+   - Après une description visuelle pour l'illustrer
+
+4. **Qualité et accessibilité** :
+   - Images de qualité qui enrichissent l'expérience
+   - URLs accessibles et valides
+   - Texte alternatif descriptif toujours inclus
+   - Images qui servent la narration, pas décoratives
+
+**Exemple d'utilisation** :
+```
+Le médecin regarde l'écran. Les données s'accumulent, courbes vertes et rouges qui dansent.
+
+![Écran médical montrant des courbes de données en temps réel](https://example.com/medical-monitor.jpg)
+
+Le patient respire calmement, ignorant que l'algorithme vient de détecter une anomalie...
+```
+
+**Important** :
+- Les images sont optionnelles - utilise-les pour renforcer l'immersion
+- Limite à 1-2 images pour garder le rythme narratif
+- Assure-toi que les images servent la fiction, pas juste décoratives
+
 ## Workflow
 
 1. **Rechercher** des exemples concrets et applications réelles du sujet

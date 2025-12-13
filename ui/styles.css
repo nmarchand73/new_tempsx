@@ -1054,6 +1054,272 @@ body {
     font-style: italic;
 }
 
+/* Styles pour les images dans le markdown */
+.act-content img,
+.narrative-arc img,
+.twilight-zone-content img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--border-radius);
+    margin: var(--spacing-md) 0;
+    box-shadow: var(--shadow-md);
+    transition: var(--transition);
+    cursor: pointer;
+    display: block;
+    background: var(--color-bg-tertiary);
+    border: 1px solid var(--color-border);
+    position: relative;
+    overflow: hidden;
+}
+
+.act-content img:hover,
+.narrative-arc img:hover,
+.twilight-zone-content img:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg), 0 0 20px rgba(74, 158, 255, 0.2);
+    border-color: var(--color-text-accent);
+}
+
+/* Images centrées */
+.act-content img[style*="center"],
+.narrative-arc img[style*="center"],
+.twilight-zone-content img[style*="center"],
+.act-content img.center,
+.narrative-arc img.center,
+.twilight-zone-content img.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Placeholder pendant le chargement */
+.act-content img::before,
+.narrative-arc img::before,
+.twilight-zone-content img::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        var(--color-bg-tertiary) 0%,
+        var(--color-bg-hover) 50%,
+        var(--color-bg-tertiary) 100%
+    );
+    background-size: 200% 100%;
+    animation: loading-shimmer 1.5s infinite;
+    opacity: 0.5;
+    z-index: 1;
+}
+
+.act-content img.loaded::before,
+.narrative-arc img.loaded::before,
+.twilight-zone-content img.loaded::before {
+    display: none;
+}
+
+@keyframes loading-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+/* Erreur de chargement d'image */
+.act-content img.error,
+.narrative-arc img.error,
+.twilight-zone-content img.error {
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-bg-tertiary);
+    border: 2px dashed var(--color-border);
+    cursor: default;
+}
+
+.act-content img.error::after,
+.narrative-arc img.error::after,
+.twilight-zone-content img.error::after {
+    content: '🖼️ Image non disponible';
+    color: var(--color-text-secondary);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: var(--spacing-md);
+}
+
+/* Lightbox Modal */
+.lightbox {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 15, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.lightbox.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.lightbox-image {
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg), 0 0 40px rgba(74, 158, 255, 0.3);
+    animation: lightbox-fade-in 0.3s ease;
+}
+
+@keyframes lightbox-fade-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.lightbox-caption {
+    color: var(--color-text-primary);
+    font-size: 0.95rem;
+    text-align: center;
+    padding: var(--spacing-sm) var(--spacing-md);
+    background: rgba(20, 20, 32, 0.8);
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+    max-width: 80%;
+}
+
+.lightbox-close {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    width: 44px;
+    height: 44px;
+    background: rgba(20, 20, 32, 0.9);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    z-index: 10001;
+}
+
+.lightbox-close:hover {
+    background: rgba(20, 20, 32, 1);
+    border-color: var(--color-text-accent);
+    transform: scale(1.1);
+}
+
+.lightbox-close svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(20, 20, 32, 0.9);
+    border: 1px solid var(--color-border);
+    border-radius: 50%;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    z-index: 10001;
+}
+
+.lightbox-nav:hover {
+    background: rgba(20, 20, 32, 1);
+    border-color: var(--color-text-accent);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.lightbox-nav.prev {
+    left: var(--spacing-md);
+}
+
+.lightbox-nav.next {
+    right: var(--spacing-md);
+}
+
+.lightbox-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.lightbox-nav:disabled:hover {
+    transform: translateY(-50%);
+}
+
+.lightbox-nav svg {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+}
+
+/* Responsive pour lightbox */
+@media (max-width: 768px) {
+    .lightbox-nav {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .lightbox-nav.prev {
+        left: var(--spacing-xs);
+    }
+    
+    .lightbox-nav.next {
+        right: var(--spacing-xs);
+    }
+    
+    .lightbox-close {
+        top: var(--spacing-xs);
+        right: var(--spacing-xs);
+        width: 40px;
+        height: 40px;
+    }
+    
+    .lightbox-caption {
+        font-size: 0.85rem;
+        max-width: 90%;
+    }
+}
+
 /* Animations */
 @keyframes fadeIn {
     from {

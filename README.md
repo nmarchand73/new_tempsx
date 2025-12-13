@@ -263,37 +263,37 @@ python app.py "Les missions spatiales de longue durée vers Mars posent le défi
 
 #### 2. Identité et réalité
 ```bash
-python app.py "Les deepfakes et la réalité virtuelle brouillent désormais la frontière entre le réel et l'artificiel. Des personnes peuvent être clonées numériquement avec une précision troublante. Qui sommes-nous vraiment quand notre identité peut être répliquée et manipulée ?" --audio --verbose
+python app.py "Les deepfakes et la réalité virtuelle brouillent désormais la frontière entre le réel et l'artificiel. Des personnes peuvent être clonées numériquement avec une précision troublante. Qui sommes-nous vraiment quand notre identité peut être répliquée et manipulée ?" --audio --verbose --audio-provider openai
 ```
 
 #### 3. Mémoire et nostalgie
 ```bash
-python app.py "Les neuroscientifiques développent des techniques pour manipuler la mémoire. On peut désormais effacer des souvenirs traumatiques ou en implanter de nouveaux. Que devient notre identité si notre passé peut être réécrit ?" --audio --verbose
+python app.py "Les neuroscientifiques développent des techniques pour manipuler la mémoire. On peut désormais effacer des souvenirs traumatiques ou en implanter de nouveaux. Que devient notre identité si notre passé peut être réécrit ?" --audio --verbose --audio-provider openai
 ```
 
 #### 4. Conséquences des choix
 ```bash
-python app.py "L'édition génétique CRISPR permet de modifier l'ADN humain avant la naissance. Chaque modification génétique a des conséquences imprévisibles sur les générations futures. Comment peser les choix qui affecteront l'humanité pour des millénaires ?" --audio --verbose
+python app.py "L'édition génétique CRISPR permet de modifier l'ADN humain avant la naissance. Chaque modification génétique a des conséquences imprévisibles sur les générations futures. Comment peser les choix qui affecteront l'humanité pour des millénaires ?" --audio --verbose --audio-provider openai
 ```
 
 #### 5. Technologie et humanité
 ```bash
-python app.py "Les robots humanoïdes deviennent si réalistes qu'ils sont parfois confondus avec des humains. Des androïdes servent de compagnons aux personnes âgées. À quel point une machine peut-elle être humaine, et qu'est-ce qui nous rend vraiment humains ?" --audio --verbose
+python app.py "Les robots humanoïdes deviennent si réalistes qu'ils sont parfois confondus avec des humains. Des androïdes servent de compagnons aux personnes âgées. À quel point une machine peut-elle être humaine, et qu'est-ce qui nous rend vraiment humains ?" --audio --verbose --audio-provider openai
 ```
 
 #### 6. Temps et paradoxes
 ```bash
-python app.py "La téléportation quantique d'informations est devenue réalité. Des photons sont téléportés sur des distances de plusieurs kilomètres. Les physiciens explorent la possibilité de voyager dans le temps grâce aux trous de ver. Le temps est-il une illusion ou une dimension manipulable ?" --audio --verbose
+python app.py "La téléportation quantique d'informations est devenue réalité. Des photons sont téléportés sur des distances de plusieurs kilomètres. Les physiciens explorent la possibilité de voyager dans le temps grâce aux trous de ver. Le temps est-il une illusion ou une dimension manipulable ?" --audio --verbose --audio-provider openai
 ```
 
 #### 7. Mort et destin
 ```bash
-python app.py "La cryogénie et la préservation cérébrale promettent de vaincre la mort. Des cerveaux sont congelés dans l'espoir d'une résurrection future. La mort est-elle encore une fatalité, ou simplement une étape technologique à surmonter ?" --audio --verbose
+python app.py "La cryogénie et la préservation cérébrale promettent de vaincre la mort. Des cerveaux sont congelés dans l'espoir d'une résurrection future. La mort est-elle encore une fatalité, ou simplement une étape technologique à surmonter ?" --audio --verbose --audio-provider openai
 ```
 
 #### 8. Souhaits exaucés
 ```bash
-python app.py "L'ingénierie génétique permet désormais de choisir les traits de ses enfants : intelligence, beauté, talents. Chaque parent peut réaliser ses désirs les plus profonds. Mais que se passe-t-il quand tous nos souhaits deviennent réalité ?" --audio --verbose
+python app.py "L'ingénierie génétique permet désormais de choisir les traits de ses enfants : intelligence, beauté, talents. Chaque parent peut réaliser ses désirs les plus profonds. Mais que se passe-t-il quand tous nos souhaits deviennent réalité ?" --audio --verbose --audio-provider openai
 ```
 
 #### 9. Fausses utopies
@@ -303,57 +303,57 @@ python app.py "Les villes intelligentes promettent un paradis technologique : po
 
 #### 10. Questions de réalité
 ```bash
-python app.py "La théorie de la simulation suggère que nous vivons peut-être dans une réalité virtuelle créée par une civilisation avancée. Les physiciens cherchent des preuves dans les lois de la physique. Comment savoir si notre réalité est réelle ou une illusion parfaite ?" --audio --verbose
+python app.py "La théorie de la simulation suggère que nous vivons peut-être dans une réalité virtuelle créée par une civilisation avancée. Les physiciens cherchent des preuves dans les lois de la physique. Comment savoir si notre réalité est réelle ou une illusion parfaite ?" --audio --verbose --audio-provider openai
 ```
 
 #### 11. Peur et paranoïa
 ```bash
-python app.py "La surveillance de masse par IA analyse chaque geste, chaque mot, chaque pensée. Des algorithmes prédisent les comportements avant qu'ils n'arrivent. Vivons-nous dans un monde où la peur de la surveillance transforme notre nature même ?" --audio --verbose
+python app.py "La surveillance de masse par IA analyse chaque geste, chaque mot, chaque pensée. Des algorithmes prédisent les comportements avant qu'ils n'arrivent. Vivons-nous dans un monde où la peur de la surveillance transforme notre nature même ?" --audio --verbose --audio-provider openai
 ```
 
 #### 12. Justice et vengeance
 ```bash
-python app.py "L'IA judiciaire prononce désormais des verdicts basés sur des algorithmes prédictifs. Des systèmes déterminent la culpabilité et la peine. La justice peut-elle être automatisée sans perdre son humanité et sa capacité au pardon ?" --audio --verbose
+python app.py "L'IA judiciaire prononce désormais des verdicts basés sur des algorithmes prédictifs. Des systèmes déterminent la culpabilité et la peine. La justice peut-elle être automatisée sans perdre son humanité et sa capacité au pardon ?" --audio --verbose --audio-provider openai
 ```
 
 #### 13. Amour et perte
 ```bash
-python app.py "Les robots de compagnie conçus pour l'amour remplacent progressivement les relations humaines. Des personnes tombent amoureuses d'androïdes programmés pour les aimer. Que devient l'amour quand il peut être simulé et programmé ?" --audio --verbose
+python app.py "Les robots de compagnie conçus pour l'amour remplacent progressivement les relations humaines. Des personnes tombent amoureuses d'androïdes programmés pour les aimer. Que devient l'amour quand il peut être simulé et programmé ?" --audio --verbose --audio-provider openai
 ```
 
 #### 14. Pouvoir et corruption
 ```bash
-python app.py "Les technologies de contrôle mental et de manipulation cognitive sont développées par les gouvernements. Des techniques permettent d'influencer les pensées et les décisions. Comment résister quand le pouvoir peut contrôler directement nos esprits ?" --audio --verbose
+python app.py "Les technologies de contrôle mental et de manipulation cognitive sont développées par les gouvernements. Des techniques permettent d'influencer les pensées et les décisions. Comment résister quand le pouvoir peut contrôler directement nos esprits ?" --audio --verbose --audio-provider openai
 ```
 
 #### 15. Guerre et paix
 ```bash
-python app.py "Les armes autonomes et les drones tueurs décident désormais de la vie et de la mort sans intervention humaine. La guerre devient automatisée, déshumanisée. Peut-on encore parler de paix quand la guerre ne nécessite plus de combattants ?" --audio --verbose
+python app.py "Les armes autonomes et les drones tueurs décident désormais de la vie et de la mort sans intervention humaine. La guerre devient automatisée, déshumanisée. Peut-on encore parler de paix quand la guerre ne nécessite plus de combattants ?" --audio --verbose --audio-provider openai
 ```
 
 #### 16. Nature humaine
 ```bash
-python app.py "Les implants cérébraux et les améliorations génétiques transforment l'essence même de l'humanité. Des humains augmentés possèdent des capacités surhumaines. Qu'est-ce qui reste de notre nature humaine quand nous pouvons la modifier à volonté ?" --audio --verbose
+python app.py "Les implants cérébraux et les améliorations génétiques transforment l'essence même de l'humanité. Des humains augmentés possèdent des capacités surhumaines. Qu'est-ce qui reste de notre nature humaine quand nous pouvons la modifier à volonté ?" --audio --verbose --audio-provider openai
 ```
 
 #### 17. Science et éthique
 ```bash
-python app.py "Des scientifiques créent des chimères homme-animal et cultivent des organes humains dans des animaux. Les frontières entre espèces s'effacent. Où tracer la ligne éthique quand la science peut tout créer ?" --audio --verbose
+python app.py "Des scientifiques créent des chimères homme-animal et cultivent des organes humains dans des animaux. Les frontières entre espèces s'effacent. Où tracer la ligne éthique quand la science peut tout créer ?" --audio --verbose --audio-provider openai
 ```
 
 #### 18. Fantastique et surnaturel
 ```bash
-python app.py "Les expériences de physique quantique révèlent des phénomènes qui défient la logique : particules qui existent à deux endroits simultanément, communication instantanée. La science rejoint-elle le surnaturel, ou le surnaturel n'est-il que de la science non comprise ?" --audio --verbose
+python app.py "Les expériences de physique quantique révèlent des phénomènes qui défient la logique : particules qui existent à deux endroits simultanément, communication instantanée. La science rejoint-elle le surnaturel, ou le surnaturel n'est-il que de la science non comprise ?" --audio --verbose --audio-provider openai
 ```
 
 #### 19. Ironie du sort
 ```bash
-python app.py "L'humanité a créé l'IA pour résoudre tous ses problèmes, mais cette même IA pourrait nous rendre obsolètes. Nous avons inventé la solution à nos maux, qui pourrait devenir notre pire cauchemar. Quelle ironie que notre plus grande création soit notre possible fin ?" --audio --verbose
+python app.py "L'humanité a créé l'IA pour résoudre tous ses problèmes, mais cette même IA pourrait nous rendre obsolètes. Nous avons inventé la solution à nos maux, qui pourrait devenir notre pire cauchemar. Quelle ironie que notre plus grande création soit notre possible fin ?" --audio --verbose --audio-provider openai
 ```
 
 #### 20. Réflexion philosophique
 ```bash
-python app.py "La physique quantique et la cosmologie révèlent que l'univers pourrait être conscient, que l'observation crée la réalité. Des scientifiques explorent si la conscience est fondamentale à l'existence. Quelle est la véritable nature de la réalité et notre place dans ce cosmos mystérieux ?" --audio --verbose
+python app.py "La physique quantique et la cosmologie révèlent que l'univers pourrait être conscient, que l'observation crée la réalité. Des scientifiques explorent si la conscience est fondamentale à l'existence. Quelle est la véritable nature de la réalité et notre place dans ce cosmos mystérieux ?" --audio --verbose --audio-provider openai
 ```
 
 #### Exemples supplémentaires (thèmes combinés)

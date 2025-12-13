@@ -139,6 +139,50 @@ Avant d'écrire l'Acte VI, enrichis-toi avec des recherches approfondies :
 
 **Important** : Utilise ces recherches pour créer un pont authentique entre le passé et le présent. L'objectif est de connecter réellement les prédictions d'hier à la réalité d'aujourd'hui, pas de créer des connexions artificielles.
 
+## Images et artefacts visuels
+
+Tu peux enrichir l'Acte VI avec des images qui illustrent le pont temporel entre le passé et le présent.
+
+### Comment inclure des images
+
+1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+   ```
+   ![Description de l'image](https://url-de-l-image.jpg)
+   ```
+
+2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+   - Archives photographiques des années 1980
+   - Images d'époque montrant les technologies/prédictions d'hier
+   - Photos actuelles montrant la réalité d'aujourd'hui
+   - Comparaisons visuelles passé/présent
+   - Images d'épisodes Temps X originaux si disponibles
+
+3. **Placement contextuel** : Intègre les images pour illustrer le pont temporel :
+   - Pour montrer visuellement une prédiction d'hier
+   - Pour illustrer la réalité d'aujourd'hui
+   - Pour créer une comparaison visuelle
+   - Après avoir évoqué une époque ou une technologie
+
+4. **Qualité et accessibilité** :
+   - Images historiques authentiques quand possible
+   - URLs accessibles et valides
+   - Texte alternatif descriptif toujours inclus
+   - Images qui servent la connexion temporelle
+
+**Exemple d'utilisation** :
+```
+En 1985, Temps X interrogeait : 'L'informatique va-t-elle transformer notre façon de penser ?'
+
+![Ordinateur des années 1980 avec écran monochrome](https://example.com/computer-1980s.jpg)
+
+Quarante ans plus tard, la question persiste, mais les réponses surprennent...
+```
+
+**Important** :
+- Les images sont optionnelles - utilise-les pour renforcer le pont temporel
+- Limite à 1-2 images pour garder le rythme narratif
+- Privilégie les images authentiques qui illustrent vraiment la connexion passé/présent
+
 ## Workflow
 
 1. **Rechercher** des archives et prédictions des années 1980 sur le sujet

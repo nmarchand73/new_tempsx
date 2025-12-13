@@ -384,13 +384,13 @@ Que signifie vraiment 'comprendre' pour une machine ?"""
                         provider=provider,
                         cost_optimized=cost_optimized
                     )
-                    audio_files = audio_gen.generate_episode_audio(episode)
+                    audio_files = await audio_gen.generate_episode_audio(episode)
                     generated_count = sum(1 for path in audio_files.values() if path is not None)
                     
                     # Générer l'audio pour l'histoire Twilight Zone si disponible
                     if episode.twilight_zone_story:
                         logger.info("🎬 Génération audio pour l'histoire Twilight Zone...")
-                        twilight_audio = audio_gen.generate_twilight_zone_audio(
+                        twilight_audio = await audio_gen.generate_twilight_zone_audio(
                             episode.twilight_zone_story,
                             episode.episode_title
                         )

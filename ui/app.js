@@ -41,6 +41,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.warn('Synthèse vocale non disponible dans ce navigateur');
     }
     
+    // Initialiser la lightbox
+    initializeLightbox();
+    
     await loadRuns();
     setupRunSelector();
     
@@ -217,6 +220,9 @@ function renderOverview() {
         narrativeArcEl.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
     }
     
+    // Traiter les images dans l'arc narratif
+    processImages(narrativeArcEl);
+    
     // Scénario
     document.getElementById('scenario-input').textContent = currentEpisode.scenario_input;
     
@@ -356,10 +362,13 @@ function createActCard(actKey, act, index) {
     content.className = 'act-content';
     if (typeof marked !== 'undefined') {
         content.innerHTML = marked.parse(act.content);
+        // Traiter les images après le parsing markdown
+        processImages(content);
     } else {
         // Fallback si marked n'est pas disponible
         const paragraphs = act.content.split('\n\n').filter(p => p.trim());
         content.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+        processImages(content);
     }
     
     // Références
@@ -782,6 +791,12 @@ function renderTwilightZoneStory() {
     }
     
     storyEl.innerHTML = storyHTML;
+    
+    // Traiter les images dans l'histoire Twilight Zone
+    const twilightContent = storyEl.querySelector('.twilight-zone-content');
+    if (twilightContent) {
+        processImages(twilightContent);
+    }
 }
 
 // Extraire le texte brut depuis le HTML (sans les balises)
@@ -1125,5 +1140,194 @@ if ('speechSynthesis' in window) {
             console.log('Voix françaises trouvées:', frenchVoices.length);
         }
     }, 500);
+}
+
+// ============================================
+// Gestion des images : Lightbox, Lazy Loading, Erreurs
+// ============================================
+
+// État de la lightbox
+let lightboxImages = [];
+let currentLightboxIndex = -1;
+
+// Traiter les images dans un conteneur
+function processImages(container) {
+    if (!container) return;
+    
+    const images = container.querySelectorAll('img');
+    images.forEach((img, index) => {
+        // Ajouter lazy loading
+        if (!img.hasAttribute('loading')) {
+            img.setAttribute('loading', 'lazy');
+        }
+        
+        // Ajouter la classe pour le placeholder
+        img.classList.add('loading');
+        
+        // Gérer le chargement réussi
+        img.addEventListener('load', () => {
+            img.classList.remove('loading');
+            img.classList.add('loaded');
+        });
+        
+        // Gérer les erreurs de chargement
+        img.addEventListener('error', () => {
+            img.classList.remove('loading');
+            img.classList.add('error');
+            console.warn('Erreur de chargement d\'image:', img.src);
+        });
+        
+        // Ajouter le clic pour ouvrir la lightbox
+        img.addEventListener('click', () => {
+            openLightbox(container, index);
+        });
+        
+        // Ajouter le style cursor pointer si pas déjà fait
+        if (!img.style.cursor) {
+            img.style.cursor = 'pointer';
+        }
+    });
+}
+
+// Ouvrir la lightbox
+function openLightbox(container, imageIndex) {
+    const images = Array.from(container.querySelectorAll('img')).filter(img => !img.classList.contains('error'));
+    
+    if (images.length === 0) return;
+    
+    // Stocker les images et l'index courant
+    lightboxImages = images;
+    currentLightboxIndex = imageIndex >= 0 && imageIndex < images.length ? imageIndex : 0;
+    
+    // Afficher la lightbox
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    
+    if (!lightbox || !lightboxImage) return;
+    
+    // Charger l'image courante
+    loadLightboxImage();
+    
+    // Afficher le modal
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden'; // Empêcher le scroll
+    
+    // Mettre à jour les boutons de navigation
+    updateLightboxNavigation();
+}
+
+// Charger l'image dans la lightbox
+function loadLightboxImage() {
+    if (currentLightboxIndex < 0 || currentLightboxIndex >= lightboxImages.length) return;
+    
+    const lightboxImage = document.getElementById('lightbox-image');
+    const lightboxCaption = document.getElementById('lightbox-caption');
+    const img = lightboxImages[currentLightboxIndex];
+    
+    if (!lightboxImage || !img) return;
+    
+    // Charger l'image
+    lightboxImage.src = img.src;
+    lightboxImage.alt = img.alt || '';
+    
+    // Afficher la légende
+    if (lightboxCaption) {
+        lightboxCaption.textContent = img.alt || '';
+        lightboxCaption.style.display = img.alt ? 'block' : 'none';
+    }
+    
+    // Gérer les erreurs
+    lightboxImage.onerror = () => {
+        if (lightboxCaption) {
+            lightboxCaption.textContent = 'Erreur de chargement de l\'image';
+            lightboxCaption.style.display = 'block';
+        }
+    };
+}
+
+// Mettre à jour les boutons de navigation
+function updateLightboxNavigation() {
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+    
+    if (prevBtn) {
+        prevBtn.disabled = lightboxImages.length <= 1;
+    }
+    
+    if (nextBtn) {
+        nextBtn.disabled = lightboxImages.length <= 1;
+    }
+}
+
+// Navigation dans la lightbox
+function navigateLightbox(direction) {
+    if (lightboxImages.length <= 1) return;
+    
+    if (direction === 'prev') {
+        currentLightboxIndex = (currentLightboxIndex - 1 + lightboxImages.length) % lightboxImages.length;
+    } else if (direction === 'next') {
+        currentLightboxIndex = (currentLightboxIndex + 1) % lightboxImages.length;
+    }
+    
+    loadLightboxImage();
+}
+
+// Fermer la lightbox
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+        lightbox.classList.remove('active');
+        document.body.style.overflow = ''; // Restaurer le scroll
+    }
+    
+    // Réinitialiser
+    lightboxImages = [];
+    currentLightboxIndex = -1;
+}
+
+// Initialiser la lightbox
+function initializeLightbox() {
+    // Bouton fermer
+    const closeBtn = document.getElementById('lightbox-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', closeLightbox);
+    }
+    
+    // Boutons navigation
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+    
+    if (prevBtn) {
+        prevBtn.addEventListener('click', () => navigateLightbox('prev'));
+    }
+    
+    if (nextBtn) {
+        nextBtn.addEventListener('click', () => navigateLightbox('next'));
+    }
+    
+    // Fermer avec ESC et navigation clavier
+    document.addEventListener('keydown', (e) => {
+        const lightbox = document.getElementById('lightbox');
+        if (lightbox && lightbox.classList.contains('active')) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowLeft') {
+                navigateLightbox('prev');
+            } else if (e.key === 'ArrowRight') {
+                navigateLightbox('next');
+            }
+        }
+    });
+    
+    // Fermer en cliquant sur le fond
+    const lightbox = document.getElementById('lightbox');
+    if (lightbox) {
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+    }
 }
 
