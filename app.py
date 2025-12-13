@@ -193,6 +193,12 @@ Exemples:
         help='Génère uniquement les fichiers audio pour un épisode existant (nécessite --run-name ou --output-dir avec un épisode existant)'
     )
     
+    parser.add_argument(
+        '--images-only',
+        action='store_true',
+        help='Génère uniquement les images pour un épisode existant (nécessite --run-name ou --output-dir avec un épisode existant)'
+    )
+    
     args = parser.parse_args()
     
     # Configurer le logging selon verbose (doit être fait avant tout autre logging)
@@ -340,10 +346,100 @@ Que signifie vraiment 'comprendre' pour une machine ?"""
             
             logger.info(f"\n✅ Génération audio terminée!")
             logger.info(f"📁 Fichiers audio dans: {(output_dir / 'audio').absolute()}")
-            return
+            sys.exit(0)
         
         except Exception as e:
             logger.exception("❌ Erreur lors de la génération audio")
+            logger.error(f"Erreur: {e}")
+            sys.exit(1)
+    
+    # Mode images-only : générer uniquement les images pour un épisode existant
+    if args.images_only:
+        if not args.run_name:
+            logger.error("❌ --images-only nécessite --run-name pour spécifier l'épisode existant")
+            logger.error("   Exemple: python app.py --images-only --run-name nom_de_l_episode")
+            sys.exit(1)
+        
+        run_name = args.run_name
+        base_output_dir = Path(args.output_dir)
+        output_dir = base_output_dir / run_name
+        episode_json = output_dir / "episode.json"
+        
+        if not episode_json.exists():
+            logger.error(f"❌ Fichier episode.json introuvable: {episode_json}")
+            logger.error(f"   Vérifiez que l'épisode existe dans: {output_dir}")
+            sys.exit(1)
+        
+        logger.info("🎨 Mode images-only: génération uniquement des images")
+        logger.info(f"📁 Épisode: {run_name}")
+        logger.info(f"📁 Répertoire: {output_dir}")
+        
+        try:
+            from newtempsx.image_generator import ImageGenerator
+            from newtempsx.models import Episode
+            from newtempsx.exporters import EpisodeExporter
+            import json
+            
+            # Charger l'épisode depuis le JSON
+            logger.info("📂 Chargement de l'épisode depuis episode.json...")
+            with open(episode_json, 'r', encoding='utf-8') as f:
+                episode_dict = json.load(f)
+            
+            # Convertir en modèle Episode
+            from newtempsx.models import Act, Reference, TwilightZoneStory
+            acts = {}
+            for act_key, act_data in episode_dict.get('acts', {}).items():
+                # Convertir les références
+                references = []
+                for ref_data in act_data.get('references', []):
+                    references.append(Reference(**ref_data))
+                act_data['references'] = references
+                # S'assurer que image_prompts est présent
+                if 'image_prompts' not in act_data:
+                    act_data['image_prompts'] = []
+                acts[act_key] = Act(**act_data)
+            
+            episode = Episode(
+                episode_title=episode_dict.get('episode_title', 'Épisode'),
+                scenario_input=episode_dict.get('scenario_input', ''),
+                narrative_arc=episode_dict.get('narrative_arc', ''),
+                acts=acts
+            )
+            
+            # Charger l'histoire Twilight Zone si présente
+            if 'twilight_zone_story' in episode_dict and episode_dict['twilight_zone_story']:
+                twilight_data = episode_dict['twilight_zone_story']
+                if 'image_prompts' not in twilight_data:
+                    twilight_data['image_prompts'] = []
+                episode.twilight_zone_story = TwilightZoneStory(**twilight_data)
+            
+            logger.info(f"✅ Épisode chargé: {episode.episode_title}")
+            
+            # Générer les images
+            logger.info("🎨 Génération progressive des images à partir des prompts DALL-E...")
+            image_gen = ImageGenerator(output_dir=output_dir / "images")
+            # Créer l'exporter pour mise à jour progressive
+            exporter = EpisodeExporter(output_dir=output_dir, run_name=run_name)
+            # Passer l'exporter pour mise à jour progressive du markdown
+            image_files = await image_gen.generate_episode_images(episode, exporter=exporter)
+            
+            total_images = sum(len(images) for images in image_files.values())
+            if total_images > 0:
+                logger.info(f"✅ {total_images} image(s) générée(s) dans {output_dir / 'images'}")
+                logger.info("📸 Images intégrées progressivement dans le contenu markdown")
+                
+                # Ré-exporter le JSON final avec le contenu mis à jour
+                exporter.export_json(episode)
+                logger.info("✅ Fichier JSON final mis à jour avec les images")
+            else:
+                logger.warning("⚠️  Aucune image générée. Vérifiez que les actes contiennent des image_prompts.")
+            
+            logger.info(f"\n✅ Génération d'images terminée!")
+            logger.info(f"📁 Fichiers images dans: {(output_dir / 'images').absolute()}")
+            sys.exit(0)
+        
+        except Exception as e:
+            logger.exception("❌ Erreur lors de la génération d'images")
             logger.error(f"Erreur: {e}")
             sys.exit(1)
     
@@ -528,21 +624,18 @@ Que signifie vraiment 'comprendre' pour une machine ?"""
                 try:
                     from newtempsx.image_generator import ImageGenerator
                     
-                    logger.info("🎨 Génération des images à partir des prompts DALL-E...")
+                    logger.info("🎨 Génération progressive des images à partir des prompts DALL-E...")
                     image_gen = ImageGenerator(output_dir=output_dir / "images")
-                    image_files = await image_gen.generate_episode_images(episode)
+                    # Passer l'exporter pour mise à jour progressive du markdown
+                    image_files = await image_gen.generate_episode_images(episode, exporter=exporter)
                     
                     total_images = sum(len(images) for images in image_files.values())
                     if total_images > 0:
                         logger.info(f"✅ {total_images} image(s) générée(s) dans {output_dir / 'images'}")
-                        logger.info("📸 Images intégrées automatiquement dans le contenu markdown")
-                        # Ré-exporter le markdown avec les images intégrées
-                        exporter.export_markdown(episode)
-                        if episode.twilight_zone_story:
-                            exporter.export_twilight_zone_story(episode.twilight_zone_story)
-                        # Ré-exporter le JSON avec le contenu mis à jour
+                        logger.info("📸 Images intégrées progressivement dans le contenu markdown")
+                        # Ré-exporter le JSON final avec le contenu mis à jour
                         exporter.export_json(episode)
-                        logger.info("✅ Fichiers markdown et JSON mis à jour avec les images")
+                        logger.info("✅ Fichier JSON final mis à jour avec les images")
                     else:
                         logger.warning("⚠️  Aucune image générée. Vérifiez que les actes contiennent des image_prompts.")
                 except Exception as e:

@@ -186,9 +186,10 @@ Avant d'écrire l'Acte IV, enrichis-toi avec des recherches :
 2. **Style des prompts** : Les prompts doivent être :
    - **En anglais** (pour DALL-E 2)
    - Descriptifs et immersifs
-   - Style documentaire fictionnel : "Documentary style", "cinematic lighting", "dark mood", "futuristic atmosphere"
-   - Inclure les éléments visuels clés de la scène
-   - Format recommandé : "Documentary style scene of [description], [style], [atmosphère], [qualité]"
+   - **Style naturel et vivant** : Privilégier "natural lighting", "warm atmosphere", "realistic", "lifelike", "human emotion", "organic", "lived-in"
+   - **Éviter les styles froids** : Éviter "dark mood", "cold", "sterile", "clinical" sauf si nécessaire pour l'atmosphère narrative
+   - Inclure les éléments visuels clés de la scène avec une dimension humaine et émotionnelle
+   - Format recommandé : "Natural, realistic scene of [description] with [contexte humain/émotionnel], warm natural lighting, lifelike, detailed"
 
 3. **Éléments à illustrer** : Génère des prompts pour :
    - Environnements et décors de la scène
@@ -199,9 +200,9 @@ Avant d'écrire l'Acte IV, enrichis-toi avec des recherches :
 4. **Nombre de prompts** : Génère 1-3 prompts par acte selon la richesse visuelle du contenu
 
 **Exemples de prompts** :
-- "Documentary style scene of a futuristic medical laboratory, dark mood, cinematic lighting, high-tech atmosphere, detailed, high quality"
-- "Fictional scene showing human-robot interaction, documentary style, dark atmosphere, immersive, professional"
-- "Cinematic scene of a scientist examining data on screens, documentary style, dark mood, futuristic, detailed"
+- "Natural, realistic scene of a futuristic medical laboratory with warm lighting, human presence, lived-in atmosphere, lifelike, detailed, emotional depth"
+- "Realistic scene showing human-robot interaction in a warm, natural environment, natural lighting, human emotion, organic feel, immersive, detailed"
+- "Lifelike scene of a scientist examining data on screens in a cozy, welcoming workspace, warm natural lighting, human scale, realistic, detailed"
 
 ![Écran médical montrant des courbes de données en temps réel](https://example.com/medical-monitor.jpg)
 

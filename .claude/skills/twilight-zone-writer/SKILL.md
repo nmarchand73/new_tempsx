@@ -308,9 +308,9 @@ La meilleure histoire de la Quatrième Dimension dure parce qu'elle est fondamen
 4. **Nombre de prompts** : Génère 2-4 prompts pour une histoire complète
 
 **Exemples de prompts** :
-- "Twilight Zone style scene of a country road at dusk, dark mood, cinematic lighting, mysterious atmosphere, 1960s aesthetic, high quality, detailed"
-- "Surreal scene showing an impossible discovery, Twilight Zone style, dark atmosphere, eerie, cinematic, professional"
-- "Mysterious scene of revelation, Twilight Zone style, dark mood, 1960s aesthetic, mysterious, detailed"
+- "Realistic Twilight Zone style scene of a country road at dusk with natural lighting, warm but mysterious atmosphere, 1960s aesthetic, human presence, lifelike, detailed"
+- "Natural scene showing an impossible discovery, Twilight Zone style, realistic setting, mysterious but warm atmosphere, 1960s aesthetic, human emotion, detailed"
+- "Lifelike scene of revelation in a familiar environment, Twilight Zone style, natural lighting, mysterious but authentic atmosphere, 1960s aesthetic, emotional depth, detailed"
 
 ## Techniques avancées de développement narratif
 

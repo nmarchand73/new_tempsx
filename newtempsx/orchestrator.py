@@ -937,6 +937,42 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             )
             raise
     
+    def _clean_json_string(self, json_str: str) -> str:
+        """Nettoie une chaîne JSON en supprimant les caractères de contrôle invalides.
+        
+        Les caractères de contrôle (0x00-0x1F) ne sont pas autorisés dans les chaînes JSON
+        sauf s'ils sont échappés (\n, \r, \t). Cette fonction les supprime ou les remplace.
+        """
+        import re
+        
+        # Remplacer les caractères de contrôle invalides (sauf ceux déjà échappés)
+        # On garde \n, \r, \t qui sont valides en JSON s'ils sont échappés
+        # On supprime les autres caractères de contrôle (0x00-0x1F)
+        
+        # D'abord, protéger les séquences échappées valides
+        # Remplacer temporairement les séquences échappées par des placeholders
+        escaped_sequences = {
+            '\\n': '__ESCAPED_NEWLINE__',
+            '\\r': '__ESCAPED_CARRIAGE__',
+            '\\t': '__ESCAPED_TAB__',
+            '\\"': '__ESCAPED_QUOTE__',
+            '\\\\': '__ESCAPED_BACKSLASH__'
+        }
+        
+        cleaned = json_str
+        for seq, placeholder in escaped_sequences.items():
+            cleaned = cleaned.replace(seq, placeholder)
+        
+        # Supprimer les caractères de contrôle invalides (0x00-0x1F)
+        # Sauf les caractères valides en JSON: \n (0x0A), \r (0x0D), \t (0x09)
+        cleaned = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F]', '', cleaned)
+        
+        # Restaurer les séquences échappées
+        for seq, placeholder in escaped_sequences.items():
+            cleaned = cleaned.replace(placeholder, seq)
+        
+        return cleaned
+    
     def _parse_json_response(self, response_text: str) -> dict:
         """Parse une réponse JSON, même si elle contient du markdown."""
         if not response_text or not response_text.strip():
@@ -946,7 +982,8 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
         try:
             # Essayer de parser directement si c'est du JSON pur
             try:
-                parsed = json.loads(response_text.strip())
+                cleaned = self._clean_json_string(response_text.strip())
+                parsed = json.loads(cleaned)
                 logger.debug("JSON parsé directement (réponse pure JSON)")
                 return parsed
             except json.JSONDecodeError:
@@ -957,7 +994,8 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             json_block_match = re.search(json_block_pattern, response_text, re.DOTALL)
             if json_block_match:
                 json_str = json_block_match.group(1)
-                parsed = json.loads(json_str)
+                cleaned = self._clean_json_string(json_str)
+                parsed = json.loads(cleaned)
                 logger.debug("JSON extrait d'un bloc de code markdown")
                 return parsed
             
@@ -980,7 +1018,8 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
                 
                 if actual_end > json_start:
                     json_str = response_text[json_start:actual_end]
-                    parsed = json.loads(json_str)
+                    cleaned = self._clean_json_string(json_str)
+                    parsed = json.loads(cleaned)
                     logger.debug(f"JSON parsé avec succès ({len(json_str)} caractères)")
                     return parsed
             
@@ -994,6 +1033,12 @@ Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon l
             
         except json.JSONDecodeError as e:
             logger.error(f"Erreur de parsing JSON: {e}")
+            # Afficher le contexte autour de l'erreur
+            if hasattr(e, 'pos') and e.pos:
+                error_pos = e.pos
+                start = max(0, error_pos - 100)
+                end = min(len(response_text), error_pos + 100)
+                logger.error(f"Contexte de l'erreur (position {error_pos}):\n{response_text[start:end]}")
             logger.debug(f"Réponse reçue (premiers 1000 caractères):\n{response_text[:1000]}")
             raise ValueError(f"Erreur lors du parsing JSON: {e}\nRéponse: {response_text[:1000]}")
     

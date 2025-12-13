@@ -30,6 +30,8 @@ let speechSynthesis = null; // API de synthèse vocale
 let currentUtterance = null; // Utterance en cours
 let currentSpeechIndex = -1; // Index de l'acte en cours de lecture
 let speechPaused = false; // État de pause
+let episodePollingInterval = null; // Intervalle pour le polling de l'épisode
+let lastEpisodeHash = null; // Hash du dernier épisode chargé pour détecter les changements
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', async () => {
@@ -55,12 +57,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     // Charger l'épisode seulement si un run est disponible
     if (currentRunName) {
-        await loadEpisode();
+        await loadEpisode(true);
         if (currentEpisode && allActs.length > 0) {
-        setupNavigation();
-        renderOverview();
-        renderActs();
-        updateNavigation();
+            setupNavigation();
+            renderOverview();
+            renderActs();
+            updateNavigation();
+            // Démarrer le polling pour les mises à jour progressives
+            startEpisodePolling();
         } else {
             showError('Impossible de charger l\'épisode. Vérifiez que l\'épisode contient des actes.');
         }
@@ -68,6 +72,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         showError('Aucun run disponible. Générez d\'abord un épisode avec: python app.py "Votre scénario"');
     }
 });
+
+// Démarrer le polling pour détecter les mises à jour de l'épisode
+function startEpisodePolling() {
+    // Arrêter le polling existant s'il y en a un
+    stopEpisodePolling();
+    
+    // Poller toutes les 20 secondes pour détecter les mises à jour
+    episodePollingInterval = setInterval(async () => {
+        if (currentRunName) {
+            await loadEpisode(false); // Ne pas forcer l'update, juste vérifier
+        }
+    }, 20000); // 20 secondes
+    
+    console.log('🔄 Polling de l\'épisode activé (vérification toutes les 20 secondes)');
+}
+
+// Arrêter le polling
+function stopEpisodePolling() {
+    if (episodePollingInterval) {
+        clearInterval(episodePollingInterval);
+        episodePollingInterval = null;
+        console.log('🛑 Polling de l\'épisode arrêté');
+    }
+}
 
 // Charger la liste des runs disponibles
 async function loadRuns() {
@@ -159,12 +187,19 @@ function setupRunSelector() {
             // Arrêter la synthèse vocale
             stopSpeech();
             
-            await loadEpisode();
+            // Arrêter le polling avant de changer de run
+            stopEpisodePolling();
+            
+            await loadEpisode(true);
             if (currentEpisode && allActs.length > 0) {
                 renderOverview();
                 renderActs();
                 updateNavigation();
                 renderTwilightZoneStory();
+                // Réinitialiser la détection de scroll après le chargement
+                setupScrollDetection();
+                // Redémarrer le polling
+                startEpisodePolling();
             } else {
                 showError('Impossible de charger l\'épisode. Vérifiez que l\'épisode contient des actes.');
             }
@@ -174,35 +209,114 @@ function setupRunSelector() {
     });
 }
 
+// Calculer un hash simple du contenu d'un épisode pour détecter les changements
+function calculateEpisodeHash(episode) {
+    if (!episode) return null;
+    
+    // Créer un hash basé sur le contenu des actes (pour détecter les changements d'images)
+    const contentParts = [];
+    if (episode.acts) {
+        Object.keys(episode.acts).sort().forEach(actKey => {
+            const act = episode.acts[actKey];
+            // Utiliser la longueur et les derniers caractères pour détecter les changements
+            contentParts.push(`${actKey}:${act.content.length}:${act.content.slice(-200)}`);
+        });
+    }
+    if (episode.twilight_zone_story) {
+        contentParts.push(`twilight:${episode.twilight_zone_story.story.length}:${episode.twilight_zone_story.story.slice(-200)}`);
+    }
+    
+    // Hash simple basé sur la longueur et les derniers caractères
+    return contentParts.join('|');
+}
+
+// Mettre à jour l'affichage de l'épisode de manière progressive
+function updateEpisodeDisplay() {
+    if (!currentEpisode) return;
+    
+    // Mettre à jour la vue d'ensemble si nécessaire
+    renderOverview();
+    
+    // Mettre à jour chaque acte qui a changé
+    allActs.forEach((actKey, index) => {
+        const act = currentEpisode.acts[actKey];
+        const actCard = document.getElementById(`act-${index}`);
+        
+        if (actCard) {
+            // Vérifier si le contenu a changé en comparant
+            const contentEl = actCard.querySelector('.act-content');
+            if (contentEl) {
+                // Re-rendre le contenu markdown
+                if (typeof marked !== 'undefined') {
+                    contentEl.innerHTML = marked.parse(act.content);
+                    // Traiter les images après le parsing markdown
+                    processImages(contentEl);
+                } else {
+                    // Fallback
+                    const paragraphs = act.content.split('\n\n').filter(p => p.trim());
+                    contentEl.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+                    processImages(contentEl);
+                }
+            }
+        } else {
+            // Si l'acte n'existe pas encore, tout re-rendre
+            renderActs();
+            return;
+        }
+    });
+    
+    // Mettre à jour l'histoire Twilight Zone si nécessaire
+    renderTwilightZoneStory();
+}
+
 // Charger l'épisode depuis le JSON
-async function loadEpisode() {
+async function loadEpisode(forceUpdate = false) {
     if (!currentRunName) {
         console.warn('Aucun run sélectionné, impossible de charger l\'épisode');
-        showError('Aucun run sélectionné. Sélectionnez un run dans le menu déroulant.');
-        return;
+        if (forceUpdate) {
+            showError('Aucun run sélectionné. Sélectionnez un run dans le menu déroulant.');
+        }
+        return false;
     }
     
     try {
-        // Construire l'URL avec le paramètre run
-        const url = `/api/episode.json?run=${encodeURIComponent(currentRunName)}`;
+        // Construire l'URL avec le paramètre run et un timestamp pour éviter le cache
+        const url = `/api/episode.json?run=${encodeURIComponent(currentRunName)}&t=${Date.now()}`;
         
         const response = await fetch(url);
         if (!response.ok) {
             if (response.status === 404) {
-                throw new Error(`Run "${currentRunName}" introuvable`);
+                if (forceUpdate) {
+                    throw new Error(`Run "${currentRunName}" introuvable`);
+                }
+                return false;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        currentEpisode = await response.json();
+        const newEpisode = await response.json();
         
         // Vérifier que l'épisode a des actes
-        if (!currentEpisode.acts || Object.keys(currentEpisode.acts).length === 0) {
-            console.warn('L\'épisode ne contient aucun acte. Structure:', currentEpisode);
-            showError('L\'épisode ne contient aucun acte. Vérifiez que l\'épisode a été généré correctement.');
-            currentEpisode = null;
-            allActs = [];
-            return;
+        if (!newEpisode.acts || Object.keys(newEpisode.acts).length === 0) {
+            console.warn('L\'épisode ne contient aucun acte. Structure:', newEpisode);
+            if (forceUpdate) {
+                showError('L\'épisode ne contient aucun acte. Vérifiez que l\'épisode a été généré correctement.');
+            }
+            return false;
         }
+        
+        // Calculer le hash pour détecter les changements
+        const newHash = calculateEpisodeHash(newEpisode);
+        const hasChanged = newHash !== lastEpisodeHash;
+        
+        if (!hasChanged && !forceUpdate) {
+            // Pas de changement, ne rien faire
+            return false;
+        }
+        
+        // Mettre à jour l'épisode
+        const wasFirstLoad = currentEpisode === null;
+        currentEpisode = newEpisode;
+        lastEpisodeHash = newHash;
         
         // Préparer la liste des actes
         allActs = Object.keys(currentEpisode.acts)
@@ -214,9 +328,26 @@ async function loadEpisode() {
         
         console.log('Épisode chargé:', currentEpisode);
         console.log('Actes trouvés:', allActs.length);
+        
+        if (hasChanged && !wasFirstLoad) {
+            console.log('🔄 Changements détectés dans l\'épisode, mise à jour de l\'affichage...');
+        }
+        
+        // Si c'est le premier chargement, tout rendre
+        if (wasFirstLoad) {
+            return true;
+        }
+        
+        // Sinon, mettre à jour progressivement uniquement les actes qui ont changé
+        updateEpisodeDisplay();
+        return true;
+        
     } catch (error) {
         console.error('Erreur lors du chargement de l\'épisode:', error);
-        showError(`Impossible de charger l'épisode: ${error.message}`);
+        if (forceUpdate) {
+            showError(`Impossible de charger l'épisode: ${error.message}`);
+        }
+        return false;
     }
 }
 
@@ -279,6 +410,9 @@ function renderActs() {
     
     // Mettre en évidence le premier acte par défaut et scroller vers lui
     showAct(0);
+    
+    // Réinitialiser la détection de scroll après le rendu des actes
+    setupScrollDetection();
 }
 
 // Créer une carte d'acte
@@ -481,6 +615,7 @@ function showAct(index) {
         currentActIndex = index;
         
         // Scroll vers l'acte avec un offset pour le header sticky
+        isNavigatingProgrammatically = true;
         setTimeout(() => {
             const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
             const navHeight = document.querySelector('.acts-navigation')?.offsetHeight || 0;
@@ -492,10 +627,16 @@ function showAct(index) {
                 top: offsetPosition,
                 behavior: 'smooth'
             });
+            
+            // Réactiver la détection après le scroll
+            setTimeout(() => {
+                isNavigatingProgrammatically = false;
+                updateNavigation();
+            }, 800);
         }, 100);
+    } else {
+        updateNavigation();
     }
-    
-    updateNavigation();
 }
 
 // Afficher l'histoire bonus
@@ -519,6 +660,7 @@ function showBonus() {
         currentActIndex = -1; // -1 signifie qu'on est sur le bonus
         
         // Scroll vers la section bonus avec offset
+        isNavigatingProgrammatically = true;
         setTimeout(() => {
             const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
             const navHeight = document.querySelector('.acts-navigation')?.offsetHeight || 0;
@@ -530,10 +672,16 @@ function showBonus() {
                 top: offsetPosition,
                 behavior: 'smooth'
             });
+            
+            // Réactiver la détection après le scroll
+            setTimeout(() => {
+                isNavigatingProgrammatically = false;
+                updateNavigation();
+            }, 800);
         }, 100);
+    } else {
+        updateNavigation();
     }
-    
-    updateNavigation();
 }
 
 // Mettre à jour la navigation
@@ -543,16 +691,18 @@ function updateNavigation() {
     const nextBtn = document.getElementById('nav-next');
     const bonusBtn = document.getElementById('nav-bonus');
     
-    prevBtn.disabled = currentActIndex === 0;
+    if (!prevBtn || !nextBtn || !bonusBtn) return;
     
     // Vérifier si on est sur le bonus ou sur le dernier acte
     const isOnBonus = currentActIndex === -1; // -1 signifie qu'on est sur le bonus
     const hasBonus = currentEpisode && currentEpisode.twilight_zone_story;
     
+    // Mettre à jour les boutons précédent/suivant
     if (isOnBonus) {
-        nextBtn.disabled = true;
         prevBtn.disabled = false;
+        nextBtn.disabled = true;
     } else {
+        prevBtn.disabled = currentActIndex === 0;
         nextBtn.disabled = currentActIndex === allActs.length - 1 && !hasBonus;
     }
     
@@ -564,15 +714,21 @@ function updateNavigation() {
         bonusBtn.style.display = 'none';
     }
     
-    // Indicateurs d'actes
+    // Indicateurs d'actes (points de navigation)
     const indicator = document.getElementById('acts-indicator');
+    if (!indicator) return;
+    
+    // Vider l'indicateur
     indicator.innerHTML = '';
     
+    // Créer un point pour chaque acte
     allActs.forEach((actKey, index) => {
         const dot = document.createElement('div');
-        dot.className = `act-dot ${index === currentActIndex ? 'active' : ''}`;
+        const isActive = index === currentActIndex && !isOnBonus;
+        dot.className = `act-dot ${isActive ? 'active' : ''}`;
         dot.dataset.index = index;
         dot.dataset.actName = ACT_NAMES[actKey] || actKey;
+        dot.title = `${ACT_NAMES[actKey] || actKey} (Acte ${index + 1})`;
         dot.addEventListener('click', () => showAct(index));
         indicator.appendChild(dot);
     });
@@ -588,47 +744,145 @@ function updateNavigation() {
     }
 }
 
+// Variables pour la détection de scroll
+let scrollUpdateTimer = null;
+let isNavigatingProgrammatically = false; // Flag pour éviter les mises à jour lors de navigation programmée
+
 // Configuration de la navigation
 function setupNavigation() {
     // Boutons précédent/suivant
     document.getElementById('nav-prev').addEventListener('click', () => {
         if (currentActIndex > 0) {
+            isNavigatingProgrammatically = true;
             showAct(currentActIndex - 1);
+            setTimeout(() => { isNavigatingProgrammatically = false; }, 1000);
         }
     });
     
     document.getElementById('nav-next').addEventListener('click', () => {
         if (currentActIndex < allActs.length - 1) {
+            isNavigatingProgrammatically = true;
             showAct(currentActIndex + 1);
+            setTimeout(() => { isNavigatingProgrammatically = false; }, 1000);
         } else if (currentActIndex === allActs.length - 1 && currentEpisode && currentEpisode.twilight_zone_story) {
-            // Si on est sur le dernier acte et qu'il y a un bonus, aller au bonus
+            isNavigatingProgrammatically = true;
             showBonus();
+            setTimeout(() => { isNavigatingProgrammatically = false; }, 1000);
         }
     });
     
     // Bouton bonus
     document.getElementById('nav-bonus').addEventListener('click', () => {
+        isNavigatingProgrammatically = true;
         showBonus();
+        setTimeout(() => { isNavigatingProgrammatically = false; }, 1000);
     });
     
     // Navigation au clavier
     document.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowLeft') {
             if (currentActIndex === -1) {
-                // Si on est sur le bonus, aller au dernier acte
+                isNavigatingProgrammatically = true;
                 showAct(allActs.length - 1);
+                setTimeout(() => { isNavigatingProgrammatically = false; }, 1000);
             } else if (currentActIndex > 0) {
+                isNavigatingProgrammatically = true;
                 showAct(currentActIndex - 1);
+                setTimeout(() => { isNavigatingProgrammatically = false; }, 1000);
             }
         } else if (e.key === 'ArrowRight') {
             if (currentActIndex < allActs.length - 1) {
+                isNavigatingProgrammatically = true;
                 showAct(currentActIndex + 1);
+                setTimeout(() => { isNavigatingProgrammatically = false; }, 1000);
             } else if (currentActIndex === allActs.length - 1 && currentEpisode && currentEpisode.twilight_zone_story) {
-                // Si on est sur le dernier acte et qu'il y a un bonus, aller au bonus
+                isNavigatingProgrammatically = true;
                 showBonus();
+                setTimeout(() => { isNavigatingProgrammatically = false; }, 1000);
             }
         }
     });
+    
+    // Détection intelligente de l'acte visible lors du scroll
+    setupScrollDetection();
+}
+
+// Détection intelligente basée sur la position de scroll
+function setupScrollDetection() {
+    // Supprimer l'ancien listener s'il existe
+    window.removeEventListener('scroll', detectActiveActOnScroll);
+    window.removeEventListener('scroll', detectActiveActOnScrollThrottled);
+    
+    // Fonction de détection avec throttling
+    function detectActiveActOnScrollThrottled() {
+        if (scrollUpdateTimer) {
+            clearTimeout(scrollUpdateTimer);
+        }
+        
+        scrollUpdateTimer = setTimeout(() => {
+            if (!isNavigatingProgrammatically) {
+                detectActiveActOnScroll();
+            }
+        }, 100); // Throttle à 100ms
+    }
+    
+    // Ajouter le listener de scroll
+    window.addEventListener('scroll', detectActiveActOnScrollThrottled, { passive: true });
+    
+    // Détecter aussi au chargement initial
+    setTimeout(() => detectActiveActOnScroll(), 500);
+}
+
+// Détecter l'acte actuellement visible
+function detectActiveActOnScroll() {
+    if (!currentEpisode || allActs.length === 0) return;
+    
+    const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
+    const navHeight = document.querySelector('.acts-navigation')?.offsetHeight || 0;
+    const viewportTop = window.scrollY + headerHeight + navHeight + 100; // Offset pour considérer un acte comme "actif"
+    
+    let closestActIndex = -1;
+    let closestDistance = Infinity;
+    
+    // Vérifier chaque acte
+    allActs.forEach((actKey, index) => {
+        const actCard = document.getElementById(`act-${index}`);
+        if (actCard) {
+            const rect = actCard.getBoundingClientRect();
+            const actTop = window.scrollY + rect.top;
+            const actBottom = window.scrollY + rect.bottom;
+            
+            // Si l'acte est visible dans le viewport
+            if (actTop <= viewportTop && actBottom >= viewportTop) {
+                const distance = Math.abs(actTop - viewportTop);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestActIndex = index;
+                }
+            }
+        }
+    });
+    
+    // Vérifier aussi la section bonus
+    const twilightSection = document.getElementById('twilight-zone-section');
+    if (twilightSection && currentEpisode.twilight_zone_story && !twilightSection.classList.contains('hidden')) {
+        const rect = twilightSection.getBoundingClientRect();
+        const sectionTop = window.scrollY + rect.top;
+        const sectionBottom = window.scrollY + rect.bottom;
+        
+        if (sectionTop <= viewportTop && sectionBottom >= viewportTop) {
+            const distance = Math.abs(sectionTop - viewportTop);
+            if (distance < closestDistance) {
+                closestActIndex = -1; // Bonus
+            }
+        }
+    }
+    
+    // Mettre à jour si l'acte actif a changé
+    if (closestActIndex !== currentActIndex && closestActIndex !== -2) {
+        currentActIndex = closestActIndex;
+        updateNavigation();
+    }
 }
 
 // Échapper le HTML pour éviter les injections
@@ -1455,16 +1709,109 @@ function processImages(container) {
     
     const images = container.querySelectorAll('img');
     images.forEach((img, index) => {
-        // Convertir les chemins relatifs ../images/ en chemins API
-        if (img.src && img.src.includes('../images/')) {
-            const imageFilename = img.src.split('../images/')[1];
-            const runName = currentRunName || '';
-            img.src = `/api/images/${imageFilename}?run=${encodeURIComponent(runName)}`;
-        } else if (img.src && img.src.startsWith('http://localhost:8000/../images/')) {
-            // Gérer aussi les cas où le navigateur a résolu le chemin relatif
-            const imageFilename = img.src.split('/../images/')[1];
-            const runName = currentRunName || '';
-            img.src = `/api/images/${imageFilename}?run=${encodeURIComponent(runName)}`;
+        // Extraire le nom du fichier depuis différents formats de chemins
+        let imageFilename = null;
+        const runName = currentRunName || '';
+        
+        // Priorité 1: Utiliser l'attribut src original (avant que le navigateur ne le résolve)
+        // C'est le plus fiable car il contient le nom du fichier tel qu'il est dans le markdown
+        const originalSrc = img.getAttribute('src');
+        if (originalSrc && originalSrc.includes('../images/')) {
+            // Extraire le nom du fichier depuis le chemin relatif
+            imageFilename = originalSrc.split('../images/')[1].split('?')[0].split('#')[0].trim();
+            // Décoder si le navigateur a déjà encodé (certains navigateurs encodent même dans l'attribut)
+            if (imageFilename && imageFilename.includes('%')) {
+                try {
+                    // Décoder plusieurs fois si nécessaire
+                    let decoded = imageFilename;
+                    let previousDecoded = '';
+                    let decodeCount = 0;
+                    while (decoded !== previousDecoded && decodeCount < 5) {
+                        previousDecoded = decoded;
+                        try {
+                            decoded = decodeURIComponent(decoded);
+                            decodeCount++;
+                        } catch (e) {
+                            break;
+                        }
+                    }
+                    imageFilename = decoded;
+                } catch (e) {
+                    // Si le décodage échoue, utiliser tel quel
+                }
+            }
+        }
+        // Priorité 2: Chemin relatif dans le src résolu (../images/filename.png)
+        else if (img.src && img.src.includes('../images/')) {
+            imageFilename = img.src.split('../images/')[1].split('?')[0].split('#')[0].trim();
+        }
+        // Priorité 3: Chemin résolu par le navigateur (http://localhost:8000/../images/ ou /images/)
+        else if (img.src) {
+            try {
+                // Essayer de détecter le nom du fichier depuis différents formats
+                const srcUrl = new URL(img.src, window.location.origin);
+                const pathname = srcUrl.pathname;
+                
+                // Chercher /images/ ou /../images/ dans le chemin
+                if (pathname.includes('/images/')) {
+                    imageFilename = pathname.split('/images/')[1];
+                } else if (pathname.includes('/../images/')) {
+                    imageFilename = pathname.split('/../images/')[1];
+                } else if (pathname.startsWith('/images/')) {
+                    imageFilename = pathname.replace('/images/', '');
+                }
+                
+                // Décoder le nom du fichier s'il est déjà encodé par le navigateur
+                if (imageFilename) {
+                    try {
+                        // Décoder plusieurs fois si nécessaire (gérer les encodages multiples)
+                        let decoded = imageFilename;
+                        let previousDecoded = '';
+                        while (decoded !== previousDecoded) {
+                            previousDecoded = decoded;
+                            try {
+                                decoded = decodeURIComponent(decoded);
+                            } catch (e) {
+                                break;
+                            }
+                        }
+                        imageFilename = decoded;
+                    } catch (e) {
+                        // Si le décodage échoue, utiliser tel quel
+                    }
+                }
+            } catch (e) {
+                // Si l'URL ne peut pas être parsée, ignorer
+            }
+        }
+        
+        // Si on a trouvé un nom de fichier, convertir en chemin API
+        if (imageFilename) {
+            // Nettoyer le nom du fichier (enlever les paramètres de requête, etc.)
+            imageFilename = imageFilename.split('?')[0].split('#')[0].trim();
+            
+            // Décoder si déjà encodé (éviter le double encodage)
+            // Décoder plusieurs fois si nécessaire
+            let decoded = imageFilename;
+            let previousDecoded = '';
+            let decodeCount = 0;
+            while (decoded !== previousDecoded && decodeCount < 3) {
+                previousDecoded = decoded;
+                try {
+                    decoded = decodeURIComponent(decoded);
+                    decodeCount++;
+                } catch (e) {
+                    break;
+                }
+            }
+            imageFilename = decoded;
+            
+            // Maintenant encoder une seule fois pour l'URL
+            const encodedFilename = encodeURIComponent(imageFilename);
+            img.src = `/api/images/${encodedFilename}?run=${encodeURIComponent(runName)}`;
+        } else {
+            // Si on ne peut pas extraire le nom, logger un avertissement
+            console.warn('Impossible d\'extraire le nom du fichier image depuis:', img.src || img.getAttribute('src'));
         }
         
         // Ajouter lazy loading

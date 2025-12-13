@@ -308,10 +308,27 @@ class EpisodeHandler(http.server.SimpleHTTPRequestHandler):
             run_name = query_params.get('run', [None])[0]
             
             # Extraire le nom du fichier du chemin (ex: /api/images/acte_1_xxx.png -> acte_1_xxx.png)
+            # Décoder le nom du fichier (gérer les caractères encodés comme %C3%A9 pour é)
             image_filename = path.replace('/api/images/', '').split('?')[0].strip()
             if not image_filename:
                 self.send_error(400, "Image filename missing")
                 return
+            
+            # Décoder le nom du fichier URL-encodé (peut être encodé plusieurs fois)
+            try:
+                from urllib.parse import unquote
+                # Décoder plusieurs fois si nécessaire (gérer les encodages multiples)
+                decoded = image_filename
+                previous_decoded = ''
+                decode_count = 0
+                while decoded != previous_decoded and decode_count < 5:
+                    previous_decoded = decoded
+                    decoded = unquote(decoded)
+                    decode_count += 1
+                image_filename = decoded
+            except Exception:
+                # Si le décodage échoue, utiliser le nom tel quel
+                pass
             
             # Si pas de run spécifié, utiliser le plus récent
             if not run_name:
@@ -335,8 +352,45 @@ class EpisodeHandler(http.server.SimpleHTTPRequestHandler):
             
             image_file = images_dir / image_filename
             if not image_file.exists():
-                self.send_error(404, f"Image file not found: {image_filename} in run {run_name}")
-                return
+                # Essayer de trouver le fichier en listant les fichiers du répertoire
+                # (au cas où le nom serait légèrement différent à cause de l'encodage)
+                available_files = list(images_dir.glob('*.png'))
+                # Chercher un fichier qui correspond (en ignorant la casse et les différences d'encodage)
+                matching_file = None
+                # Normaliser le nom recherché (enlever les caractères encodés pour comparaison)
+                search_name_normalized = image_filename.lower().replace('%', '')
+                for file in available_files:
+                    # Comparer les noms décodés et normalisés
+                    try:
+                        file_name_decoded = unquote(file.name)
+                        file_name_normalized = file_name_decoded.lower().replace('%', '')
+                        # Comparer les noms normalisés (sans caractères encodés)
+                        if (file_name_normalized == search_name_normalized or 
+                            file.name == image_filename or 
+                            file_name_decoded == image_filename):
+                            matching_file = file
+                            break
+                    except:
+                        # Comparaison simple
+                        if file.name == image_filename:
+                            matching_file = file
+                            break
+                        # Essayer aussi avec le nom normalisé
+                        try:
+                            file_name_normalized = file.name.lower().replace('%', '')
+                            if file_name_normalized == search_name_normalized:
+                                matching_file = file
+                                break
+                        except:
+                            pass
+                
+                if matching_file:
+                    image_file = matching_file
+                else:
+                    # Lister les fichiers disponibles pour debug
+                    available_names = [f.name for f in available_files[:5]]
+                    self.send_error(404, f"Image file not found: {image_filename} in run {run_name}. Available: {available_names}")
+                    return
             
             # Servir le fichier image
             self.serve_file(image_file, self.guess_content_type(image_file))

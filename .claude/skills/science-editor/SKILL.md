@@ -159,9 +159,10 @@ Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant l
 2. **Style des prompts** : Les prompts doivent être :
    - **En anglais** (pour DALL-E 2)
    - Descriptifs et précis
-   - Style documentaire scientifique : "Documentary style", "scientific illustration", "dark mood", "cinematic lighting"
-   - Inclure le concept scientifique principal à illustrer
-   - Format recommandé : "Documentary style illustration of [concept], [style], [qualité]"
+   - **Style naturel et chaleureux** : Privilégier "natural lighting", "warm atmosphere", "human perspective", "realistic", "lifelike", "organic"
+   - **Éviter les styles froids** : Éviter "dark mood", "cold", "sterile", "technical diagram" sauf si absolument nécessaire
+   - Inclure le concept scientifique principal à illustrer avec un contexte humain ou naturel
+   - Format recommandé : "Natural, realistic illustration of [concept] in [contexte humain/naturel], warm natural lighting, lifelike, detailed"
 
 3. **Concepts à illustrer** : Génère des prompts pour :
    - Concepts scientifiques expliqués dans l'acte
@@ -172,10 +173,10 @@ Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant l
 4. **Nombre de prompts** : Génère 1-3 prompts par acte selon la complexité du contenu
 
 **Exemples de prompts** :
-- "Documentary style illustration of quantum entanglement, dark mood, cinematic lighting, scientific visualization, high quality, detailed"
-- "Scientific illustration showing neural network connections, documentary style, dark atmosphere, professional, 4K quality"
-- "Futuristic technology visualization, documentary style, dark mood, cinematic lighting, detailed, high quality"
-- "Diagram showing DNA structure, documentary style, scientific illustration, dark background, professional"
+- "Natural, realistic scene of a scientist in a warm laboratory examining quantum data, natural daylight, warm atmosphere, lifelike, detailed, human perspective"
+- "Realistic illustration of neural network connections visualized in a cozy research environment, natural lighting, warm tones, organic feel, high quality"
+- "Lifelike scene of futuristic technology integrated naturally into everyday life, warm natural lighting, human scale, realistic, detailed"
+- "Natural illustration of DNA structure in a bright, welcoming scientific setting, warm lighting, organic colors, realistic, professional"
 
 **Important** :
 - **Génère 1-3 prompts par acte** dans le champ `image_prompts`

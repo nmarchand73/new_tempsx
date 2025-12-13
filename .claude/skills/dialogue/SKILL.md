@@ -208,9 +208,10 @@ Avant d'écrire l'Acte V, enrichis-toi avec des recherches :
 2. **Style des prompts** : Les prompts doivent être :
    - **En anglais** (pour DALL-E 2)
    - Descriptifs et contemplatifs
-   - Style documentaire philosophique : "Documentary style", "contemplative", "dark mood", "cinematic lighting"
-   - Inclure les dimensions humaines ou concepts philosophiques évoqués
-   - Format recommandé : "Documentary style scene of [description], [style], [atmosphère], [qualité]"
+   - **Style naturel et chaleureux** : Privilégier "natural lighting", "warm atmosphere", "human emotion", "realistic", "lifelike", "intimate", "organic"
+   - **Éviter les styles froids** : Éviter "dark mood", "cold", "sterile" - privilégier la chaleur humaine et l'authenticité
+   - Inclure les dimensions humaines ou concepts philosophiques évoqués avec une approche naturelle et émotionnelle
+   - Format recommandé : "Natural, realistic scene of [description] with [contexte humain/émotionnel], warm natural lighting, contemplative, lifelike, detailed"
 
 3. **Éléments à illustrer** : Génère des prompts pour :
    - Moments de réflexion humaine
@@ -221,9 +222,9 @@ Avant d'écrire l'Acte V, enrichis-toi avec des recherches :
 4. **Nombre de prompts** : Génère 1-2 prompts par acte (l'Acte V est plus réflexif, moins visuel)
 
 **Exemples de prompts** :
-- "Documentary style scene of human contemplation, dark mood, cinematic lighting, philosophical atmosphere, high quality, detailed"
-- "Symbolic image showing human-technology interaction, documentary style, dark atmosphere, contemplative, professional"
-- "Cinematic scene of reflection and questioning, documentary style, dark mood, philosophical, detailed"
+- "Natural, realistic scene of human contemplation in a warm, intimate setting, natural lighting, warm atmosphere, emotional depth, lifelike, detailed"
+- "Realistic image showing human-technology interaction in a cozy, lived-in environment, warm natural lighting, contemplative, organic feel, detailed"
+- "Lifelike scene of reflection and questioning in a welcoming space, natural daylight, warm atmosphere, philosophical, emotional depth, detailed"
 
 **Important** :
 - **Inclus 1-2 images** pour enrichir visuellement la réflexion

@@ -101,7 +101,7 @@ Fournis un JSON avec :
   "title": "Titre de l'Acte VI",
   "content": "Contenu de l'Acte VI connectant passé/présent...",
   "image_prompts": [
-    "Documentary style comparison of 1980s technology and modern technology, dark mood, cinematic lighting, nostalgic atmosphere, high quality"
+    "Natural, realistic comparison of 1980s technology and modern technology in a warm, lived-in environment, natural lighting, nostalgic but warm atmosphere, lifelike, high quality"
   ],
   "references": [
     {
@@ -179,8 +179,8 @@ Avant d'écrire l'Acte VI, enrichis-toi avec des recherches approfondies :
      "title": "Titre de l'Acte VI",
      "content": "Contenu de l'Acte VI...",
      "image_prompts": [
-       "Documentary style comparison of 1980s technology and modern technology, dark mood, cinematic lighting, nostalgic atmosphere, high quality",
-       "Historical scene showing [technologie d'époque], documentary style, dark atmosphere, vintage, detailed"
+       "Natural, realistic comparison of 1980s technology and modern technology in a warm, lived-in environment, natural lighting, nostalgic but warm atmosphere, lifelike, high quality",
+       "Natural, realistic historical scene showing [technologie d'époque] in a warm, lived-in environment, natural lighting, nostalgic but warm atmosphere, lifelike, detailed"
      ]
    }
    ```
@@ -188,9 +188,10 @@ Avant d'écrire l'Acte VI, enrichis-toi avec des recherches approfondies :
 2. **Style des prompts** : Les prompts doivent être :
    - **En anglais** (pour DALL-E 2)
    - Descriptifs et temporels
-   - Style documentaire historique : "Documentary style", "vintage", "nostalgic", "dark mood", "cinematic lighting"
-   - Inclure les éléments temporels (passé/présent) ou technologies évoquées
-   - Format recommandé : "Documentary style [description], [style], [atmosphère], [qualité]"
+   - **Style naturel et chaleureux** : Privilégier "natural lighting", "warm atmosphere", "realistic", "lifelike", "lived-in", "nostalgic but warm"
+   - **Éviter les styles froids** : Éviter "dark mood", "cold", "sterile" - privilégier la chaleur humaine et l'authenticité
+   - Inclure les éléments temporels (passé/présent) ou technologies évoquées dans un contexte humain naturel
+   - Format recommandé : "Natural, realistic [description] in [contexte humain/naturel], warm natural lighting, nostalgic but warm atmosphere, lifelike, detailed"
 
 3. **Éléments à illustrer** : Génère des prompts pour :
    - Technologies ou prédictions d'hier
@@ -201,9 +202,9 @@ Avant d'écrire l'Acte VI, enrichis-toi avec des recherches approfondies :
 4. **Nombre de prompts** : Génère 1-2 prompts par acte
 
 **Exemples de prompts** :
-- "Documentary style comparison of 1980s computer technology and modern AI, dark mood, cinematic lighting, nostalgic atmosphere, high quality, detailed"
-- "Historical scene showing vintage technology from the 1980s, documentary style, dark atmosphere, vintage aesthetic, professional"
-- "Cinematic scene comparing past predictions and present reality, documentary style, dark mood, temporal contrast, detailed"
+- "Natural, realistic comparison of 1980s computer technology and modern AI in a warm, lived-in environment, natural lighting, nostalgic but warm atmosphere, lifelike, detailed"
+- "Realistic historical scene showing vintage technology from the 1980s in a cozy setting, natural lighting, warm nostalgic atmosphere, authentic, detailed"
+- "Lifelike scene comparing past predictions and present reality in a welcoming space, natural daylight, warm atmosphere, human perspective, realistic, detailed"
 - Les images doivent être pertinentes et contextualisées
 
 ## Workflow

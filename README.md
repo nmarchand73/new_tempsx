@@ -359,7 +359,7 @@ python app.py "Les villes intelligentes promettent un paradis technologique : po
 
 #### 10. Questions de réalité
 ```bash
-python app.py "La théorie de la simulation suggère que nous vivons peut-être dans une réalité virtuelle créée par une civilisation avancée. Les physiciens cherchent des preuves dans les lois de la physique. Comment savoir si notre réalité est réelle ou une illusion parfaite ?" --audio --verbose --audio-provider openai
+python app.py "La théorie de la simulation suggère que nous vivons peut-être dans une réalité virtuelle créée par une civilisation avancée. Les physiciens cherchent des preuves dans les lois de la physique. Comment savoir si notre réalité est réelle ou une illusion parfaite ?" --images --audio --verbose --audio-provider openai
 ```
 
 #### 11. Peur et paranoïa
