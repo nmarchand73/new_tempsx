@@ -206,7 +206,11 @@ JSON avec :
 {
   "title": "Titre évocateur",
   "story": "Nouvelle complète développée (8000-15000 mots)",
-  "theme": "Thème principal exploré"
+  "theme": "Thème principal exploré",
+  "image_prompts": [
+    "Twilight Zone style scene of [description de la scène], dark mood, cinematic lighting, mysterious atmosphere, 1960s aesthetic, high quality",
+    "Surreal scene showing [élément clé], Twilight Zone style, dark atmosphere, eerie, detailed"
+  ]
 }
 ```
 
@@ -263,64 +267,42 @@ La meilleure histoire de la Quatrième Dimension dure parce qu'elle est fondamen
 
 ## Images et artefacts visuels
 
-**OBLIGATOIRE** : Inclus des images pertinentes dans l'histoire Twilight Zone pour renforcer l'atmosphère et illustrer visuellement les scènes importantes.
+**IMPORTANT** : Ne PAS chercher d'images sur le web. Génère plutôt des prompts DALL-E 2 pour créer des images personnalisées qui illustreront l'atmosphère Twilight Zone.
 
-### Comment inclure des images
+### Comment générer des prompts d'images
 
-1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+1. **Format JSON** : Inclus un champ `image_prompts` dans ta réponse JSON avec 2-4 prompts :
+   ```json
+   {
+     "title": "Titre de l'histoire",
+     "story": "Histoire complète...",
+     "theme": "Thème principal",
+     "image_prompts": [
+       "Twilight Zone style scene of [description de la scène], dark mood, cinematic lighting, mysterious atmosphere, 1960s aesthetic, high quality",
+       "Surreal scene showing [élément clé], Twilight Zone style, dark atmosphere, eerie, detailed"
+     ]
+   }
    ```
-   ![Description de l'image](https://url-de-l-image.jpg)
-   ```
 
-2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver des images pertinentes :
-   - Photos d'atmosphère qui correspondent aux scènes décrites
-   - Images qui capturent l'étrangeté ou la mélancolie
-   - Visualisations de technologies ou concepts évoqués
-   - Images qui renforcent l'immersion dans la Quatrième Dimension
-   
-   **Étapes concrètes** :
-   1. Ouvre l'outil Browser
-   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable
-   3. Recherche des images qui correspondent aux scènes importantes de l'histoire
-   4. **⚠️ FORMAT OBLIGATOIRE** : Copie l'URL directe de l'image depuis Wikimedia Commons (format direct, SANS /thumb/)
-      - Format correct : `https://upload.wikimedia.org/wikipedia/commons/3/39/ASIMO_4.28.11.jpg`
-      - Format incorrect : `https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/ASIMO_4.28.11.jpg/800px-ASIMO_4.28.11.jpg`
-      - Si tu obtiens une URL avec `/thumb/`, convertis-la en format direct en enlevant `/thumb/` et le suffixe de taille
-   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
-      - L'image doit s'afficher correctement
-      - Pas d'erreur 404 ou "Not Found"
-      - L'image doit être accessible publiquement
-      - Si l'URL ne fonctionne pas, cherche une alternative valide
-   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
+2. **Style des prompts** : Les prompts doivent être :
+   - **En anglais** (pour DALL-E 2)
+   - Descriptifs et atmosphériques
+   - Style Twilight Zone : "Twilight Zone style", "1960s aesthetic", "dark mood", "cinematic lighting", "mysterious", "eerie"
+   - Inclure les éléments visuels clés des scènes importantes
+   - Format recommandé : "Twilight Zone style scene of [description], [style], [atmosphère], [qualité]"
 
-3. **Placement contextuel** : Intègre les images naturellement dans la narration :
-   - Pour établir l'atmosphère d'une scène importante
-   - Pour visualiser un élément clé de l'histoire
-   - Pour renforcer l'immersion sensorielle
-   - Après une description visuelle pour l'illustrer
-   - Pour créer une pause contemplative
+3. **Éléments à illustrer** : Génère des prompts pour :
+   - Scènes importantes de l'histoire
+   - Moments clés de révélation
+   - Ambiance mystérieuse ou étrange
+   - Éléments symboliques ou métaphoriques
 
-4. **Qualité et accessibilité** :
-   - Images de qualité qui enrichissent l'expérience
-   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
-   - Si une URL ne fonctionne pas, trouve une alternative valide
-   - Texte alternatif descriptif toujours inclus
-   - Images qui servent la narration, pas décoratives
+4. **Nombre de prompts** : Génère 2-4 prompts pour une histoire complète
 
-**Exemple d'utilisation** :
-```
-Voici Martin Sloan, trente-six ans, employé de banque. Ce soir, Martin est sur le point de découvrir quelque chose d'extraordinaire.
-
-![Route de campagne bordée d'arbres, crépuscule](https://example.com/country-road-dusk.jpg)
-
-Il tourne le coin de la rue et s'arrête net. Devant lui, quelque chose d'impossible...
-```
-
-**Important** :
-- **Inclus 2-4 images** pour une histoire complète (8000-15000 mots)
-- Assure-toi que les images servent la narration et l'atmosphère
-- Privilégie les images qui capturent l'essence de la Quatrième Dimension
-- Les images doivent être pertinentes et contextualisées
+**Exemples de prompts** :
+- "Twilight Zone style scene of a country road at dusk, dark mood, cinematic lighting, mysterious atmosphere, 1960s aesthetic, high quality, detailed"
+- "Surreal scene showing an impossible discovery, Twilight Zone style, dark atmosphere, eerie, cinematic, professional"
+- "Mysterious scene of revelation, Twilight Zone style, dark mood, 1960s aesthetic, mysterious, detailed"
 
 ## Techniques avancées de développement narratif
 

@@ -62,6 +62,7 @@ class EpisodeExporter:
                     "title": act.title,
                     "content": act.content,
                     "narrator": getattr(act, "narrator", "narrator_1"),
+                    "image_prompts": getattr(act, "image_prompts", []),
                     "references": [
                         {
                             "title": ref.title,
@@ -73,14 +74,15 @@ class EpisodeExporter:
                 }
                 for act_key, act in episode.acts.items()
             }
-        }
+            }
         
         # Ajouter l'histoire Twilight Zone si disponible
         if episode.twilight_zone_story:
             episode_dict["twilight_zone_story"] = {
                 "title": episode.twilight_zone_story.title,
                 "story": episode.twilight_zone_story.story,
-                "theme": episode.twilight_zone_story.theme
+                "theme": episode.twilight_zone_story.theme,
+                "image_prompts": getattr(episode.twilight_zone_story, "image_prompts", [])
             }
         
         with open(output_path, "w", encoding="utf-8") as f:
@@ -115,6 +117,7 @@ class EpisodeExporter:
                 "title": act.title,
                 "content": act.content,
                 "narrator": getattr(act, "narrator", "narrator_1"),
+                "image_prompts": getattr(act, "image_prompts", []),
                 "references": [
                     {
                         "title": ref.title,
@@ -130,7 +133,8 @@ class EpisodeExporter:
             episode_dict["twilight_zone_story"] = {
                 "title": episode.twilight_zone_story.title,
                 "story": episode.twilight_zone_story.story,
-                "theme": episode.twilight_zone_story.theme
+                "theme": episode.twilight_zone_story.theme,
+                "image_prompts": getattr(episode.twilight_zone_story, "image_prompts", [])
             }
         
         with open(output_path, "w", encoding="utf-8") as f:

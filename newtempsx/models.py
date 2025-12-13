@@ -23,6 +23,10 @@ class Act(BaseModel):
         default_factory=list,
         description="Liste des références/liens vers des sources web pertinentes"
     )
+    image_prompts: List[str] = Field(
+        default_factory=list,
+        description="Liste des prompts DALL-E pour générer des images illustrant cet acte"
+    )
 
 
 class TwilightZoneStory(BaseModel):
@@ -30,6 +34,10 @@ class TwilightZoneStory(BaseModel):
     title: str = Field(..., description="Titre de l'histoire")
     story: str = Field(..., description="Histoire complète en plusieurs paragraphes")
     theme: str = Field(..., description="Thème principal exploré")
+    image_prompts: List[str] = Field(
+        default_factory=list,
+        description="Liste des prompts DALL-E pour générer des images illustrant cette histoire"
+    )
 
 
 class Episode(BaseModel):

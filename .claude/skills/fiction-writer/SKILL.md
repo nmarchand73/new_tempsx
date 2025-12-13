@@ -101,6 +101,10 @@ Fournis un JSON avec :
 {
   "title": "Titre de l'Acte IV",
   "content": "Contenu fictionnel de l'Acte IV...",
+  "image_prompts": [
+    "Documentary style scene of [description de la scène], dark mood, cinematic lighting, futuristic atmosphere, high quality",
+    "Fictional scene showing [élément clé], documentary style, dark atmosphere, immersive, detailed"
+  ],
   "references": [
     {
       "title": "Titre de la source d'inspiration",
@@ -161,52 +165,43 @@ Avant d'écrire l'Acte IV, enrichis-toi avec des recherches :
 
 ## Images et artefacts visuels
 
-**OBLIGATOIRE** : Inclus des images pertinentes dans l'Acte IV pour renforcer l'immersion et illustrer visuellement la scène fictionnelle.
+**IMPORTANT** : Ne PAS chercher d'images sur le web. Génère plutôt des prompts DALL-E 2 pour créer des images personnalisées qui illustreront la scène fictionnelle.
 
-### Comment inclure des images
+### Comment générer des prompts d'images
 
-1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+1. **Format JSON** : Inclus un champ `image_prompts` dans ta réponse JSON avec 1-3 prompts :
+   ```json
+   {
+     "acte_4": {
+       "title": "Titre de l'Acte IV",
+       "content": "Contenu narratif de l'Acte IV...",
+       "image_prompts": [
+         "Documentary style scene of [description de la scène], dark mood, cinematic lighting, futuristic atmosphere, high quality",
+         "Fictional scene showing [élément clé], documentary style, dark atmosphere, immersive, detailed"
+       ]
+     }
+   }
    ```
-   ![Description de l'image](https://url-de-l-image.jpg)
-   ```
 
-2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver des images pertinentes :
-   - Photos d'environnements similaires à ta scène
-   - Images qui capturent l'atmosphère de la fiction
-   - Visualisations de technologies ou concepts évoqués
-   - Images qui renforcent l'immersion sensorielle
-   
-   **Étapes concrètes** :
-   1. Ouvre l'outil Browser
-   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable
-   3. Recherche des images qui correspondent à ta scène (environnements, technologies, atmosphère)
-   4. **⚠️ FORMAT OBLIGATOIRE** : Copie l'URL directe de l'image depuis Wikimedia Commons (format direct, SANS /thumb/)
-      - Format correct : `https://upload.wikimedia.org/wikipedia/commons/3/39/ASIMO_4.28.11.jpg`
-      - Format incorrect : `https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/ASIMO_4.28.11.jpg/800px-ASIMO_4.28.11.jpg`
-      - Si tu obtiens une URL avec `/thumb/`, convertis-la en format direct en enlevant `/thumb/` et le suffixe de taille
-   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
-      - L'image doit s'afficher correctement
-      - Pas d'erreur 404 ou "Not Found"
-      - L'image doit être accessible publiquement
-      - Si l'URL ne fonctionne pas, cherche une alternative valide
-   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
+2. **Style des prompts** : Les prompts doivent être :
+   - **En anglais** (pour DALL-E 2)
+   - Descriptifs et immersifs
+   - Style documentaire fictionnel : "Documentary style", "cinematic lighting", "dark mood", "futuristic atmosphere"
+   - Inclure les éléments visuels clés de la scène
+   - Format recommandé : "Documentary style scene of [description], [style], [atmosphère], [qualité]"
 
-3. **Placement contextuel** : Intègre les images naturellement dans la narration :
-   - Pour établir l'atmosphère d'une scène
-   - Pour visualiser un élément clé de la fiction
-   - Pour renforcer l'immersion sensorielle
-   - Après une description visuelle pour l'illustrer
+3. **Éléments à illustrer** : Génère des prompts pour :
+   - Environnements et décors de la scène
+   - Technologies ou objets évoqués
+   - Moments clés de l'action
+   - Ambiance et atmosphère
 
-4. **Qualité et accessibilité** :
-   - Images de qualité qui enrichissent l'expérience
-   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
-   - Si une URL ne fonctionne pas, trouve une alternative valide
-   - Texte alternatif descriptif toujours inclus
-   - Images qui servent la narration, pas décoratives
+4. **Nombre de prompts** : Génère 1-3 prompts par acte selon la richesse visuelle du contenu
 
-**Exemple d'utilisation** :
-```
-Le médecin regarde l'écran. Les données s'accumulent, courbes vertes et rouges qui dansent.
+**Exemples de prompts** :
+- "Documentary style scene of a futuristic medical laboratory, dark mood, cinematic lighting, high-tech atmosphere, detailed, high quality"
+- "Fictional scene showing human-robot interaction, documentary style, dark atmosphere, immersive, professional"
+- "Cinematic scene of a scientist examining data on screens, documentary style, dark mood, futuristic, detailed"
 
 ![Écran médical montrant des courbes de données en temps réel](https://example.com/medical-monitor.jpg)
 

@@ -121,6 +121,9 @@ Fournis un JSON avec :
 {
   "title": "Titre de l'Acte V",
   "content": "Contenu de l'Acte V avec réflexion intime et dialogue intérieur...",
+  "image_prompts": [
+    "Documentary style scene of human contemplation, dark mood, cinematic lighting, philosophical atmosphere, high quality"
+  ],
   "references": [
     {
       "title": "Article ou discussion sur les implications",
@@ -186,57 +189,41 @@ Avant d'écrire l'Acte V, enrichis-toi avec des recherches :
 
 ## Images et artefacts visuels
 
-**OBLIGATOIRE** : Inclus des images pertinentes dans l'Acte V pour renforcer la réflexion et illustrer visuellement les dimensions humaines explorées.
+**IMPORTANT** : Ne PAS chercher d'images sur le web. Génère plutôt des prompts DALL-E 2 pour créer des images personnalisées qui illustreront les dimensions humaines et philosophiques.
 
-### Comment inclure des images
+### Comment générer des prompts d'images
 
-1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+1. **Format JSON** : Inclus un champ `image_prompts` dans ta réponse JSON avec 1-2 prompts :
+   ```json
+   {
+     "title": "Titre de l'Acte V",
+     "content": "Contenu réflexif de l'Acte V...",
+     "image_prompts": [
+       "Documentary style scene of human contemplation, dark mood, cinematic lighting, philosophical atmosphere, high quality",
+       "Symbolic image showing [concept philosophique], documentary style, dark atmosphere, contemplative, detailed"
+     ]
+   }
    ```
-   ![Description de l'image](https://url-de-l-image.jpg)
-   ```
 
-2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver des images pertinentes :
-   - Photos qui capturent des moments de réflexion humaine
-   - Images symboliques ou métaphoriques
-   - Visualisations de concepts philosophiques
-   - Photos qui illustrent les implications humaines
-   
-   **Étapes concrètes** :
-   1. Ouvre l'outil Browser
-   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable
-   3. Recherche des images qui résonnent avec les dimensions humaines évoquées
-   4. **⚠️ FORMAT OBLIGATOIRE** : Copie l'URL directe de l'image depuis Wikimedia Commons (format direct, SANS /thumb/)
-      - Format correct : `https://upload.wikimedia.org/wikipedia/commons/3/39/ASIMO_4.28.11.jpg`
-      - Format incorrect : `https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/ASIMO_4.28.11.jpg/800px-ASIMO_4.28.11.jpg`
-      - Si tu obtiens une URL avec `/thumb/`, convertis-la en format direct en enlevant `/thumb/` et le suffixe de taille
-   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
-      - L'image doit s'afficher correctement
-      - Pas d'erreur 404 ou "Not Found"
-      - L'image doit être accessible publiquement
-      - Si l'URL ne fonctionne pas, cherche une alternative valide
-   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
+2. **Style des prompts** : Les prompts doivent être :
+   - **En anglais** (pour DALL-E 2)
+   - Descriptifs et contemplatifs
+   - Style documentaire philosophique : "Documentary style", "contemplative", "dark mood", "cinematic lighting"
+   - Inclure les dimensions humaines ou concepts philosophiques évoqués
+   - Format recommandé : "Documentary style scene of [description], [style], [atmosphère], [qualité]"
 
-3. **Placement contextuel** : Intègre les images pour enrichir la réflexion :
-   - Pour illustrer une dimension humaine évoquée
-   - Pour renforcer une méditation visuelle
-   - Pour créer une pause contemplative dans le texte
-   - Après une question profonde pour l'illustrer
+3. **Éléments à illustrer** : Génère des prompts pour :
+   - Moments de réflexion humaine
+   - Concepts philosophiques évoqués
+   - Dimensions symboliques ou métaphoriques
+   - Ambiance contemplative
 
-4. **Qualité et accessibilité** :
-   - Images qui résonnent avec le ton réflexif
-   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
-   - Si une URL ne fonctionne pas, trouve une alternative valide
-   - Texte alternatif descriptif toujours inclus
-   - Images qui servent la méditation, pas décoratives
+4. **Nombre de prompts** : Génère 1-2 prompts par acte (l'Acte V est plus réflexif, moins visuel)
 
-**Exemple d'utilisation** :
-```
-Et nous, face à cette question de la conscience artificielle, que ressentons-nous vraiment ?
-
-![Personne en contemplation devant un paysage technologique](https://example.com/contemplation.jpg)
-
-De l'émerveillement, sans doute, devant ces systèmes qui conversent, créent, raisonnent...
-```
+**Exemples de prompts** :
+- "Documentary style scene of human contemplation, dark mood, cinematic lighting, philosophical atmosphere, high quality, detailed"
+- "Symbolic image showing human-technology interaction, documentary style, dark atmosphere, contemplative, professional"
+- "Cinematic scene of reflection and questioning, documentary style, dark mood, philosophical, detailed"
 
 **Important** :
 - **Inclus 1-2 images** pour enrichir visuellement la réflexion

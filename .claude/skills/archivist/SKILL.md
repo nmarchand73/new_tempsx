@@ -100,6 +100,9 @@ Fournis un JSON avec :
 {
   "title": "Titre de l'Acte VI",
   "content": "Contenu de l'Acte VI connectant passé/présent...",
+  "image_prompts": [
+    "Documentary style comparison of 1980s technology and modern technology, dark mood, cinematic lighting, nostalgic atmosphere, high quality"
+  ],
   "references": [
     {
       "title": "Épisode Temps X original ou archive",
@@ -166,62 +169,41 @@ Avant d'écrire l'Acte VI, enrichis-toi avec des recherches approfondies :
 
 ## Images et artefacts visuels
 
-**OBLIGATOIRE** : Inclus des images pertinentes dans l'Acte VI pour illustrer visuellement le pont temporel entre le passé et le présent.
+**IMPORTANT** : Ne PAS chercher d'images sur le web. Génère plutôt des prompts DALL-E 2 pour créer des images personnalisées qui illustreront le pont temporel entre le passé et le présent.
 
-### Comment inclure des images
+### Comment générer des prompts d'images
 
-1. **Syntaxe markdown** : Utilise la syntaxe markdown standard :
+1. **Format JSON** : Inclus un champ `image_prompts` dans ta réponse JSON avec 1-2 prompts :
+   ```json
+   {
+     "title": "Titre de l'Acte VI",
+     "content": "Contenu de l'Acte VI...",
+     "image_prompts": [
+       "Documentary style comparison of 1980s technology and modern technology, dark mood, cinematic lighting, nostalgic atmosphere, high quality",
+       "Historical scene showing [technologie d'époque], documentary style, dark atmosphere, vintage, detailed"
+     ]
+   }
    ```
-   ![Description de l'image](https://url-de-l-image.jpg)
-   ```
 
-2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver des images pertinentes :
-   - Archives photographiques des années 1980
-   - Images d'époque montrant les technologies/prédictions d'hier
-   - Photos actuelles montrant la réalité d'aujourd'hui
+2. **Style des prompts** : Les prompts doivent être :
+   - **En anglais** (pour DALL-E 2)
+   - Descriptifs et temporels
+   - Style documentaire historique : "Documentary style", "vintage", "nostalgic", "dark mood", "cinematic lighting"
+   - Inclure les éléments temporels (passé/présent) ou technologies évoquées
+   - Format recommandé : "Documentary style [description], [style], [atmosphère], [qualité]"
+
+3. **Éléments à illustrer** : Génère des prompts pour :
+   - Technologies ou prédictions d'hier
+   - Réalité d'aujourd'hui
    - Comparaisons visuelles passé/présent
-   - Images d'épisodes Temps X originaux si disponibles
-   
-   **Étapes concrètes** :
-   1. Ouvre l'outil Browser
-   2. **Privilégie Wikimedia Commons** : Recherche des images historiques sur https://commons.wikimedia.org - c'est la source la plus fiable
-   3. Recherche des images historiques ou d'archives sur Wikimedia Commons
-   4. **⚠️ FORMAT OBLIGATOIRE** : Copie l'URL directe de l'image depuis Wikimedia Commons (format direct, SANS /thumb/)
-      - Format correct : `https://upload.wikimedia.org/wikipedia/commons/3/39/ASIMO_4.28.11.jpg`
-      - Format incorrect : `https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/ASIMO_4.28.11.jpg/800px-ASIMO_4.28.11.jpg`
-      - Si tu obtiens une URL avec `/thumb/`, convertis-la en format direct en enlevant `/thumb/` et le suffixe de taille
-   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
-      - L'image doit s'afficher correctement
-      - Pas d'erreur 404 ou "Not Found"
-      - L'image doit être accessible publiquement
-      - Si l'URL ne fonctionne pas, cherche une alternative valide
-   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
+   - Ambiance temporelle et nostalgique
 
-3. **Placement contextuel** : Intègre les images pour illustrer le pont temporel :
-   - Pour montrer visuellement une prédiction d'hier
-   - Pour illustrer la réalité d'aujourd'hui
-   - Pour créer une comparaison visuelle
-   - Après avoir évoqué une époque ou une technologie
+4. **Nombre de prompts** : Génère 1-2 prompts par acte
 
-4. **Qualité et accessibilité** :
-   - Images historiques authentiques quand possible
-   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
-   - Si une URL ne fonctionne pas, trouve une alternative valide
-   - Texte alternatif descriptif toujours inclus
-   - Images qui servent la connexion temporelle
-
-**Exemple d'utilisation** :
-```
-En 1985, Temps X interrogeait : 'L'informatique va-t-elle transformer notre façon de penser ?'
-
-![Ordinateur des années 1980 avec écran monochrome](https://example.com/computer-1980s.jpg)
-
-Quarante ans plus tard, la question persiste, mais les réponses surprennent...
-```
-
-**Important** :
-- **Inclus 1-2 images** pour renforcer visuellement le pont temporel
-- Privilégie les images authentiques qui illustrent vraiment la connexion passé/présent
+**Exemples de prompts** :
+- "Documentary style comparison of 1980s computer technology and modern AI, dark mood, cinematic lighting, nostalgic atmosphere, high quality, detailed"
+- "Historical scene showing vintage technology from the 1980s, documentary style, dark atmosphere, vintage aesthetic, professional"
+- "Cinematic scene comparing past predictions and present reality, documentary style, dark mood, temporal contrast, detailed"
 - Les images doivent être pertinentes et contextualisées
 
 ## Workflow

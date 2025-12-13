@@ -138,69 +138,50 @@ Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant l
 
 ## Images et artefacts visuels
 
-**OBLIGATOIRE** : Inclus des images pertinentes dans chaque acte pour illustrer visuellement les concepts scientifiques. Les images enrichissent considérablement l'expérience de lecture.
+**IMPORTANT** : Ne PAS chercher d'images sur le web. Génère plutôt des prompts DALL-E 2 pour créer des images personnalisées qui illustreront les concepts scientifiques.
 
-### Comment inclure des images
+### Comment générer des prompts d'images
 
-1. **Syntaxe markdown** : Utilise la syntaxe markdown standard pour les images :
+1. **Format JSON** : Inclus un champ `image_prompts` dans ta réponse JSON avec 1-3 prompts par acte :
+   ```json
+   {
+     "acte_1": {
+       "title": "Titre de l'Acte I",
+       "content": "Contenu narratif de l'Acte I...",
+       "image_prompts": [
+         "Documentary style illustration of [concept scientifique principal], dark mood, cinematic lighting, scientific visualization, high quality, detailed",
+         "Scientific visualization showing [autre concept], professional documentary style, dark atmosphere, detailed"
+       ]
+     }
+   }
    ```
-   ![Description de l'image](https://url-de-l-image.jpg)
-   ```
 
-2. **Recherche d'images** : **Utilise activement l'outil Browser** pour rechercher des images pertinentes :
-   - Diagrammes scientifiques explicatifs
-   - Visualisations de données ou concepts
-   - Photos d'expériences ou de phénomènes
-   - Graphiques ou schémas pédagogiques
-   - Images d'actualité scientifique
-   
-   **Étapes concrètes** :
-   1. Ouvre l'outil Browser
-   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable et stable
-   3. Trouve des images qui illustrent directement les concepts que tu expliques
-   4. **⚠️ FORMAT OBLIGATOIRE** : Copie l'URL directe de l'image depuis Wikimedia Commons (format direct, SANS /thumb/)
-      - Format correct : `https://upload.wikimedia.org/wikipedia/commons/3/39/ASIMO_4.28.11.jpg`
-      - Format incorrect : `https://upload.wikimedia.org/wikipedia/commons/thumb/3/3d/ASIMO_4.28.11.jpg/800px-ASIMO_4.28.11.jpg`
-      - Si tu obtiens une URL avec `/thumb/`, convertis-la en format direct en enlevant `/thumb/` et le suffixe de taille
-   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
-      - L'image doit s'afficher correctement
-      - Pas d'erreur 404 ou "Not Found"
-      - L'image doit être accessible publiquement
-      - Si l'URL ne fonctionne pas, cherche une alternative valide
-   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
+2. **Style des prompts** : Les prompts doivent être :
+   - **En anglais** (pour DALL-E 2)
+   - Descriptifs et précis
+   - Style documentaire scientifique : "Documentary style", "scientific illustration", "dark mood", "cinematic lighting"
+   - Inclure le concept scientifique principal à illustrer
+   - Format recommandé : "Documentary style illustration of [concept], [style], [qualité]"
 
-3. **Placement contextuel** : Place les images de manière contextuelle dans le contenu :
-   - Juste après avoir introduit un concept à illustrer
-   - Pour visualiser un mécanisme complexe
-   - Pour montrer un résultat ou une observation
-   - Pour enrichir une explication sans la remplacer
+3. **Concepts à illustrer** : Génère des prompts pour :
+   - Concepts scientifiques expliqués dans l'acte
+   - Technologies ou mécanismes décrits
+   - Phénomènes ou visualisations nécessaires
+   - Diagrammes ou schémas conceptuels
 
-4. **Qualité et vérification des images** : 
-   - Privilégie les images de qualité (résolution suffisante)
-   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
-   - Si une URL ne fonctionne pas, trouve une alternative valide
-   - Choisis des images qui enrichissent vraiment le contenu
-   - Évite les images décoratives sans valeur pédagogique
+4. **Nombre de prompts** : Génère 1-3 prompts par acte selon la complexité du contenu
 
-5. **Texte alternatif** : Toujours inclure un texte alternatif descriptif (`alt`) :
-   - Décrit ce que montre l'image
-   - Aide à la compréhension si l'image ne charge pas
-   - Accessible pour les lecteurs d'écran
-
-**Exemple d'utilisation** :
-```
-Les réseaux de neurones artificiels fonctionnent par couches. La première couche reçoit les données brutes.
-
-![Architecture d'un réseau de neurones montrant les couches d'entrée, cachées et de sortie](https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Colored_neural_network.svg/800px-Colored_neural_network.svg.png)
-
-Chaque neurone de cette couche effectue un calcul simple...
-```
+**Exemples de prompts** :
+- "Documentary style illustration of quantum entanglement, dark mood, cinematic lighting, scientific visualization, high quality, detailed"
+- "Scientific illustration showing neural network connections, documentary style, dark atmosphere, professional, 4K quality"
+- "Futuristic technology visualization, documentary style, dark mood, cinematic lighting, detailed, high quality"
+- "Diagram showing DNA structure, documentary style, scientific illustration, dark background, professional"
 
 **Important** :
-- **Inclus 1-3 images par acte** pour enrichir visuellement le contenu
-- Ne remplace pas les explications textuelles par des images
-- Assure-toi que les URLs d'images sont accessibles et valides
-- Les images doivent être pertinentes et enrichir la compréhension
+- **Génère 1-3 prompts par acte** dans le champ `image_prompts`
+- Les prompts doivent correspondre aux concepts clés de l'acte
+- Ne pas inclure d'URLs d'images dans le contenu markdown
+- Les images seront générées automatiquement plus tard à partir de ces prompts
 
 ## Format de sortie
 
@@ -210,6 +191,10 @@ Pour les Actes I-III, fournis un JSON avec :
   "acte_1": {
     "title": "Titre de l'Acte I",
     "content": "Contenu narratif de l'Acte I...",
+    "image_prompts": [
+      "Documentary style illustration of [concept scientifique principal], dark mood, cinematic lighting, scientific visualization, high quality",
+      "Scientific illustration showing [autre concept], documentary style, dark atmosphere, professional"
+    ],
     "references": [
       {
         "title": "Titre de la source",
@@ -221,11 +206,15 @@ Pour les Actes I-III, fournis un JSON avec :
   "acte_2": {
     "title": "Titre de l'Acte II",
     "content": "Contenu narratif de l'Acte II...",
+    "image_prompts": [
+      "Documentary style illustration of [concept], dark mood, cinematic lighting, high quality"
+    ],
     "references": []
   },
   "acte_3": {
     "title": "Titre de l'Acte III",
     "content": "Contenu narratif de l'Acte III...",
+    "image_prompts": [],
     "references": []
   }
 }

@@ -413,6 +413,8 @@ function createActCard(actKey, act, index) {
         referencesList.className = 'references-list';
         act.references.forEach(ref => {
             const refItem = document.createElement('li');
+            
+            // Lien avec titre
             const refLink = document.createElement('a');
             refLink.href = ref.url;
             refLink.target = '_blank';
@@ -420,10 +422,19 @@ function createActCard(actKey, act, index) {
             refLink.textContent = ref.title;
             refLink.className = 'reference-link';
             refItem.appendChild(refLink);
+            
+            // Nom de la source (après le titre, entre parenthèses)
+            const sourceName = extractSourceName(ref.url);
+            const sourceSpan = document.createElement('span');
+            sourceSpan.className = 'reference-source';
+            sourceSpan.textContent = ` (${sourceName})`;
+            refItem.appendChild(sourceSpan);
+            
+            // Description
             if (ref.description) {
                 const refDesc = document.createElement('span');
                 refDesc.className = 'reference-description';
-                refDesc.textContent = ` - ${ref.description}`;
+                refDesc.textContent = ` — ${ref.description}`;
                 refItem.appendChild(refDesc);
             }
             referencesList.appendChild(refItem);
@@ -620,6 +631,69 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+// Extraire le nom de la source depuis une URL
+function extractSourceName(url) {
+    try {
+        const urlObj = new URL(url);
+        let hostname = urlObj.hostname;
+        
+        // Retirer www. si présent
+        hostname = hostname.replace(/^www\./, '');
+        
+        // Extraire le domaine principal
+        const parts = hostname.split('.');
+        if (parts.length >= 2) {
+            // Prendre les deux dernières parties (ex: "mit.edu" -> "MIT", "theatlantic.com" -> "The Atlantic")
+            const domain = parts.slice(-2).join('.');
+            
+            // Nettoyer et formater le nom
+            const domainName = domain.split('.')[0];
+            
+            // Cas spéciaux pour les domaines connus
+            const knownSources = {
+                'mit': 'MIT',
+                'stanford': 'Stanford',
+                'harvard': 'Harvard',
+                'nature': 'Nature',
+                'science': 'Science',
+                'wired': 'Wired',
+                'theatlantic': 'The Atlantic',
+                'newyorker': 'The New Yorker',
+                'guardian': 'The Guardian',
+                'ted': 'TED',
+                'wikipedia': 'Wikipedia',
+                'arxiv': 'arXiv',
+                'youtube': 'YouTube',
+                'github': 'GitHub',
+                'medium': 'Medium',
+                'substack': 'Substack',
+                'nautilus': 'Nautilus',
+                'aeon': 'Aeon',
+                'quanta': 'Quanta Magazine',
+                'technologyreview': 'MIT Technology Review',
+                'lesswrong': 'LessWrong',
+                'sciencedaily': 'ScienceDaily',
+                'phys': 'Phys.org',
+                'bbc': 'BBC',
+                'pbs': 'PBS',
+                'arte': 'ARTE'
+            };
+            
+            if (knownSources[domainName.toLowerCase()]) {
+                return knownSources[domainName.toLowerCase()];
+            }
+            
+            // Capitaliser la première lettre
+            return domainName.charAt(0).toUpperCase() + domainName.slice(1);
+        }
+        
+        return hostname;
+    } catch (error) {
+        // Si l'URL est invalide, retourner une valeur par défaut
+        return 'Source';
+    }
 }
 
 // Afficher une erreur
