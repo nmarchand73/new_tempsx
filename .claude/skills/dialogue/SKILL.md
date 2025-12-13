@@ -147,22 +147,32 @@ Avant d'écrire l'Acte V, enrichis-toi avec des recherches :
    - Analyses sur les transformations que cela induit
    - Articles qui explorent les questions profondes
 
-2. **YouTube** : Recherche des discussions et réflexions :
+2. **Recherche d'images** : **IMPORTANT - Recherche activement des images pertinentes** :
+   - Utilise l'outil Browser pour rechercher des images qui illustrent les dimensions humaines
+   - Photos qui capturent des moments de réflexion humaine
+   - Images symboliques ou métaphoriques
+   - Visualisations de concepts philosophiques
+   - Vérifie que les URLs d'images sont accessibles et valides
+   - **Inclus 1-2 images** pour enrichir visuellement la réflexion
+   
+   **Comment faire** : Utilise l'outil Browser pour rechercher des images sur Google Images. Copie les URLs directes des images.
+
+3. **YouTube** : Recherche des discussions et réflexions :
    - Conférences philosophiques sur le sujet
    - Discussions sur les implications humaines
    - Documentaires qui explorent les dimensions profondes
    - Contenu qui médite sur les transformations
 
-3. **Sources de réflexion** : Si disponible, consulte :
+4. **Sources de réflexion** : Si disponible, consulte :
    - Articles de philosophie ou d'éthique
    - Analyses sur les implications sociales et humaines
    - Réflexions sur les transformations identitaires
 
-**Important** : Utilise ces recherches pour enrichir ta réflexion avec des perspectives authentiques et profondes. L'objectif est de créer une méditation qui résonne avec les vraies questions que se posent les humains face à ces sujets.
+**Important** : Utilise ces recherches pour enrichir ta réflexion avec des perspectives authentiques et profondes. **Recherche activement des images** pour enrichir visuellement la méditation. L'objectif est de créer une méditation qui résonne avec les vraies questions que se posent les humains face à ces sujets.
 
 ## Images et artefacts visuels
 
-Tu peux enrichir l'Acte V avec des images qui renforcent la réflexion et illustrent les dimensions humaines explorées.
+**OBLIGATOIRE** : Inclus des images pertinentes dans l'Acte V pour renforcer la réflexion et illustrer visuellement les dimensions humaines explorées.
 
 ### Comment inclure des images
 
@@ -171,11 +181,23 @@ Tu peux enrichir l'Acte V avec des images qui renforcent la réflexion et illust
    ![Description de l'image](https://url-de-l-image.jpg)
    ```
 
-2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver des images pertinentes :
    - Photos qui capturent des moments de réflexion humaine
    - Images symboliques ou métaphoriques
    - Visualisations de concepts philosophiques
    - Photos qui illustrent les implications humaines
+   
+   **Étapes concrètes** :
+   1. Ouvre l'outil Browser
+   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable
+   3. Recherche des images qui résonnent avec les dimensions humaines évoquées
+   4. Copie l'URL directe de l'image depuis Wikimedia Commons
+   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
+      - L'image doit s'afficher correctement
+      - Pas d'erreur 404 ou "Not Found"
+      - L'image doit être accessible publiquement
+      - Si l'URL ne fonctionne pas, cherche une alternative valide
+   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
 
 3. **Placement contextuel** : Intègre les images pour enrichir la réflexion :
    - Pour illustrer une dimension humaine évoquée
@@ -185,7 +207,8 @@ Tu peux enrichir l'Acte V avec des images qui renforcent la réflexion et illust
 
 4. **Qualité et accessibilité** :
    - Images qui résonnent avec le ton réflexif
-   - URLs accessibles et valides
+   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
+   - Si une URL ne fonctionne pas, trouve une alternative valide
    - Texte alternatif descriptif toujours inclus
    - Images qui servent la méditation, pas décoratives
 
@@ -199,9 +222,9 @@ De l'émerveillement, sans doute, devant ces systèmes qui conversent, créent, 
 ```
 
 **Important** :
-- Les images sont optionnelles - utilise-les pour enrichir la réflexion
-- Limite à 1-2 images pour garder le ton intime
+- **Inclus 1-2 images** pour enrichir visuellement la réflexion
 - Privilégie les images qui résonnent avec les dimensions humaines
+- Les images doivent être pertinentes et contextualisées
 
 ## Workflow
 

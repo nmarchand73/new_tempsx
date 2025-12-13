@@ -103,7 +103,16 @@ Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant l
    
    **Comment faire** : Utilise l'outil Browser pour visiter des sites scientifiques, des articles de presse, des blogs de vulgarisation de qualité.
 
-2. **YouTube** : Utilise l'outil Browser pour rechercher et consulter des vidéos :
+2. **Recherche d'images** : **IMPORTANT - Recherche activement des images pertinentes** :
+   - Utilise l'outil Browser pour rechercher des images qui illustrent les concepts scientifiques
+   - Recherche des diagrammes, visualisations, graphiques, photos d'expériences
+   - Trouve des images d'actualité scientifique pertinentes
+   - Vérifie que les URLs d'images sont accessibles et valides
+   - **Inclus 1-3 images par acte** pour enrichir visuellement le contenu
+   
+   **Comment faire** : Utilise l'outil Browser pour rechercher des images sur Google Images, Wikimedia Commons, ou des sites scientifiques qui proposent des visualisations. Copie les URLs directes des images (clic droit > Copier l'adresse de l'image).
+
+3. **YouTube** : Utilise l'outil Browser pour rechercher et consulter des vidéos :
    - Documentaires scientifiques sur le sujet
    - Conférences et présentations académiques
    - Chaînes de vulgarisation scientifique (Veritasium, Kurzgesagt, etc.)
@@ -111,16 +120,17 @@ Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant l
    
    **Comment faire** : Navigue vers YouTube et recherche des vidéos pertinentes sur le sujet.
 
-3. **Sources académiques** : Si disponible, consulte des sources pour vérifier l'exactitude factuelle
+4. **Sources académiques** : Si disponible, consulte des sources pour vérifier l'exactitude factuelle
 
 **Important** : 
 - Utilise activement l'outil Browser pour rechercher et consulter du contenu en ligne
+- **Recherche activement des images pertinentes** - c'est une partie importante de l'enrichissement du contenu
 - Utilise ces recherches pour **actualiser** tes connaissances et **enrichir** tes explications, pas pour copier
 - L'objectif est de créer un contenu original, précis et accessible qui résonne avec la science actuelle
 
 ## Images et artefacts visuels
 
-Tu peux enrichir le contenu des Actes I-III avec des images pertinentes pour illustrer les concepts scientifiques.
+**OBLIGATOIRE** : Inclus des images pertinentes dans chaque acte pour illustrer visuellement les concepts scientifiques. Les images enrichissent considérablement l'expérience de lecture.
 
 ### Comment inclure des images
 
@@ -129,12 +139,24 @@ Tu peux enrichir le contenu des Actes I-III avec des images pertinentes pour ill
    ![Description de l'image](https://url-de-l-image.jpg)
    ```
 
-2. **Recherche d'images** : Utilise l'outil Browser pour rechercher des images pertinentes :
+2. **Recherche d'images** : **Utilise activement l'outil Browser** pour rechercher des images pertinentes :
    - Diagrammes scientifiques explicatifs
    - Visualisations de données ou concepts
    - Photos d'expériences ou de phénomènes
    - Graphiques ou schémas pédagogiques
    - Images d'actualité scientifique
+   
+   **Étapes concrètes** :
+   1. Ouvre l'outil Browser
+   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable et stable
+   3. Trouve des images qui illustrent directement les concepts que tu expliques
+   4. Copie l'URL directe de l'image depuis Wikimedia Commons (clic droit > Copier l'adresse de l'image)
+   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
+      - L'image doit s'afficher correctement
+      - Pas d'erreur 404 ou "Not Found"
+      - L'image doit être accessible publiquement
+      - Si l'URL ne fonctionne pas, cherche une alternative valide
+   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
 
 3. **Placement contextuel** : Place les images de manière contextuelle dans le contenu :
    - Juste après avoir introduit un concept à illustrer
@@ -142,9 +164,10 @@ Tu peux enrichir le contenu des Actes I-III avec des images pertinentes pour ill
    - Pour montrer un résultat ou une observation
    - Pour enrichir une explication sans la remplacer
 
-4. **Qualité des images** : 
+4. **Qualité et vérification des images** : 
    - Privilégie les images de qualité (résolution suffisante)
-   - Vérifie que les URLs sont accessibles et valides
+   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
+   - Si une URL ne fonctionne pas, trouve une alternative valide
    - Choisis des images qui enrichissent vraiment le contenu
    - Évite les images décoratives sans valeur pédagogique
 
@@ -157,16 +180,16 @@ Tu peux enrichir le contenu des Actes I-III avec des images pertinentes pour ill
 ```
 Les réseaux de neurones artificiels fonctionnent par couches. La première couche reçoit les données brutes.
 
-![Architecture d'un réseau de neurones montrant les couches d'entrée, cachées et de sortie](https://example.com/neural-network-diagram.png)
+![Architecture d'un réseau de neurones montrant les couches d'entrée, cachées et de sortie](https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Colored_neural_network.svg/800px-Colored_neural_network.svg.png)
 
 Chaque neurone de cette couche effectue un calcul simple...
 ```
 
 **Important** :
-- Les images sont optionnelles - utilise-les seulement si elles enrichissent vraiment le contenu
+- **Inclus 1-3 images par acte** pour enrichir visuellement le contenu
 - Ne remplace pas les explications textuelles par des images
 - Assure-toi que les URLs d'images sont accessibles et valides
-- Limite à 1-3 images par acte pour garder l'équilibre
+- Les images doivent être pertinentes et enrichir la compréhension
 
 ## Format de sortie
 

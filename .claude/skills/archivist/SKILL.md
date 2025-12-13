@@ -126,22 +126,33 @@ Avant d'écrire l'Acte VI, enrichis-toi avec des recherches approfondies :
    - Articles d'époque sur les sujets scientifiques traités
    - Comparaisons entre prédictions passées et réalité présente
 
-2. **YouTube** : Recherche des archives et documentaires :
+2. **Recherche d'images** : **IMPORTANT - Recherche activement des images pertinentes** :
+   - Utilise l'outil Browser pour rechercher des images qui illustrent le pont temporel
+   - Archives photographiques des années 1980
+   - Images d'époque montrant les technologies/prédictions d'hier
+   - Photos actuelles montrant la réalité d'aujourd'hui
+   - Comparaisons visuelles passé/présent
+   - Vérifie que les URLs d'images sont accessibles et valides
+   - **Inclus 1-2 images** pour renforcer visuellement le pont temporel
+   
+   **Comment faire** : Utilise l'outil Browser pour rechercher des images historiques sur Google Images, Wikimedia Commons, ou archives en ligne. Copie les URLs directes des images.
+
+3. **YouTube** : Recherche des archives et documentaires :
    - Épisodes de Temps X disponibles en ligne
    - Documentaires des années 1980 sur la science/technologie
    - Rétrospectives sur les prédictions passées
    - Comparaisons "alors vs maintenant" sur le sujet
 
-3. **Sources historiques** : Si disponible, consulte :
+4. **Sources historiques** : Si disponible, consulte :
    - Archives de presse des années 1980
    - Publications scientifiques d'époque
    - Témoignages ou analyses rétrospectives
 
-**Important** : Utilise ces recherches pour créer un pont authentique entre le passé et le présent. L'objectif est de connecter réellement les prédictions d'hier à la réalité d'aujourd'hui, pas de créer des connexions artificielles.
+**Important** : Utilise ces recherches pour créer un pont authentique entre le passé et le présent. **Recherche activement des images** pour enrichir visuellement la connexion temporelle. L'objectif est de connecter réellement les prédictions d'hier à la réalité d'aujourd'hui, pas de créer des connexions artificielles.
 
 ## Images et artefacts visuels
 
-Tu peux enrichir l'Acte VI avec des images qui illustrent le pont temporel entre le passé et le présent.
+**OBLIGATOIRE** : Inclus des images pertinentes dans l'Acte VI pour illustrer visuellement le pont temporel entre le passé et le présent.
 
 ### Comment inclure des images
 
@@ -150,12 +161,24 @@ Tu peux enrichir l'Acte VI avec des images qui illustrent le pont temporel entre
    ![Description de l'image](https://url-de-l-image.jpg)
    ```
 
-2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver des images pertinentes :
    - Archives photographiques des années 1980
    - Images d'époque montrant les technologies/prédictions d'hier
    - Photos actuelles montrant la réalité d'aujourd'hui
    - Comparaisons visuelles passé/présent
    - Images d'épisodes Temps X originaux si disponibles
+   
+   **Étapes concrètes** :
+   1. Ouvre l'outil Browser
+   2. **Privilégie Wikimedia Commons** : Recherche des images historiques sur https://commons.wikimedia.org - c'est la source la plus fiable
+   3. Recherche des images historiques ou d'archives sur Wikimedia Commons
+   4. Copie l'URL directe de l'image depuis Wikimedia Commons
+   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
+      - L'image doit s'afficher correctement
+      - Pas d'erreur 404 ou "Not Found"
+      - L'image doit être accessible publiquement
+      - Si l'URL ne fonctionne pas, cherche une alternative valide
+   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
 
 3. **Placement contextuel** : Intègre les images pour illustrer le pont temporel :
    - Pour montrer visuellement une prédiction d'hier
@@ -165,7 +188,8 @@ Tu peux enrichir l'Acte VI avec des images qui illustrent le pont temporel entre
 
 4. **Qualité et accessibilité** :
    - Images historiques authentiques quand possible
-   - URLs accessibles et valides
+   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
+   - Si une URL ne fonctionne pas, trouve une alternative valide
    - Texte alternatif descriptif toujours inclus
    - Images qui servent la connexion temporelle
 
@@ -179,9 +203,9 @@ Quarante ans plus tard, la question persiste, mais les réponses surprennent...
 ```
 
 **Important** :
-- Les images sont optionnelles - utilise-les pour renforcer le pont temporel
-- Limite à 1-2 images pour garder le rythme narratif
+- **Inclus 1-2 images** pour renforcer visuellement le pont temporel
 - Privilégie les images authentiques qui illustrent vraiment la connexion passé/présent
+- Les images doivent être pertinentes et contextualisées
 
 ## Workflow
 

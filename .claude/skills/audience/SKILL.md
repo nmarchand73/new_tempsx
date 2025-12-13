@@ -132,22 +132,32 @@ Avant d'écrire l'Acte VII, enrichis-toi avec des recherches :
    - Controverses ou incertitudes persistantes
    - Réflexions récentes sur les choix à faire
 
-2. **YouTube** : Recherche des discussions et débats :
+2. **Recherche d'images** : **IMPORTANT - Recherche activement des images pertinentes** :
+   - Utilise l'outil Browser pour rechercher des images qui illustrent la question ouverte
+   - Photos qui illustrent les implications de la question
+   - Images symboliques ou métaphoriques
+   - Visualisations des choix ou responsabilités évoqués
+   - Vérifie que les URLs d'images sont accessibles et valides
+   - **Inclus 1 image** pour renforcer visuellement la transmission au public
+   
+   **Comment faire** : Utilise l'outil Browser pour rechercher des images sur Google Images. Copie les URLs directes des images.
+
+3. **YouTube** : Recherche des discussions et débats :
    - Conférences sur les implications éthiques/sociales
    - Débats entre experts sur les questions ouvertes
    - Documentaires qui posent des questions profondes
    - Contenu qui explore les choix et responsabilités
 
-3. **Sources de réflexion** : Si disponible, consulte :
+4. **Sources de réflexion** : Si disponible, consulte :
    - Articles d'opinion de qualité sur le sujet
    - Analyses éthiques ou philosophiques
    - Discussions sur les implications futures
 
-**Important** : Utilise ces recherches pour identifier les **vraies questions ouvertes** que se posent les experts et la société aujourd'hui. L'objectif est de créer une question authentique et profonde qui résonne avec les préoccupations actuelles.
+**Important** : Utilise ces recherches pour identifier les **vraies questions ouvertes** que se posent les experts et la société aujourd'hui. **Recherche activement des images** pour enrichir visuellement la transmission. L'objectif est de créer une question authentique et profonde qui résonne avec les préoccupations actuelles.
 
 ## Images et artefacts visuels
 
-Tu peux enrichir l'Acte VII avec des images qui renforcent la question ouverte et la transmission au public.
+**OBLIGATOIRE** : Inclus une image pertinente dans l'Acte VII pour renforcer visuellement la question ouverte et la transmission au public.
 
 ### Comment inclure des images
 
@@ -156,23 +166,36 @@ Tu peux enrichir l'Acte VII avec des images qui renforcent la question ouverte e
    ![Description de l'image](https://url-de-l-image.jpg)
    ```
 
-2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver une image pertinente :
    - Photos qui illustrent les implications de la question
    - Images symboliques ou métaphoriques
    - Visualisations des choix ou responsabilités évoqués
    - Photos qui capturent l'essence de la réflexion ouverte
+   
+   **Étapes concrètes** :
+   1. Ouvre l'outil Browser
+   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable
+   3. Recherche une image qui résonne avec la question profonde posée
+   4. Copie l'URL directe de l'image depuis Wikimedia Commons
+   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
+      - L'image doit s'afficher correctement
+      - Pas d'erreur 404 ou "Not Found"
+      - L'image doit être accessible publiquement
+      - Si l'URL ne fonctionne pas, cherche une alternative valide
+   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
 
-3. **Placement contextuel** : Intègre les images pour enrichir la transmission :
+3. **Placement contextuel** : Intègre l'image pour enrichir la transmission :
    - Pour illustrer visuellement la question posée
    - Pour renforcer la transmission au public
    - Pour créer une image finale mémorable
    - Avant ou après la question ouverte principale
 
 4. **Qualité et accessibilité** :
-   - Images qui résonnent avec la question profonde
-   - URLs accessibles et valides
+   - Image qui résonne avec la question profonde
+   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
+   - Si une URL ne fonctionne pas, trouve une alternative valide
    - Texte alternatif descriptif toujours inclus
-   - Images qui servent la réflexion, pas décoratives
+   - Image qui sert la réflexion, pas décorative
 
 **Exemple d'utilisation** :
 ```
@@ -184,9 +207,9 @@ Et nous, face à cette question, que choisissons-nous de croire ?
 ```
 
 **Important** :
-- Les images sont optionnelles - utilise-les pour renforcer la question ouverte
-- Limite à 1 image pour garder l'impact de la conclusion
-- Privilégie les images qui résonnent avec la transmission au public
+- **Inclus 1 image** pour renforcer visuellement la conclusion
+- Privilégie une image qui résonne avec la transmission au public
+- L'image doit être pertinente et contextualisée
 
 ## Workflow
 

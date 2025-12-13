@@ -126,19 +126,29 @@ Avant d'écrire l'Acte IV, enrichis-toi avec des recherches :
    - Témoignages ou récits d'expériences vécues
    - Implications sociales ou éthiques actuelles
 
-2. **YouTube** : Recherche des vidéos qui illustrent le sujet :
+2. **Recherche d'images** : **IMPORTANT - Recherche activement des images pertinentes** :
+   - Utilise l'outil Browser pour rechercher des images qui illustrent ta scène fictionnelle
+   - Recherche des photos d'environnements similaires à ta scène
+   - Trouve des images qui capturent l'atmosphère de la fiction
+   - Visualisations de technologies ou concepts évoqués
+   - Vérifie que les URLs d'images sont accessibles et valides
+   - **Inclus 1-2 images** pour renforcer l'immersion visuelle
+   
+   **Comment faire** : Utilise l'outil Browser pour rechercher des images sur Google Images ou des sites de photos. Copie les URLs directes des images.
+
+3. **YouTube** : Recherche des vidéos qui illustrent le sujet :
    - Documentaires qui montrent des applications réelles
    - Reportages sur des cas d'usage concrets
    - Témoignages de personnes qui vivent ces implications
    - Contenu qui capture l'expérience humaine du sujet
 
-3. **Sources narratives** : Si disponible, consulte des récits, témoignages, ou études de cas
+4. **Sources narratives** : Si disponible, consulte des récits, témoignages, ou études de cas
 
-**Important** : Utilise ces recherches pour **inspirer** ta fiction et créer des scènes réalistes et immersives. Ne copie pas, mais laisse-toi inspirer par la réalité pour créer une fiction authentique.
+**Important** : Utilise ces recherches pour **inspirer** ta fiction et créer des scènes réalistes et immersives. **Recherche activement des images** pour enrichir visuellement la narration. Ne copie pas, mais laisse-toi inspirer par la réalité pour créer une fiction authentique.
 
 ## Images et artefacts visuels
 
-Tu peux enrichir l'Acte IV avec des images qui renforcent l'immersion et illustrent la scène fictionnelle.
+**OBLIGATOIRE** : Inclus des images pertinentes dans l'Acte IV pour renforcer l'immersion et illustrer visuellement la scène fictionnelle.
 
 ### Comment inclure des images
 
@@ -147,11 +157,23 @@ Tu peux enrichir l'Acte IV avec des images qui renforcent l'immersion et illustr
    ![Description de l'image](https://url-de-l-image.jpg)
    ```
 
-2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver des images pertinentes :
    - Photos d'environnements similaires à ta scène
    - Images qui capturent l'atmosphère de la fiction
    - Visualisations de technologies ou concepts évoqués
    - Images qui renforcent l'immersion sensorielle
+   
+   **Étapes concrètes** :
+   1. Ouvre l'outil Browser
+   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable
+   3. Recherche des images qui correspondent à ta scène (environnements, technologies, atmosphère)
+   4. Copie l'URL directe de l'image depuis Wikimedia Commons
+   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
+      - L'image doit s'afficher correctement
+      - Pas d'erreur 404 ou "Not Found"
+      - L'image doit être accessible publiquement
+      - Si l'URL ne fonctionne pas, cherche une alternative valide
+   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
 
 3. **Placement contextuel** : Intègre les images naturellement dans la narration :
    - Pour établir l'atmosphère d'une scène
@@ -161,7 +183,8 @@ Tu peux enrichir l'Acte IV avec des images qui renforcent l'immersion et illustr
 
 4. **Qualité et accessibilité** :
    - Images de qualité qui enrichissent l'expérience
-   - URLs accessibles et valides
+   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
+   - Si une URL ne fonctionne pas, trouve une alternative valide
    - Texte alternatif descriptif toujours inclus
    - Images qui servent la narration, pas décoratives
 
@@ -175,9 +198,9 @@ Le patient respire calmement, ignorant que l'algorithme vient de détecter une a
 ```
 
 **Important** :
-- Les images sont optionnelles - utilise-les pour renforcer l'immersion
-- Limite à 1-2 images pour garder le rythme narratif
-- Assure-toi que les images servent la fiction, pas juste décoratives
+- **Inclus 1-2 images** pour renforcer l'immersion visuelle
+- Assure-toi que les images servent la fiction et enrichissent la narration
+- Les images doivent être pertinentes et contextualisées
 
 ## Workflow
 

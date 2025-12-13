@@ -44,6 +44,7 @@ class EpisodeOrchestrator:
             project_root = Path.cwd()
         self.project_root = Path(project_root)
         self.exporter = exporter
+        self._is_retry = False  # Flag pour indiquer si c'est un retry
         
         # Configuration Claude Agents SDK selon les best practices
         # Référence: https://platform.claude.com/docs/en/agent-sdk/overview
@@ -76,11 +77,66 @@ class EpisodeOrchestrator:
             Episode complet avec les 7 actes
             
         Raises:
+            ValueError: Si la génération ou la validation échoue après retry
+        """
+        max_retries = 1  # Un seul retry
+        retry_count = 0
+        
+        while retry_count <= max_retries:
+            try:
+                # Réinitialiser le flag de retry au début de chaque tentative
+                self._is_retry = (retry_count > 0)
+                
+                if retry_count > 0:
+                    logger.warning(f"🔄 Tentative de régénération {retry_count}/{max_retries}...")
+                    logger.warning("⚠️  L'épisode précédent a été rejeté. Régénération avec instructions renforcées.")
+                    logger.warning("⚠️  IMPORTANT: Utilise uniquement des URLs réelles et vérifiables pour les références.")
+                    logger.warning("⚠️  Utilise l'outil Browser pour vérifier chaque URL avant de l'inclure.")
+                
+                logger.info("🎬 Début de la génération d'un épisode NEW TEMPS X")
+                logger.info(f"📝 Scénario: {scenario[:100]}...")
+                
+                episode = await self._generate_episode_internal(scenario, is_retry=(retry_count > 0))
+                return episode
+                
+            except ValueError as e:
+                error_msg = str(e)
+                # Vérifier si c'est une erreur de validation
+                if "Épisode rejeté" in error_msg or "Validation échouée" in error_msg:
+                    if retry_count < max_retries:
+                        retry_count += 1
+                        logger.warning(f"❌ Validation échouée, retry {retry_count}/{max_retries}")
+                        logger.warning(f"   Raison: {error_msg[:200]}...")
+                        continue
+                    else:
+                        logger.error(f"❌ Échec après {max_retries} tentative(s) de régénération")
+                        raise
+                else:
+                    # Autre erreur, ne pas retry
+                    raise
+        
+        # Ne devrait jamais arriver ici
+        raise ValueError("Erreur inattendue lors de la génération")
+    
+    def _get_retry_warning(self) -> str:
+        """Retourne un message d'avertissement si c'est un retry."""
+        if hasattr(self, '_is_retry') and self._is_retry:
+            return "\n\n⚠️ ATTENTION - RÉGÉNÉRATION: L'épisode précédent a été rejeté car les références contenaient des URLs d'exemple non fonctionnelles. Utilise UNIQUEMENT des URLs réelles et vérifiables. Utilise l'outil Browser pour vérifier chaque URL avant de l'inclure dans les références."
+        return ""
+    
+    async def _generate_episode_internal(self, scenario: str, is_retry: bool = False) -> Episode:
+        """Génère un épisode complet (méthode interne appelée par generate_episode avec retry).
+        
+        Args:
+            scenario: Texte du scénario d'entrée
+            is_retry: True si c'est un retry après un échec de validation
+            
+        Returns:
+            Episode complet avec les 7 actes
+            
+        Raises:
             ValueError: Si la génération ou la validation échoue
         """
-        logger.info("🎬 Début de la génération d'un épisode NEW TEMPS X")
-        logger.info(f"📝 Scénario: {scenario[:100]}...")
-        
         async with ClaudeSDKClient(options=self.options) as client:
             # Étape 1: Définir l'arc narratif
             logger.info("📐 Étape 1/7: Définition de l'arc narratif...")
@@ -302,6 +358,7 @@ Thèmes:
 - Acte I (Le Signal): {themes.get('acte_1', '')}
 - Acte II (Le Décryptage): {themes.get('acte_2', '')}
 - Acte III (La Tension): {themes.get('acte_3', '')}
+{self._get_retry_warning()}
 
 Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon le schéma fourni."""
         
@@ -370,6 +427,7 @@ Actes précédents:
 - Acte I: {acts_1_3['acte_1'].title}
 - Acte II: {acts_1_3['acte_2'].title}
 - Acte III: {acts_1_3['acte_3'].title}
+{self._get_retry_warning()}
 
 Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon le schéma fourni."""
         
@@ -429,6 +487,7 @@ Actes précédents:
 - Acte II: {acts_1_3['acte_2'].title}
 - Acte III: {acts_1_3['acte_3'].title}
 - Acte IV: {act_4.title}
+{self._get_retry_warning()}
 
 Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon le schéma fourni."""
         
@@ -487,6 +546,7 @@ Actes précédents:
 - Actes I-III: {acts_1_3['acte_1'].title}, {acts_1_3['acte_2'].title}, {acts_1_3['acte_3'].title}
 - Acte IV: {act_4.title}
 - Acte V: {act_5.title}
+{self._get_retry_warning()}
 
 Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon le schéma fourni."""
         
@@ -548,6 +608,7 @@ Actes précédents:
 - Acte IV: {act_4.title}
 - Acte V: {act_5.title}
 - Acte VI: {act_6.title}
+{self._get_retry_warning()}
 
 Le Skill contient toutes les instructions nécessaires. Réponds en JSON selon le schéma fourni."""
         

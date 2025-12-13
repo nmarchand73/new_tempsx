@@ -263,7 +263,7 @@ La meilleure histoire de la Quatrième Dimension dure parce qu'elle est fondamen
 
 ## Images et artefacts visuels
 
-Tu peux enrichir l'histoire Twilight Zone avec des images qui renforcent l'atmosphère et illustrent les scènes.
+**OBLIGATOIRE** : Inclus des images pertinentes dans l'histoire Twilight Zone pour renforcer l'atmosphère et illustrer visuellement les scènes importantes.
 
 ### Comment inclure des images
 
@@ -272,11 +272,23 @@ Tu peux enrichir l'histoire Twilight Zone avec des images qui renforcent l'atmos
    ![Description de l'image](https://url-de-l-image.jpg)
    ```
 
-2. **Recherche d'images** : Utilise l'outil Browser pour trouver des images pertinentes :
+2. **Recherche d'images** : **Utilise activement l'outil Browser** pour trouver des images pertinentes :
    - Photos d'atmosphère qui correspondent aux scènes décrites
    - Images qui capturent l'étrangeté ou la mélancolie
    - Visualisations de technologies ou concepts évoqués
    - Images qui renforcent l'immersion dans la Quatrième Dimension
+   
+   **Étapes concrètes** :
+   1. Ouvre l'outil Browser
+   2. **Privilégie Wikimedia Commons** : Recherche des images sur https://commons.wikimedia.org - c'est la source la plus fiable
+   3. Recherche des images qui correspondent aux scènes importantes de l'histoire
+   4. Copie l'URL directe de l'image depuis Wikimedia Commons
+   5. **⚠️ VÉRIFICATION OBLIGATOIRE** : Avant d'inclure l'URL dans le contenu, utilise l'outil Browser pour naviguer vers l'URL et vérifier qu'elle fonctionne :
+      - L'image doit s'afficher correctement
+      - Pas d'erreur 404 ou "Not Found"
+      - L'image doit être accessible publiquement
+      - Si l'URL ne fonctionne pas, cherche une alternative valide
+   6. **Évite Flickr et autres sources privées** qui peuvent devenir inaccessibles
 
 3. **Placement contextuel** : Intègre les images naturellement dans la narration :
    - Pour établir l'atmosphère d'une scène importante
@@ -287,7 +299,8 @@ Tu peux enrichir l'histoire Twilight Zone avec des images qui renforcent l'atmos
 
 4. **Qualité et accessibilité** :
    - Images de qualité qui enrichissent l'expérience
-   - URLs accessibles et valides
+   - **OBLIGATOIRE** : Vérifie chaque URL avec l'outil Browser avant de l'inclure
+   - Si une URL ne fonctionne pas, trouve une alternative valide
    - Texte alternatif descriptif toujours inclus
    - Images qui servent la narration, pas décoratives
 
@@ -301,10 +314,10 @@ Il tourne le coin de la rue et s'arrête net. Devant lui, quelque chose d'imposs
 ```
 
 **Important** :
-- Les images sont optionnelles - utilise-les pour renforcer l'atmosphère
-- Limite à 2-4 images pour une histoire complète (8000-15000 mots)
+- **Inclus 2-4 images** pour une histoire complète (8000-15000 mots)
 - Assure-toi que les images servent la narration et l'atmosphère
 - Privilégie les images qui capturent l'essence de la Quatrième Dimension
+- Les images doivent être pertinentes et contextualisées
 
 ## Checklist de qualité
 

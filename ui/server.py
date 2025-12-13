@@ -265,7 +265,11 @@ class EpisodeHandler(http.server.SimpleHTTPRequestHandler):
                 return
             
             # Chercher un fichier qui commence par l'actKey
-            matching_files = list(audio_dir.glob(f"{act_key}_*.mp3"))
+            # Pour twilight_zone, chercher aussi "twilight_zone_*.mp3"
+            if act_key == "twilight_zone":
+                matching_files = list(audio_dir.glob("twilight_zone_*.mp3"))
+            else:
+                matching_files = list(audio_dir.glob(f"{act_key}_*.mp3"))
             
             if not matching_files:
                 self.send_error(404, f"Audio file not found for {act_key} in run {run_name}")

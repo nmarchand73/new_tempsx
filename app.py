@@ -181,6 +181,12 @@ Exemples:
         help='Génère uniquement l\'histoire bonus Twilight Zone (sans générer l\'épisode complet)'
     )
     
+    parser.add_argument(
+        '--audio-only',
+        action='store_true',
+        help='Génère uniquement les fichiers audio pour un épisode existant (nécessite --run-name ou --output-dir avec un épisode existant)'
+    )
+    
     args = parser.parse_args()
     
     # Configurer le logging selon verbose (doit être fait avant tout autre logging)
@@ -236,6 +242,104 @@ Que signifie vraiment 'comprendre' pour une machine ?"""
         logger.info("   (Obtenez votre clé sur https://console.anthropic.com/)")
     else:
         logger.debug("✅ API key trouvée, utilisation de l'API Anthropic")
+    
+    # Mode audio-only : générer uniquement l'audio pour un épisode existant
+    if args.audio_only:
+        if not args.run_name:
+            logger.error("❌ --audio-only nécessite --run-name pour spécifier l'épisode existant")
+            logger.error("   Exemple: python app.py --audio-only --run-name nom_de_l_episode")
+            sys.exit(1)
+        
+        run_name = args.run_name
+        base_output_dir = Path(args.output_dir)
+        output_dir = base_output_dir / run_name
+        episode_json = output_dir / "episode.json"
+        
+        if not episode_json.exists():
+            logger.error(f"❌ Fichier episode.json introuvable: {episode_json}")
+            logger.error(f"   Vérifiez que l'épisode existe dans: {output_dir}")
+            sys.exit(1)
+        
+        logger.info("🎵 Mode audio-only: génération uniquement des fichiers audio")
+        logger.info(f"📁 Épisode: {run_name}")
+        logger.info(f"📁 Répertoire: {output_dir}")
+        
+        try:
+            from newtempsx.audio_generator import AudioGenerator, TTSProvider
+            from newtempsx.models import Episode
+            import json
+            
+            # Charger l'épisode depuis le JSON
+            logger.info("📂 Chargement de l'épisode depuis episode.json...")
+            with open(episode_json, 'r', encoding='utf-8') as f:
+                episode_dict = json.load(f)
+            
+            # Convertir en modèle Episode
+            from newtempsx.models import Act, Reference, TwilightZoneStory
+            acts = {}
+            for act_key, act_data in episode_dict.get('acts', {}).items():
+                # Convertir les références
+                references = []
+                for ref_data in act_data.get('references', []):
+                    references.append(Reference(**ref_data))
+                act_data['references'] = references
+                acts[act_key] = Act(**act_data)
+            
+            episode = Episode(
+                episode_title=episode_dict.get('episode_title', 'Épisode'),
+                scenario_input=episode_dict.get('scenario_input', ''),
+                narrative_arc=episode_dict.get('narrative_arc', ''),
+                acts=acts
+            )
+            
+            # Charger l'histoire Twilight Zone si présente
+            if 'twilight_zone_story' in episode_dict and episode_dict['twilight_zone_story']:
+                twilight_data = episode_dict['twilight_zone_story']
+                episode.twilight_zone_story = TwilightZoneStory(**twilight_data)
+            
+            logger.info(f"✅ Épisode chargé: {episode.episode_title}")
+            
+            # Générer l'audio
+            provider = TTSProvider.ELEVENLABS if args.audio_provider == 'elevenlabs' else TTSProvider.OPENAI
+            cost_optimized = os.getenv("ELEVENLABS_COST_OPTIMIZED", "false").lower() == "true"
+            
+            logger.info(f"🎵 Génération des fichiers audio avec {provider.value}...")
+            if cost_optimized:
+                logger.info("💰 Mode économique activé (réduction des coûts)")
+            
+            audio_gen = AudioGenerator(
+                output_dir=output_dir / "audio",
+                provider=provider,
+                cost_optimized=cost_optimized
+            )
+            
+            audio_files = await audio_gen.generate_episode_audio(episode)
+            generated_count = sum(1 for path in audio_files.values() if path is not None)
+            
+            # Générer l'audio pour l'histoire Twilight Zone si disponible
+            if episode.twilight_zone_story:
+                logger.info("🎬 Génération audio pour l'histoire Twilight Zone...")
+                twilight_audio = await audio_gen.generate_twilight_zone_audio(
+                    episode.twilight_zone_story,
+                    episode.episode_title
+                )
+                if twilight_audio:
+                    logger.info(f"✅ Audio Twilight Zone généré: {twilight_audio.name}")
+                    generated_count += 1
+            
+            if generated_count > 0:
+                logger.info(f"✅ {generated_count} fichiers audio générés dans {output_dir / 'audio'}")
+            else:
+                logger.warning("⚠️  Aucun fichier audio généré. Vérifiez vos clés API.")
+            
+            logger.info(f"\n✅ Génération audio terminée!")
+            logger.info(f"📁 Fichiers audio dans: {(output_dir / 'audio').absolute()}")
+            return
+        
+        except Exception as e:
+            logger.exception("❌ Erreur lors de la génération audio")
+            logger.error(f"Erreur: {e}")
+            sys.exit(1)
     
     if args.twilight_only:
         logger.info("🌟 Génération d'une histoire Twilight Zone uniquement...")

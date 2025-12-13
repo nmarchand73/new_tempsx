@@ -726,6 +726,8 @@ async function toggleAudio(actKey, index) {
             if (key !== actKey && audioPlayers[key]) {
                 audioPlayers[key].pause();
                 audioPlayers[key].currentTime = 0;
+                
+                // Gérer les boutons des actes normaux
                 const otherIndex = allActs.indexOf(key);
                 if (otherIndex >= 0) {
                     const otherBtn = document.getElementById(`audio-btn-${otherIndex}`);
@@ -735,8 +737,37 @@ async function toggleAudio(actKey, index) {
                         otherBtn.classList.remove('playing');
                     }
                 }
+                
+                // Gérer le bouton Twilight Zone
+                if (key === 'twilight_zone') {
+                    const twilightBtn = document.getElementById('audio-btn-twilight-zone');
+                    if (twilightBtn) {
+                        twilightBtn.querySelector('.audio-icon.play').style.display = 'block';
+                        twilightBtn.querySelector('.audio-icon.pause').style.display = 'none';
+                        twilightBtn.classList.remove('playing');
+                    }
+                }
             }
         });
+        
+        // Arrêter les autres lecteurs si on joue twilight_zone
+        if (actKey === 'twilight_zone') {
+            Object.keys(audioPlayers).forEach(key => {
+                if (key !== actKey && audioPlayers[key]) {
+                    audioPlayers[key].pause();
+                    audioPlayers[key].currentTime = 0;
+                    const otherIndex = allActs.indexOf(key);
+                    if (otherIndex >= 0) {
+                        const otherBtn = document.getElementById(`audio-btn-${otherIndex}`);
+                        if (otherBtn) {
+                            otherBtn.querySelector('.audio-icon.play').style.display = 'block';
+                            otherBtn.querySelector('.audio-icon.pause').style.display = 'none';
+                            otherBtn.classList.remove('playing');
+                        }
+                    }
+                }
+            });
+        }
         
     } catch (error) {
         console.error('Erreur lors de la création du lecteur audio:', error);
@@ -769,8 +800,31 @@ function renderTwilightZoneStory() {
     if (typeof marked !== 'undefined') {
         storyHTML = `
             <div class="twilight-zone-header">
-                <h3>${escapeHtml(story.title)}</h3>
-                <p class="twilight-zone-theme">Thème: ${escapeHtml(story.theme)}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3>${escapeHtml(story.title)}</h3>
+                        <p class="twilight-zone-theme">Thème: ${escapeHtml(story.theme)}</p>
+                    </div>
+                    <div class="audio-controls" style="display: flex; gap: 0.5rem;">
+                        <button class="audio-btn" id="audio-btn-twilight-zone" data-act-key="twilight_zone" style="display: none;" disabled>
+                            <svg class="audio-icon play" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <svg class="audio-icon pause" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                                <rect x="6" y="4" width="4" height="16"></rect>
+                                <rect x="14" y="4" width="4" height="16"></rect>
+                            </svg>
+                        </button>
+                        <button class="speech-btn" id="speech-btn-twilight-zone" data-act-key="twilight_zone" style="display: none;" title="Lire avec la synthèse vocale">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="twilight-zone-content">
                 ${marked.parse(story.story)}
@@ -781,8 +835,31 @@ function renderTwilightZoneStory() {
         const paragraphs = story.story.split('\n\n').filter(p => p.trim());
         storyHTML = `
             <div class="twilight-zone-header">
-                <h3>${escapeHtml(story.title)}</h3>
-                <p class="twilight-zone-theme">Thème: ${escapeHtml(story.theme)}</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <h3>${escapeHtml(story.title)}</h3>
+                        <p class="twilight-zone-theme">Thème: ${escapeHtml(story.theme)}</p>
+                    </div>
+                    <div class="audio-controls" style="display: flex; gap: 0.5rem;">
+                        <button class="audio-btn" id="audio-btn-twilight-zone" data-act-key="twilight_zone" style="display: none;" disabled>
+                            <svg class="audio-icon play" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                            </svg>
+                            <svg class="audio-icon pause" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                                <rect x="6" y="4" width="4" height="16"></rect>
+                                <rect x="14" y="4" width="4" height="16"></rect>
+                            </svg>
+                        </button>
+                        <button class="speech-btn" id="speech-btn-twilight-zone" data-act-key="twilight_zone" style="display: none;" title="Lire avec la synthèse vocale">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="23"></line>
+                                <line x1="8" y1="23" x2="16" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
             <div class="twilight-zone-content">
                 ${paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('')}
@@ -791,6 +868,19 @@ function renderTwilightZoneStory() {
     }
     
     storyEl.innerHTML = storyHTML;
+    
+    // Vérifier la disponibilité audio et configurer les boutons
+    const audioBtn = document.getElementById('audio-btn-twilight-zone');
+    const speechBtn = document.getElementById('speech-btn-twilight-zone');
+    if (audioBtn && speechBtn) {
+        checkAudioAvailability('twilight_zone', audioBtn, 'twilight-zone', speechBtn);
+        
+        // Configurer le bouton speech
+        if (speechSynthesis) {
+            speechBtn.style.display = 'flex';
+            speechBtn.addEventListener('click', () => toggleSpeech('twilight-zone'));
+        }
+    }
     
     // Traiter les images dans l'histoire Twilight Zone
     const twilightContent = storyEl.querySelector('.twilight-zone-content');
@@ -888,6 +978,51 @@ function getFrenchVoice(narrator = 'narrator_1') {
             if (femaleVoices.length > 0) {
                 return femaleVoices[0];
             }
+        } else if (narrator === 'twilight') {
+            // Twilight Zone : préférer voix masculine profonde
+            // Priorité 1: Voix neurales/premium masculines profondes
+            const neuralVoices = frenchVoices.filter(v => 
+                (v.name.toLowerCase().includes('neural') ||
+                 v.name.toLowerCase().includes('premium') ||
+                 v.name.toLowerCase().includes('enhanced') ||
+                 v.name.toLowerCase().includes('natural') ||
+                 v.name.toLowerCase().includes('wavenet') ||
+                 v.name.toLowerCase().includes('standard')) &&
+                (v.name.toLowerCase().includes('thomas') ||
+                 v.name.toLowerCase().includes('paul') ||
+                 v.name.toLowerCase().includes('arnold') ||
+                 v.name.toLowerCase().includes('male') ||
+                 (!v.name.toLowerCase().includes('female') && 
+                  !v.name.toLowerCase().includes('féminin')))
+            );
+            
+            if (neuralVoices.length > 0) {
+                // Préférer Thomas ou voix masculine profonde
+                const thomas = neuralVoices.find(v => v.name.toLowerCase().includes('thomas'));
+                if (thomas) return thomas;
+                const male = neuralVoices.find(v => 
+                    v.name.toLowerCase().includes('male') ||
+                    (!v.name.toLowerCase().includes('female') && 
+                     !v.name.toLowerCase().includes('féminin'))
+                );
+                if (male) return male;
+                return neuralVoices[0];
+            }
+            
+            // Priorité 2: Voix masculines de qualité
+            const maleVoices = frenchVoices.filter(v => 
+                v.name.toLowerCase().includes('thomas') ||
+                v.name.toLowerCase().includes('paul') ||
+                v.name.toLowerCase().includes('arnold') ||
+                (!v.name.toLowerCase().includes('female') && 
+                 !v.name.toLowerCase().includes('féminin') &&
+                 !v.name.toLowerCase().includes('denise') &&
+                 !v.name.toLowerCase().includes('julie'))
+            );
+            
+            if (maleVoices.length > 0) {
+                return maleVoices[0];
+            }
         } else {
             // Narrateur 2 : préférer voix masculine
             // Priorité 1: Voix neurales/premium masculines
@@ -983,12 +1118,29 @@ function toggleSpeech(index, isDoubleClick = false) {
     // Arrêter toute lecture en cours
     stopSpeech();
     
-    // Récupérer le contenu de l'acte
-    const actCard = document.getElementById(`act-${index}`);
-    if (!actCard) return;
+    // Récupérer le contenu (acte ou histoire Twilight Zone)
+    let contentElement = null;
+    let actCard = null;
+    let narrator = 'narrator_1';
     
-    const contentElement = actCard.querySelector('.act-content');
-    if (!contentElement) return;
+    if (index === 'twilight-zone') {
+        // Cas spécial pour l'histoire Twilight Zone
+        actCard = document.getElementById('twilight-zone-section');
+        if (!actCard) return;
+        contentElement = actCard.querySelector('.twilight-zone-content');
+        if (!contentElement) return;
+        // Utiliser la voix spéciale Twilight Zone (masculine profonde)
+        narrator = 'twilight';
+    } else {
+        // Cas normal pour les actes
+        actCard = document.getElementById(`act-${index}`);
+        if (!actCard) return;
+        contentElement = actCard.querySelector('.act-content');
+        if (!contentElement) return;
+        // Récupérer le narrateur de l'acte
+        const act = currentEpisode.acts[allActs[index]];
+        narrator = act?.narrator || 'narrator_1';
+    }
     
     // Extraire le texte
     const text = extractTextFromHTML(contentElement);
@@ -997,10 +1149,6 @@ function toggleSpeech(index, isDoubleClick = false) {
         console.warn('Aucun texte à lire');
         return;
     }
-    
-    // Récupérer le narrateur de l'acte
-    const act = currentEpisode.acts[allActs[index]];
-    const narrator = act?.narrator || 'narrator_1';
     
     // Créer l'utterance
     const utterance = new SpeechSynthesisUtterance(text);
@@ -1019,6 +1167,8 @@ function toggleSpeech(index, isDoubleClick = false) {
     // Ajuster le pitch selon le narrateur (féminin = plus aigu, masculin = plus grave)
     if (narrator === 'narrator_1') {
         utterance.pitch = 1.1; // Légèrement plus aigu pour narrateur 1 (féminin)
+    } else if (narrator === 'twilight') {
+        utterance.pitch = 0.85; // Plus grave pour Twilight Zone (voix masculine profonde)
     } else {
         utterance.pitch = 0.9; // Légèrement plus grave pour narrateur 2 (masculin)
     }
@@ -1035,8 +1185,10 @@ function toggleSpeech(index, isDoubleClick = false) {
         btn.classList.add('playing');
         btn.title = 'Mettre en pause (double-clic pour arrêter)';
         
-        // Mettre en évidence l'acte en cours de lecture
-        actCard.classList.add('speaking');
+        // Mettre en évidence l'acte ou la section en cours de lecture
+        if (actCard) {
+            actCard.classList.add('speaking');
+        }
     };
     
     utterance.onend = () => {
@@ -1044,7 +1196,9 @@ function toggleSpeech(index, isDoubleClick = false) {
         if (pauseIcon) pauseIcon.style.display = 'none';
         btn.classList.remove('playing');
         btn.title = 'Lire avec la synthèse vocale';
-        actCard.classList.remove('speaking');
+        if (actCard) {
+            actCard.classList.remove('speaking');
+        }
         currentSpeechIndex = -1;
         currentUtterance = null;
         speechPaused = false;
@@ -1057,7 +1211,9 @@ function toggleSpeech(index, isDoubleClick = false) {
         if (pauseIcon) pauseIcon.style.display = 'none';
         btn.classList.remove('playing');
         btn.title = 'Erreur de lecture';
-        actCard.classList.remove('speaking');
+        if (actCard) {
+            actCard.classList.remove('speaking');
+        }
         currentSpeechIndex = -1;
         currentUtterance = null;
         speechPaused = false;

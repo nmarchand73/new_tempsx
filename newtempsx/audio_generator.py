@@ -10,6 +10,7 @@ import hashlib
 import json
 import logging
 import os
+import re
 from enum import Enum
 from pathlib import Path
 from typing import Optional
@@ -29,6 +30,10 @@ class TTSProvider(str, Enum):
 
 class AudioGenerator:
     """Génère des fichiers audio à partir des textes des épisodes."""
+    
+    # Voix OpenAI pour Twilight Zone - TOUJOURS utiliser "onyx" (voix masculine profonde, parfaite pour l'ambiance)
+    # Cette voix est optimale et ne doit PAS être changée
+    OPENAI_TWILIGHT_VOICE = "onyx"
     
     def __init__(
         self,
@@ -130,6 +135,37 @@ class AudioGenerator:
                 "use_speaker_boost": True
             }
     
+    def _clean_text_for_tts(self, text: str) -> str:
+        """Nettoie le texte pour la synthèse vocale en supprimant les éléments markdown non lisibles.
+        
+        Supprime:
+        - Les images markdown: ![alt](url)
+        - Les liens markdown: [text](url) (garde seulement le texte)
+        - Les éléments de formatage excessifs
+        
+        Args:
+            text: Texte à nettoyer
+            
+        Returns:
+            Texte nettoyé, prêt pour la synthèse vocale
+        """
+        # Supprimer les images markdown: ![alt text](url)
+        text = re.sub(r'!\[([^\]]*)\]\([^\)]+\)', r'\1', text)
+        
+        # Remplacer les liens markdown par leur texte: [text](url) -> text
+        text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', text)
+        
+        # Supprimer les URLs brutes (http://, https://)
+        text = re.sub(r'https?://[^\s]+', '', text)
+        
+        # Nettoyer les espaces multiples
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Nettoyer les sauts de ligne multiples
+        text = re.sub(r'\n\s*\n\s*\n+', '\n\n', text)
+        
+        return text.strip()
+    
     def generate_act_audio(self, act: Act, act_key: str, episode_title: str) -> Optional[Path]:
         """Génère l'audio pour un acte (méthode synchrone pour compatibilité).
         
@@ -190,15 +226,21 @@ class AudioGenerator:
         # Texte complet (titre + contenu)
         full_text = f"{act.title}\n\n{act.content}"
         
+        # Nettoyer le texte pour la synthèse vocale (supprimer images markdown, liens, etc.)
+        cleaned_text = self._clean_text_for_tts(full_text)
+        
+        # Logger la longueur du texte pour debug
+        logger.debug(f"📏 Longueur du texte pour {act_key}: {len(cleaned_text)} caractères")
+        
         logger.info(f"🎤 Génération audio pour {act_key} (Narrateur: {narrator})...")
         
         try:
             if self.provider == TTSProvider.ELEVENLABS:
-                audio_path = await self._generate_elevenlabs_async(full_text, output_path, voice_id)
+                audio_path = await self._generate_elevenlabs_async(cleaned_text, output_path, voice_id)
             elif self.provider == TTSProvider.OPENAI:
                 # OpenAI utilise un paramètre voice différent
                 openai_voice = "fable" if narrator == "narrator_1" else "onyx"
-                audio_path = await self._generate_openai_async(full_text, output_path, openai_voice)
+                audio_path = await self._generate_openai_async(cleaned_text, output_path, openai_voice)
             else:
                 raise ValueError(f"Provider non supporté: {self.provider}")
             
@@ -263,9 +305,34 @@ class AudioGenerator:
         output_path: Path, 
         voice: str = "fable"
     ) -> Optional[Path]:
-        """Génère l'audio avec OpenAI TTS (asynchrone)."""
+        """Génère l'audio avec OpenAI TTS (asynchrone).
+        
+        OpenAI TTS a une limite de 4096 caractères. Si le texte est trop long,
+        il sera tronqué avec un avertissement.
+        """
         if not self.openai_api_key:
             raise ValueError("OPENAI_API_KEY non configurée")
+        
+        # OpenAI TTS limite à 4096 caractères
+        MAX_CHARS = 4096
+        original_length = len(text)
+        
+        if original_length > MAX_CHARS:
+            logger.warning(f"⚠️  Texte trop long ({original_length} caractères), troncature à {MAX_CHARS} caractères")
+            # Tronquer à la limite, en essayant de couper à un point de phrase
+            text = text[:MAX_CHARS]
+            # Chercher le dernier point, point d'exclamation ou point d'interrogation
+            last_sentence_end = max(
+                text.rfind('.'),
+                text.rfind('!'),
+                text.rfind('?')
+            )
+            if last_sentence_end > MAX_CHARS * 0.8:  # Si on trouve une fin de phrase dans les 80% finaux
+                text = text[:last_sentence_end + 1]
+            else:
+                # Sinon, tronquer simplement
+                text = text[:MAX_CHARS]
+            logger.warning(f"   Texte tronqué à {len(text)} caractères")
         
         url = "https://api.openai.com/v1/audio/speech"
         
@@ -277,22 +344,50 @@ class AudioGenerator:
         data = {
             "model": self.model,
             "input": text,
-            "voice": voice,  # Utilise le paramètre passé au lieu de "alloy" en dur
+            "voice": voice,
             "response_format": "mp3"
         }
         
-        async with httpx.AsyncClient(timeout=300.0) as client:
-            response = await client.post(url, json=data, headers=headers)
-            response.raise_for_status()
+        try:
+            async with httpx.AsyncClient(timeout=300.0) as client:
+                response = await client.post(url, json=data, headers=headers)
+                
+                # Améliorer la gestion des erreurs
+                if response.status_code == 400:
+                    error_detail = ""
+                    try:
+                        error_json = response.json()
+                        error_detail = error_json.get("error", {}).get("message", "")
+                    except:
+                        error_detail = response.text[:500]
+                    
+                    logger.error(f"❌ Erreur 400 Bad Request de l'API OpenAI")
+                    logger.error(f"   Détail: {error_detail}")
+                    logger.error(f"   Longueur du texte: {len(text)} caractères")
+                    logger.error(f"   Modèle: {self.model}, Voix: {voice}")
+                    raise ValueError(f"Erreur API OpenAI: {error_detail}")
+                
+                response.raise_for_status()
+                
+                # Sauvegarder le fichier audio
+                with open(output_path, "wb") as f:
+                    f.write(response.content)
             
-            # Sauvegarder le fichier audio
-            with open(output_path, "wb") as f:
-                f.write(response.content)
-        
-        return output_path
+            return output_path
+            
+        except httpx.HTTPStatusError as e:
+            logger.error(f"❌ Erreur HTTP {e.response.status_code}: {e}")
+            if e.response.status_code == 400:
+                try:
+                    error_json = e.response.json()
+                    error_detail = error_json.get("error", {}).get("message", "Erreur inconnue")
+                    logger.error(f"   Message d'erreur: {error_detail}")
+                except:
+                    logger.error(f"   Réponse brute: {e.response.text[:500]}")
+            raise
     
     async def generate_episode_audio(self, episode: Episode) -> dict[str, Optional[Path]]:
-        """Génère l'audio pour tous les actes d'un épisode (avec traitement batch).
+        """Génère l'audio pour tous les actes d'un épisode (séquentiel).
         
         Args:
             episode: L'épisode complet
@@ -304,12 +399,12 @@ class AudioGenerator:
         logger.info(f"📁 Provider: {self.provider.value}")
         logger.info(f"📂 Répertoire de sortie: {self.output_dir}")
         
-        # Utiliser le traitement batch asynchrone pour tous les providers
-        logger.info(f"⚡ Mode batch activé: {self.max_concurrent} requêtes parallèles")
-        return await self._generate_episode_audio_batch(episode)
+        # Utiliser le traitement séquentiel pour éviter les erreurs 400
+        logger.info(f"🔄 Mode séquentiel activé: génération un acte à la fois")
+        return await self._generate_episode_audio_sequential(episode)
     
-    async def _generate_episode_audio_batch(self, episode: Episode) -> dict[str, Optional[Path]]:
-        """Génère l'audio pour tous les actes en parallèle (batch).
+    async def _generate_episode_audio_sequential(self, episode: Episode) -> dict[str, Optional[Path]]:
+        """Génère l'audio pour tous les actes de manière séquentielle.
         
         Args:
             episode: L'épisode complet
@@ -318,47 +413,29 @@ class AudioGenerator:
             Dictionnaire {act_key: audio_path} pour chaque acte
         """
         audio_files = {}
+        acts_list = sorted(episode.acts.items())
+        total_acts = len(acts_list)
         
-        # Préparer toutes les tâches
-        tasks = []
-        act_keys = []
+        logger.info(f"🔄 Génération séquentielle de {total_acts} fichiers audio...")
         
-        for act_key, act in sorted(episode.acts.items()):
-            act_keys.append(act_key)
-            tasks.append(
-                self._generate_act_audio_async(act, act_key, episode.episode_title)
-            )
-        
-        # Exécuter en batch avec limitation du nombre de requêtes parallèles
-        logger.info(f"🚀 Lancement de {len(tasks)} générations audio en parallèle...")
-        
-        # Utiliser un semaphore pour limiter le nombre de requêtes simultanées
-        semaphore = asyncio.Semaphore(self.max_concurrent)
-        
-        async def bounded_generate(task, act_key):
-            async with semaphore:
-                return act_key, await task
-        
-        # Créer les tâches avec semaphore
-        bounded_tasks = [
-            bounded_generate(task, act_key) 
-            for task, act_key in zip(tasks, act_keys)
-        ]
-        
-        # Exécuter toutes les tâches
-        results = await asyncio.gather(*bounded_tasks, return_exceptions=True)
-        
-        # Traiter les résultats
-        for result in results:
-            if isinstance(result, Exception):
-                logger.error(f"❌ Erreur dans le batch: {result}")
-                continue
-            
-            act_key, audio_path = result
-            audio_files[act_key] = audio_path
+        # Générer chaque acte un par un
+        for idx, (act_key, act) in enumerate(acts_list, 1):
+            try:
+                logger.info(f"📝 [{idx}/{total_acts}] Génération audio pour {act_key}...")
+                audio_path = await self._generate_act_audio_async(act, act_key, episode.episode_title)
+                audio_files[act_key] = audio_path
+                
+                if audio_path:
+                    logger.info(f"✅ [{idx}/{total_acts}] Audio généré: {audio_path.name}")
+                else:
+                    logger.warning(f"⚠️  [{idx}/{total_acts}] Échec de génération pour {act_key}")
+                    
+            except Exception as e:
+                logger.error(f"❌ [{idx}/{total_acts}] Erreur lors de la génération audio pour {act_key}: {e}")
+                audio_files[act_key] = None
         
         generated_count = sum(1 for path in audio_files.values() if path is not None)
-        logger.info(f"✅ {generated_count}/{len(audio_files)} fichiers audio générés")
+        logger.info(f"✅ {generated_count}/{total_acts} fichiers audio générés avec succès")
         
         return audio_files
     
@@ -451,16 +528,21 @@ class AudioGenerator:
         # Texte complet (titre + histoire)
         full_text = f"{twilight_story.title}\n\n{twilight_story.story}"
         
+        # Nettoyer le texte pour la synthèse vocale (supprimer images markdown, liens, etc.)
+        cleaned_text = self._clean_text_for_tts(full_text)
+        
         logger.info(f"🎬 Génération audio Twilight Zone avec voix spéciale...")
         logger.info(f"   Titre: {twilight_story.title}")
         
         try:
             if self.provider == TTSProvider.ELEVENLABS:
                 # Utiliser la voix spéciale Twilight Zone (Rod Serling ou similaire)
-                audio_path = await self._generate_elevenlabs_async(full_text, output_path, self.voice_id_twilight)
+                audio_path = await self._generate_elevenlabs_async(cleaned_text, output_path, self.voice_id_twilight)
             elif self.provider == TTSProvider.OPENAI:
-                # OpenAI: utiliser "onyx" qui est une voix masculine profonde
-                audio_path = await self._generate_openai_async(full_text, output_path, "onyx")
+                # OpenAI: TOUJOURS utiliser la voix définie dans OPENAI_TWILIGHT_VOICE ("onyx")
+                # Cette voix masculine profonde est optimale pour l'ambiance Twilight Zone - NE PAS CHANGER
+                audio_path = await self._generate_openai_async(cleaned_text, output_path, self.OPENAI_TWILIGHT_VOICE)
+                logger.info(f"   Voix utilisée: {self.OPENAI_TWILIGHT_VOICE} (voix fixe pour Twilight Zone)")
             else:
                 raise ValueError(f"Provider non supporté: {self.provider}")
             

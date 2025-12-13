@@ -1058,11 +1058,12 @@ body {
 .act-content img,
 .narrative-arc img,
 .twilight-zone-content img {
-    max-width: 100%;
+    max-width: 65%;
+    width: auto;
     height: auto;
-    border-radius: var(--border-radius);
-    margin: var(--spacing-md) 0;
-    box-shadow: var(--shadow-md);
+    border-radius: var(--border-radius-sm);
+    margin: var(--spacing-sm) auto var(--spacing-md) auto;
+    box-shadow: var(--shadow-sm);
     transition: var(--transition);
     cursor: pointer;
     display: block;
@@ -1072,23 +1073,62 @@ body {
     overflow: hidden;
 }
 
+/* Espacement autour des images pour une meilleure intégration */
+.act-content p + img,
+.narrative-arc p + img,
+.twilight-zone-content p + img {
+    margin-top: var(--spacing-md);
+}
+
+.act-content img + p,
+.narrative-arc img + p,
+.twilight-zone-content img + p {
+    margin-top: var(--spacing-md);
+}
+
+/* Images plus petites pour une meilleure intégration */
+@media (min-width: 768px) {
+    .act-content img,
+    .narrative-arc img,
+    .twilight-zone-content img {
+        max-width: 55%;
+    }
+}
+
+@media (min-width: 1024px) {
+    .act-content img,
+    .narrative-arc img,
+    .twilight-zone-content img {
+        max-width: 50%;
+    }
+}
+
+/* Images sur mobile - un peu plus grandes mais pas 100% */
+@media (max-width: 767px) {
+    .act-content img,
+    .narrative-arc img,
+    .twilight-zone-content img {
+        max-width: 85%;
+        margin: var(--spacing-xs) auto;
+    }
+}
+
 .act-content img:hover,
 .narrative-arc img:hover,
 .twilight-zone-content img:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg), 0 0 20px rgba(74, 158, 255, 0.2);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: var(--shadow-md), 0 0 15px rgba(74, 158, 255, 0.25);
     border-color: var(--color-text-accent);
 }
 
-/* Images centrées */
+/* Images centrées - toutes les images sont centrées par défaut */
 .act-content img[style*="center"],
 .narrative-arc img[style*="center"],
 .twilight-zone-content img[style*="center"],
 .act-content img.center,
 .narrative-arc img.center,
 .twilight-zone-content img.center {
-    margin-left: auto;
-    margin-right: auto;
+    /* Déjà centrées par défaut avec margin: auto */
 }
 
 /* Placeholder pendant le chargement */
@@ -1132,7 +1172,7 @@ body {
 .act-content img.error,
 .narrative-arc img.error,
 .twilight-zone-content img.error {
-    min-height: 200px;
+    min-height: 120px;
     display: flex;
     align-items: center;
     justify-content: center;
