@@ -264,6 +264,11 @@ function renderActs() {
     if (!currentEpisode) return;
     
     const actsSection = document.getElementById('acts-section');
+    if (!actsSection) {
+        console.error('Élément acts-section introuvable dans le DOM');
+        return;
+    }
+    
     actsSection.innerHTML = '';
     
     allActs.forEach((actKey, index) => {
