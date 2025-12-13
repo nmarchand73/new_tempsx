@@ -83,26 +83,28 @@ Analyse 3-5 épisodes complets (ex: "Where Is Everybody?", "The Lonely", "Walkin
 
 ### Formule d'ouverture
 
+**Formule de base** :
 "_[Description du temps/lieu]. Voici [Nom], [âge/profession], [trait caractéristique]. Ce soir, [Nom] est sur le point de découvrir [allusion à la prémisse]. Il/elle est sur le point d'entreprendre un voyage dans un pays de [description]. Il/elle entre... dans la Quatrième Dimension._"
 
-**⚠️ IMPORTANT - Variations (choisir UNE SEULE)** :
-Tu dois choisir UNE SEULE de ces variations, pas les combiner :
+**⚠️ IMPORTANT - Variations de la formule d'ouverture (choisir UNE SEULE)** :
+Tu dois choisir SOIT la formule de base ci-dessus, SOIT UNE SEULE de ces variations alternatives. Ne pas combiner :
 - "_Voici [Nom]. [Description]. Mais ce soir..._"
 - "_Témoin [Nom], un/une [description] qui [situation]..._"
 - "_Le temps : [ère]. Le lieu : [lieu]. L'homme/La femme : [description]..._"
 
-**Ne PAS utiliser plusieurs variations dans la même histoire. Choisis celle qui convient le mieux au ton et au contexte.**
+**Ne PAS utiliser plusieurs variations dans la même histoire. Choisis la formule de base ou une seule variation qui convient le mieux au ton et au contexte.**
 
 ### Formule de conclusion
 
+**Formule de base** :
 "_[Nom du personnage], [âge/profession], qui a appris que [leçon]. Un homme/une femme qui a découvert [vérité] dans un endroit que nous appelons... la Quatrième Dimension._"
 
-**⚠️ IMPORTANT - Variations (choisir UNE SEULE)** :
-Tu dois choisir UNE SEULE de ces variations, pas les combiner :
+**⚠️ IMPORTANT - Variations de la formule de conclusion (choisir UNE SEULE)** :
+Tu dois choisir SOIT la formule de base ci-dessus, SOIT UNE SEULE de ces variations alternatives. Ne pas combiner :
 - "_Morale : [leçon]. Pour [Personnage], [ce qui s'est passé]. Soumis à votre approbation, un/une [description] dans la Quatrième Dimension._"
 - "_L'histoire de [Personnage]. Une histoire de [thème]. Une histoire... de la Quatrième Dimension._"
 
-**Ne PAS utiliser plusieurs variations dans la même histoire. Choisis celle qui convient le mieux au ton et au contexte.**
+**Ne PAS utiliser plusieurs variations dans la même histoire. Choisis la formule de base ou une seule variation qui convient le mieux au ton et au contexte.**
 
 ### Formule au milieu de l'histoire (optionnel)
 
