@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEW TEMPS X - Lecteur d'épisodes</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-container">
+                    <h1 class="logo">NEW TEMPS X</h1>
+                    <span class="logo-subtitle">Système narratif AI</span>
+                </div>
+                <div class="header-meta">
+                    <div class="run-selector-container">
+                        <label for="run-selector" class="run-selector-label">📚 Épisode:</label>
+                        <select id="run-selector" class="run-selector" aria-label="Sélectionner un épisode">
+                            <option value="">Chargement...</option>
+                        </select>
+                    </div>
+                    <span class="episode-title" id="episode-title">Chargement...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation des actes -->
+        <nav class="acts-navigation" id="acts-nav">
+            <div class="nav-container">
+                <button class="nav-btn prev" id="nav-prev" aria-label="Acte précédent">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <div class="acts-indicator" id="acts-indicator">
+                    <!-- Généré dynamiquement -->
+                </div>
+                <button class="nav-btn next" id="nav-next" aria-label="Acte suivant">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+                <button class="nav-btn bonus" id="nav-bonus" aria-label="Histoire bonus Twilight Zone" title="Histoire bonus Twilight Zone" style="display: none;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                    </svg>
+                    <span class="bonus-label">🌟 Bonus</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Contenu principal -->
+        <main class="main-content">
+            <!-- Vue d'ensemble (Arc narratif) -->
+            <section class="overview-section" id="overview-section">
+                <div class="section-header">
+                    <h2>Arc Narratif</h2>
+                </div>
+                <div class="narrative-arc" id="narrative-arc">
+                    <p>Chargement...</p>
+                </div>
+                <div class="scenario-box">
+                    <h3>Scénario d'origine</h3>
+                    <p id="scenario-input">Chargement...</p>
+                </div>
+            </section>
+
+            <!-- Actes -->
+            <section class="acts-section" id="acts-section">
+                <!-- Les actes seront générés dynamiquement -->
+            </section>
+
+            <!-- Histoire Twilight Zone Bonus -->
+            <section class="twilight-zone-section hidden" id="twilight-zone-section">
+                <div class="section-header">
+                    <h2>🌟 Histoire Bonus - Twilight Zone</h2>
+                </div>
+                <div class="twilight-zone-story" id="twilight-zone-story">
+                    <!-- L'histoire sera générée dynamiquement -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>NEW TEMPS X - Système narratif AI</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "newtempsx"
+version = "0.1.0"
+description = "Système narratif AI pour générer des épisodes NEW TEMPS X"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "claude-agent-sdk>=0.1.16",
+    "pydantic>=2.0.0",
+    "python-dotenv>=1.0.0",
+    "httpx>=0.25.0",
+]
+
+# Pas d'entry point CLI - utilisez app.py directement
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["newtempsx*"]
+
