@@ -117,10 +117,23 @@ Fournis un JSON avec :
 ```
 
 **Important pour les références** :
-- Inclus 2-4 références pertinentes (débats actuels, conférences, articles d'opinion consultés)
+- Inclus 2-4 références pertinentes avec **DIVERSITÉ MAXIMALE** des sources
 - Les références doivent être des sources que tu as réellement consultées via l'outil Browser
 - Privilégie les sources qui explorent les questions ouvertes actuelles
 - Chaque référence doit avoir un `title` et une `url` valide
+
+**⚠️ DIVERSITÉ DES SOURCES OBLIGATOIRE** :
+- **ÉVITE** de te limiter à Wikipedia - maximum 1 référence Wikipedia si vraiment nécessaire
+- **PRIVILÉGIE** une variété de sources de débats et réflexions :
+  - Débats et conférences publiques (TED, RSA, Long Now Foundation, etc.)
+  - Articles d'opinion et analyses (The Atlantic, The New Yorker, The Guardian, etc.)
+  - Podcasts de débats et discussions (The Ezra Klein Show, The Joe Rogan Experience, etc.)
+  - Revues et magazines de réflexion (Aeon, Nautilus, etc.)
+  - Organisations et think tanks (Brookings, Cato Institute, etc.)
+  - Forums et discussions en ligne pertinents
+  - Documentaires sur les enjeux actuels
+  - Articles de chercheurs et experts
+- **MIXE** les perspectives et les formats pour enrichir la transmission
 
 ## Recherche et actualisation
 

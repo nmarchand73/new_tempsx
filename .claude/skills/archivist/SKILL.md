@@ -111,10 +111,24 @@ Fournis un JSON avec :
 ```
 
 **Important pour les références** :
-- Inclus 2-4 références pertinentes (archives Temps X, documentaires d'époque, articles historiques)
+- Inclus 2-4 références pertinentes avec **DIVERSITÉ MAXIMALE** des sources
 - Les références doivent être des sources que tu as réellement consultées via l'outil Browser
 - Privilégie les archives authentiques des années 1980
 - Chaque référence doit avoir un `title` et une `url` valide
+
+**⚠️ DIVERSITÉ DES SOURCES OBLIGATOIRE** :
+- **ÉVITE** de te limiter à Wikipedia - maximum 1 référence Wikipedia si vraiment nécessaire
+- **PRIVILÉGIE** une variété de sources historiques et d'archives :
+  - Archives INA (Institut National de l'Audiovisuel) pour Temps X
+  - Documentaires d'époque (YouTube, archives télévisuelles, etc.)
+  - Articles de presse des années 1980 (archives numérisées)
+  - Revues scientifiques d'époque (archives en ligne)
+  - Livres et publications historiques accessibles en ligne
+  - Musées et institutions avec archives numériques
+  - Blogs et sites spécialisés en histoire des sciences
+  - Podcasts historiques et documentaires audio
+  - Collections numériques de bibliothèques
+- **CHERCHE** des sources authentiques et variées pour créer un pont temporel riche
 
 ## Recherche et documentation
 

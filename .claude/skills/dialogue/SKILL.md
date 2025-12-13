@@ -132,10 +132,24 @@ Fournis un JSON avec :
 ```
 
 **Important pour les références** :
-- Inclus 2-4 références pertinentes (articles de réflexion, discussions philosophiques, analyses)
+- Inclus 2-4 références pertinentes avec **DIVERSITÉ MAXIMALE** des sources
 - Les références doivent être des sources que tu as réellement consultées via l'outil Browser
 - Privilégie les sources qui explorent les dimensions humaines et philosophiques
 - Chaque référence doit avoir un `title` et une `url` valide
+
+**⚠️ DIVERSITÉ DES SOURCES OBLIGATOIRE** :
+- **ÉVITE** de te limiter à Wikipedia - maximum 1 référence Wikipedia si vraiment nécessaire
+- **PRIVILÉGIE** une variété de sources philosophiques et réflexives :
+  - Articles de philosophie et d'éthique (Aeon, The Philosopher's Magazine, etc.)
+  - Conférences et discussions (TED, RSA, Long Now Foundation, etc.)
+  - Podcasts philosophiques (Philosophy Bites, The Partially Examined Life, etc.)
+  - Revues académiques de philosophie et sciences humaines
+  - Blogs de chercheurs et penseurs (Marginal Revolution, etc.)
+  - Documentaires et reportages sur les implications humaines
+  - Articles d'opinion et analyses approfondies (The New Yorker, The Atlantic, etc.)
+  - Livres et essais accessibles en ligne
+  - Interviews et entretiens avec des experts
+- **MIXE** les formats et les perspectives pour enrichir la réflexion
 
 ## Recherche et enrichissement
 

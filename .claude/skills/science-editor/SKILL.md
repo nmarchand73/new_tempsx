@@ -120,7 +120,12 @@ Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant l
    
    **Comment faire** : Navigue vers YouTube et recherche des vidéos pertinentes sur le sujet.
 
-4. **Sources académiques** : Si disponible, consulte des sources pour vérifier l'exactitude factuelle
+4. **Sources académiques et spécialisées** : Consulte des sources VARIÉES pour vérifier l'exactitude factuelle :
+   - Revues scientifiques (Nature, Science, PNAS, etc.)
+   - Prépublications (ArXiv, bioRxiv, etc.)
+   - Sites d'actualité scientifique (ScienceDaily, Phys.org, etc.)
+   - Organisations et instituts de recherche
+   - Podcasts scientifiques (The Ezra Klein Show, Lex Fridman, etc.)
 
 **Important** : 
 - Utilise activement l'outil Browser pour rechercher et consulter du contenu en ligne
@@ -224,11 +229,28 @@ Pour les Actes I-III, fournis un JSON avec :
 ```
 
 **Important pour les références** :
-- Inclus 2-5 références pertinentes par acte (articles, vidéos YouTube, sources académiques)
+- Inclus 2-5 références pertinentes par acte avec **DIVERSITÉ MAXIMALE** des sources
 - Les références doivent être des sources que tu as réellement consultées via l'outil Browser
 - Chaque référence doit avoir un `title` et une `url` valide
 - La `description` est optionnelle mais recommandée pour contextualiser la source
 - Les références enrichissent le contenu sans le remplacer
+
+**⚠️ DIVERSITÉ DES SOURCES OBLIGATOIRE** :
+- **ÉVITE** de te limiter à Wikipedia - maximum 1 référence Wikipedia par acte si vraiment nécessaire
+- **PRIVILÉGIE** une variété de sources :
+  - Articles de presse spécialisée (The Atlantic, Wired, MIT Technology Review, Quanta Magazine, etc.)
+  - Revues scientifiques (Nature, Science, PNAS, etc.)
+  - Blogs et sites spécialisés (ArXiv, LessWrong, etc.)
+  - Conférences TED, TEDx, ou autres conférences publiques
+  - Podcasts et transcriptions (Lex Fridman, The Ezra Klein Show, etc.)
+  - Documentaires et reportages (ARTE, BBC, PBS, etc.)
+  - Sites d'actualité scientifique (ScienceDaily, Phys.org, etc.)
+  - Organisations et instituts de recherche (MIT, Stanford, etc.)
+  - Vidéos YouTube de chercheurs, conférences, ou documentaires
+  - Articles d'opinion et analyses approfondies
+  - Études de cas et rapports d'organisations
+- **MIXE** les formats : articles écrits, vidéos, podcasts, rapports, etc.
+- **CHERCHE** des sources récentes ET des sources classiques/fondamentales
 
 ## Exemples
 

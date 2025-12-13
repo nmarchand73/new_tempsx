@@ -112,9 +112,22 @@ Fournis un JSON avec :
 ```
 
 **Important pour les références** :
-- Inclus 1-3 références pertinentes (exemples concrets, témoignages, applications réelles consultées)
+- Inclus 1-3 références pertinentes avec **DIVERSITÉ MAXIMALE** des sources
 - Les références doivent être des sources que tu as réellement consultées via l'outil Browser
 - Chaque référence doit avoir un `title` et une `url` valide
+
+**⚠️ DIVERSITÉ DES SOURCES OBLIGATOIRE** :
+- **ÉVITE** de te limiter à Wikipedia - maximum 1 référence Wikipedia si vraiment nécessaire
+- **PRIVILÉGIE** une variété de sources narratives et concrètes :
+  - Reportages et articles de presse (The New York Times, The Guardian, etc.)
+  - Témoignages et récits d'expériences (Medium, Substack, etc.)
+  - Documentaires et reportages vidéo (ARTE, BBC, Vice, etc.)
+  - Études de cas et applications réelles
+  - Articles de magazines spécialisés (Wired, MIT Technology Review, etc.)
+  - Blogs et récits personnels pertinents
+  - Vidéos YouTube de témoignages ou documentaires
+  - Podcasts avec des témoignages ou récits
+- **CHERCHE** des exemples concrets et réels pour inspirer la fiction
 
 ## Recherche et inspiration
 
