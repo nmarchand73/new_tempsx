@@ -2,6 +2,16 @@
 
 Système narratif AI pour générer automatiquement des épisodes de qualité inspirés de l'esprit de l'émission française Temps X (années 1980), adaptés à la science, technologie et culture modernes.
 
+## 📦 Dépôt GitHub
+
+Le projet est disponible sur GitHub : [https://github.com/nmarchand73/new_tempsx](https://github.com/nmarchand73/new_tempsx)
+
+Pour cloner le projet :
+```bash
+git clone https://github.com/nmarchand73/new_tempsx.git
+cd new_tempsx
+```
+
 ## Prérequis
 
 Le SDK utilise **Claude Code comme runtime**. Vous avez deux options d'authentification :
@@ -517,4 +527,22 @@ Le système utilise Claude Agents SDK avec des Skills spécialisés :
 - Style authentique de Rod Serling avec twist inattendu
 - Référence obligatoire : `twilight_zone_episodes.json` (156 épisodes authentiques)
 - Accessible dans l'UI via le bouton "🌟 Bonus"
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! Pour contribuer au projet :
+
+1. Forkez le dépôt
+2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/ma-fonctionnalite`)
+3. Committez vos changements (`git commit -m 'Ajout d'une nouvelle fonctionnalité'`)
+4. Poussez vers la branche (`git push origin feature/ma-fonctionnalite`)
+5. Ouvrez une Pull Request
+
+## 📝 Licence
+
+Ce projet est un projet personnel. Pour toute question ou demande d'utilisation, veuillez contacter le propriétaire du dépôt.
+
+## 🐛 Support
+
+Pour signaler un bug ou proposer une amélioration, veuillez ouvrir une [issue](https://github.com/nmarchand73/new_tempsx/issues) sur GitHub.
 
