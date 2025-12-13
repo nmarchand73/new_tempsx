@@ -95,13 +95,16 @@ Tu génères le contenu de trois actes spécifiques :
 
 Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant les outils disponibles (Browser, recherche web) :
 
-1. **Recherche web** : Utilise l'outil Browser pour naviguer et rechercher :
-   - Découvertes scientifiques récentes sur le sujet
+1. **Recherche web** : Utilise l'outil Browser pour naviguer et rechercher avec **DIVERSITÉ MAXIMALE** :
+   - Articles de presse spécialisée (The Atlantic, Wired, MIT Technology Review, Quanta Magazine, etc.)
+   - Découvertes scientifiques récentes (Nature, Science, PNAS, ArXiv, etc.)
    - Articles de vulgarisation de qualité
-   - Actualités scientifiques pertinentes
+   - Actualités scientifiques pertinentes (ScienceDaily, Phys.org, etc.)
    - Explications pédagogiques existantes
+   - Blogs et sites spécialisés (LessWrong, etc.)
+   - Organisations de recherche (MIT, Stanford, etc.)
    
-   **Comment faire** : Utilise l'outil Browser pour visiter des sites scientifiques, des articles de presse, des blogs de vulgarisation de qualité.
+   **Comment faire** : Utilise l'outil Browser pour visiter des sources VARIÉES - évite de te limiter à Wikipedia. Cherche des articles de presse, des blogs spécialisés, des sites d'actualité scientifique, etc.
 
 2. **Recherche d'images** : **IMPORTANT - Recherche activement des images pertinentes** :
    - Utilise l'outil Browser pour rechercher des images qui illustrent les concepts scientifiques
@@ -118,7 +121,7 @@ Avant d'écrire les Actes I-III, enrichis-toi avec des recherches en utilisant l
    - Chaînes de vulgarisation scientifique (Veritasium, Kurzgesagt, etc.)
    - Contenu qui explique clairement les concepts
    
-   **Comment faire** : Navigue vers YouTube et recherche des vidéos pertinentes sur le sujet.
+   **Comment faire** : Navigue vers YouTube, TED, ou autres plateformes vidéo et recherche des contenus VARIÉS - pas seulement des documentaires, mais aussi des conférences, des interviews, etc.
 
 4. **Sources académiques et spécialisées** : Consulte des sources VARIÉES pour vérifier l'exactitude factuelle :
    - Revues scientifiques (Nature, Science, PNAS, etc.)
