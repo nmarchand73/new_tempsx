@@ -34,11 +34,17 @@ let speechPaused = false; // État de pause
 // Initialisation
 document.addEventListener('DOMContentLoaded', async () => {
     // Vérifier le support de la synthèse vocale
-    if ('speechSynthesis' in window) {
-        speechSynthesis = window.speechSynthesis;
-        console.log('Synthèse vocale disponible');
+    if ('speechSynthesis' in window && window.speechSynthesis) {
+        try {
+            speechSynthesis = window.speechSynthesis;
+            console.log('Synthèse vocale disponible');
+        } catch (error) {
+            console.warn('Erreur lors de l\'accès à la synthèse vocale:', error);
+            speechSynthesis = null;
+        }
     } else {
         console.warn('Synthèse vocale non disponible dans ce navigateur');
+        speechSynthesis = null;
     }
     
     // Initialiser la lightbox
@@ -50,10 +56,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Charger l'épisode seulement si un run est disponible
     if (currentRunName) {
         await loadEpisode();
-        setupNavigation();
-        renderOverview();
-        renderActs();
-        updateNavigation();
+        if (currentEpisode && allActs.length > 0) {
+            setupNavigation();
+            renderOverview();
+            renderActs();
+            updateNavigation();
+        } else {
+            showError('Impossible de charger l\'épisode. Vérifiez que l\'épisode contient des actes.');
+        }
     } else {
         showError('Aucun run disponible. Générez d\'abord un épisode avec: python app.py "Votre scénario"');
     }
@@ -150,11 +160,13 @@ function setupRunSelector() {
             stopSpeech();
             
             await loadEpisode();
-            if (currentEpisode) {
+            if (currentEpisode && allActs.length > 0) {
                 renderOverview();
                 renderActs();
                 updateNavigation();
                 renderTwilightZoneStory();
+            } else {
+                showError('Impossible de charger l\'épisode. Vérifiez que l\'épisode contient des actes.');
             }
         } else {
             showError('Aucun run sélectionné');
@@ -185,7 +197,11 @@ async function loadEpisode() {
         
         // Vérifier que l'épisode a des actes
         if (!currentEpisode.acts || Object.keys(currentEpisode.acts).length === 0) {
-            throw new Error('L\'épisode ne contient aucun acte');
+            console.warn('L\'épisode ne contient aucun acte. Structure:', currentEpisode);
+            showError('L\'épisode ne contient aucun acte. Vérifiez que l\'épisode a été généré correctement.');
+            currentEpisode = null;
+            allActs = [];
+            return;
         }
         
         // Préparer la liste des actes
@@ -197,6 +213,7 @@ async function loadEpisode() {
             });
         
         console.log('Épisode chargé:', currentEpisode);
+        console.log('Actes trouvés:', allActs.length);
     } catch (error) {
         console.error('Erreur lors du chargement de l\'épisode:', error);
         showError(`Impossible de charger l'épisode: ${error.message}`);
@@ -208,23 +225,35 @@ function renderOverview() {
     if (!currentEpisode) return;
     
     // Titre de l'épisode
-    document.getElementById('episode-title').textContent = currentEpisode.episode_title;
+    const titleEl = document.getElementById('episode-title');
+    if (titleEl) {
+        titleEl.textContent = currentEpisode.episode_title || 'Sans titre';
+    }
     
     // Arc narratif (rendu Markdown)
     const narrativeArcEl = document.getElementById('narrative-arc');
-    if (typeof marked !== 'undefined') {
-        narrativeArcEl.innerHTML = marked.parse(currentEpisode.narrative_arc);
-    } else {
-        // Fallback si marked n'est pas disponible
-        const paragraphs = currentEpisode.narrative_arc.split('\n\n').filter(p => p.trim());
-        narrativeArcEl.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+    if (narrativeArcEl) {
+        if (currentEpisode.narrative_arc) {
+            if (typeof marked !== 'undefined') {
+                narrativeArcEl.innerHTML = marked.parse(currentEpisode.narrative_arc);
+            } else {
+                // Fallback si marked n'est pas disponible
+                const paragraphs = currentEpisode.narrative_arc.split('\n\n').filter(p => p.trim());
+                narrativeArcEl.innerHTML = paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');
+            }
+            
+            // Traiter les images dans l'arc narratif
+            processImages(narrativeArcEl);
+        } else {
+            narrativeArcEl.innerHTML = '<p>Aucun arc narratif disponible.</p>';
+        }
     }
     
-    // Traiter les images dans l'arc narratif
-    processImages(narrativeArcEl);
-    
     // Scénario
-    document.getElementById('scenario-input').textContent = currentEpisode.scenario_input;
+    const scenarioEl = document.getElementById('scenario-input');
+    if (scenarioEl) {
+        scenarioEl.textContent = currentEpisode.scenario_input || 'Aucun scénario disponible.';
+    }
     
     // Afficher l'histoire Twilight Zone si disponible
     renderTwilightZoneStory();
@@ -318,7 +347,7 @@ function createActCard(actKey, act, index) {
     speechBtn.title = 'Lire avec la synthèse vocale';
     
     // Vérifier si la synthèse vocale est disponible
-    if (speechSynthesis) {
+    if (speechSynthesis && 'speechSynthesis' in window && window.speechSynthesis) {
         speechBtn.disabled = false;
         
         // Gérer les clics simples et doubles
@@ -926,9 +955,12 @@ function extractTextFromHTML(htmlElement) {
 
 // Obtenir une voix française selon le narrateur
 function getFrenchVoice(narrator = 'narrator_1') {
-    if (!speechSynthesis) return null;
+    if (!speechSynthesis || !('speechSynthesis' in window) || !window.speechSynthesis) {
+        return null;
+    }
     
-    const voices = speechSynthesis.getVoices();
+    try {
+        const voices = speechSynthesis.getVoices();
     
     // Chercher une voix française
     const frenchVoices = voices.filter(voice => 
@@ -1076,6 +1108,10 @@ function getFrenchVoice(narrator = 'narrator_1') {
     
     // Si pas de voix française, prendre la première voix disponible
     return voices.length > 0 ? voices[0] : null;
+    } catch (error) {
+        console.warn('Erreur lors de la récupération des voix:', error);
+        return null;
+    }
 }
 
 // Gérer la synthèse vocale
@@ -1221,13 +1257,33 @@ function toggleSpeech(index, isDoubleClick = false) {
     };
     
     // Lancer la lecture
-    speechSynthesis.speak(utterance);
+    try {
+        if (speechSynthesis && 'speechSynthesis' in window && window.speechSynthesis) {
+            speechSynthesis.speak(utterance);
+        } else {
+            console.warn('Synthèse vocale non disponible');
+            playIcon.style.display = 'block';
+            if (pauseIcon) pauseIcon.style.display = 'none';
+            btn.classList.remove('playing');
+            btn.title = 'Synthèse vocale non disponible';
+        }
+    } catch (error) {
+        console.error('Erreur lors de la lecture vocale:', error);
+        playIcon.style.display = 'block';
+        if (pauseIcon) pauseIcon.style.display = 'none';
+        btn.classList.remove('playing');
+        btn.title = 'Erreur de lecture vocale';
+    }
 }
 
 // Arrêter la synthèse vocale
 function stopSpeech() {
-    if (speechSynthesis) {
-        speechSynthesis.cancel();
+    if (speechSynthesis && 'speechSynthesis' in window && window.speechSynthesis) {
+        try {
+            speechSynthesis.cancel();
+        } catch (error) {
+            console.warn('Erreur lors de l\'arrêt de la synthèse vocale:', error);
+        }
     }
     
     // Réinitialiser tous les boutons
@@ -1258,38 +1314,46 @@ function stopSpeech() {
 }
 
 // Charger les voix disponibles (nécessaire pour certains navigateurs)
-if ('speechSynthesis' in window) {
+if ('speechSynthesis' in window && speechSynthesis) {
     // Chrome nécessite que les voix soient chargées
-    speechSynthesis.onvoiceschanged = () => {
-        const voices = speechSynthesis.getVoices();
-        console.log('Voix chargées:', voices.length);
-        
-        // Afficher les voix françaises disponibles pour debug
-        const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
-        if (frenchVoices.length > 0) {
-            console.log('Voix françaises disponibles:', frenchVoices.map(v => `${v.name} (${v.lang})${v.default ? ' [défaut]' : ''}`));
+    if (speechSynthesis.onvoiceschanged !== undefined) {
+        speechSynthesis.onvoiceschanged = () => {
+            if (!speechSynthesis) return;
+            const voices = speechSynthesis.getVoices();
+            console.log('Voix chargées:', voices.length);
             
-            // Afficher les voix disponibles pour chaque narrateur
-            const voice1 = getFrenchVoice('narrator_1');
-            const voice2 = getFrenchVoice('narrator_2');
-            if (voice1) {
-                console.log('Voix Narrateur 1:', `${voice1.name} (${voice1.lang})`);
+            // Afficher les voix françaises disponibles pour debug
+            const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
+            if (frenchVoices.length > 0) {
+                console.log('Voix françaises disponibles:', frenchVoices.map(v => `${v.name} (${v.lang})${v.default ? ' [défaut]' : ''}`));
+                
+                // Afficher les voix disponibles pour chaque narrateur
+                const voice1 = getFrenchVoice('narrator_1');
+                const voice2 = getFrenchVoice('narrator_2');
+                if (voice1) {
+                    console.log('Voix Narrateur 1:', `${voice1.name} (${voice1.lang})`);
+                }
+                if (voice2) {
+                    console.log('Voix Narrateur 2:', `${voice2.name} (${voice2.lang})`);
+                }
             }
-            if (voice2) {
-                console.log('Voix Narrateur 2:', `${voice2.name} (${voice2.lang})`);
-            }
-        }
-    };
+        };
+    }
     
     // Forcer le chargement des voix en créant un utterance vide
     // Cela force Chrome à charger les voix
-    const dummyUtterance = new SpeechSynthesisUtterance('');
-    dummyUtterance.volume = 0;
-    speechSynthesis.speak(dummyUtterance);
-    speechSynthesis.cancel();
+    try {
+        const dummyUtterance = new SpeechSynthesisUtterance('');
+        dummyUtterance.volume = 0;
+        speechSynthesis.speak(dummyUtterance);
+        speechSynthesis.cancel();
+    } catch (error) {
+        console.warn('Erreur lors du chargement des voix:', error);
+    }
     
     // Attendre que les voix soient chargées
     setTimeout(() => {
+        if (!speechSynthesis) return;
         const voices = speechSynthesis.getVoices();
         if (voices.length > 0) {
             const frenchVoices = voices.filter(v => v.lang.startsWith('fr'));
