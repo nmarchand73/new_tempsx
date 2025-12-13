@@ -135,21 +135,30 @@ python app.py "Votre scénario ici" --audio --audio-provider openai
 
 # Avec toutes les options
 python app.py "Scénario" --output-dir custom_output --audio --verbose
+
+# Avec nom de run personnalisé
+python app.py "Scénario" --run-name mon-episode-personnalise --audio
+
+# Génération uniquement de l'histoire Twilight Zone
+python app.py "Scénario" --twilight-only
 ```
 
 **Options disponibles :**
-- `scenario` : Texte du scénario (positionnel, optionnel)
+- `scenario` : Texte du scénario (positionnel, optionnel) - Si non fourni, utilise le scénario par défaut
 - `--output-dir, -o` : Répertoire de sortie (défaut: `output`)
-- `--project-root, -p` : Racine du projet pour charger les Skills
-- `--verbose, -v` : Affiche les logs détaillés
-- `--audio, -a` : Génère également les fichiers audio
+- `--project-root, -p` : Racine du projet pour charger les Skills (défaut: répertoire courant)
+- `--verbose, -v` : Affiche les logs détaillés (mode DEBUG)
+- `--audio, -a` : Génère également les fichiers audio pour chaque acte
 - `--audio-provider` : Provider TTS (`elevenlabs` ou `openai`, défaut: `elevenlabs`)
+- `--run-name` : Nom personnalisé pour ce run (défaut: généré automatiquement à partir du scénario)
+- `--twilight-only` : Génère uniquement l'histoire bonus Twilight Zone (sans générer l'épisode complet)
+- `--audio-only` : Génère uniquement les fichiers audio pour un épisode existant (nécessite `--run-name`)
 
-Cela génère un épisode complet avec 7 actes et une histoire bonus Twilight Zone dans un répertoire de run nommé explicitement (ex: `output/runs/intelligence-artificielle-conscience-2024-12-15-14h30/`).
+Cela génère un épisode complet avec 7 actes et une histoire bonus Twilight Zone dans un répertoire de run nommé explicitement (ex: `output/intelligence_artificielle_conscience_20241213_182524/`).
 
 **Structure d'un run :**
 ```
-output/runs/nom-du-run/
+output/nom-du-run/
 ├── episode.json          # Épisode complet avec métadonnées
 ├── episode.md            # Version Markdown complète
 ├── act-I.md              # Acte I (exporté progressivement)
@@ -163,10 +172,12 @@ output/runs/nom-du-run/
     └── ...
 ```
 
-**Aide :**
+**Aide complète :**
 ```bash
 python app.py --help
 ```
+
+Cette commande affiche toutes les options disponibles avec leurs descriptions détaillées.
 
 ### Visualisation de l'épisode (UI)
 
@@ -190,12 +201,30 @@ L'UI offre :
 - 🌟 **Histoire bonus Twilight Zone** : Chaque épisode inclut une nouvelle complète (2000-4000 mots) style Twilight Zone, accessible via le bouton "🌟 Bonus"
 
 **Gestion des runs :**
-- Chaque génération crée un répertoire de run avec un nom explicite (ex: `intelligence-artificielle-conscience-2024-12-15-14h30`)
-- Les runs sont organisés dans `output/runs/`
+- Chaque génération crée un répertoire de run avec un nom explicite basé sur le scénario (ex: `intelligence_artificielle_conscience_20241213_182524`)
+- Les runs sont organisés dans `output/` (ou le répertoire spécifié avec `--output-dir`)
+- Le nom du run est généré automatiquement à partir du scénario, ou peut être personnalisé avec `--run-name`
 - L'UI permet de sélectionner et visualiser n'importe quel run précédent
 - Les runs affichent le titre de l'épisode, la date de création et un indicateur pour le plus récent
 
 Voir `ui/README.md` pour plus de détails.
+
+### Génération uniquement de l'histoire Twilight Zone
+
+Pour générer uniquement l'histoire bonus Twilight Zone (sans générer l'épisode complet) :
+
+```bash
+# Génère uniquement l'histoire Twilight Zone
+python app.py "Votre scénario ici" --twilight-only
+
+# Avec logs détaillés
+python app.py "Votre scénario ici" --twilight-only --verbose
+```
+
+Cela génère uniquement :
+- ✅ L'histoire bonus Twilight Zone (2000-4000 mots)
+- ✅ Un fichier JSON minimal pour l'UI
+- ❌ Pas d'épisode complet (plus rapide)
 
 ### Génération Audio (optionnel)
 
@@ -207,6 +236,9 @@ python app.py "Votre scénario ici" --audio
 
 # Avec OpenAI TTS (alternative économique)
 python app.py "Votre scénario ici" --audio --audio-provider openai
+
+# Avec nom de run personnalisé
+python app.py "Votre scénario ici" --audio --run-name mon-episode
 ```
 
 **Configuration :**
@@ -230,15 +262,29 @@ Cela active le mode économique qui :
 3. **Générer uniquement certains actes** : Modifiez le code pour générer seulement les actes importants
 4. **Optimiser le texte** : Réduire les répétitions et phrases longues avant génération
 
-Les fichiers audio sont générés dans `output/audio/` et peuvent être lus directement dans l'UI.
+Les fichiers audio sont générés dans `output/nom-du-run/audio/` et peuvent être lus directement dans l'UI.
 
 **Générer l'audio pour un épisode existant :**
-```bash
-# Utilisez app.py avec l'option --audio (l'épisode sera régénéré)
-python app.py "Votre scénario" --audio
 
-# Ou utilisez directement le module Python
-python -c "from newtempsx.audio_generator import AudioGenerator, TTSProvider; from pathlib import Path; AudioGenerator(output_dir=Path('output/audio'), provider=TTSProvider.ELEVENLABS).generate_audio_from_json(Path('output/episode.json'))"
+La méthode recommandée est d'utiliser l'option `--audio-only` :
+
+```bash
+# Génère uniquement l'audio pour un épisode existant
+python app.py --audio-only --run-name nom-de-l-episode
+
+# Avec provider spécifique
+python app.py --audio-only --run-name nom-de-l-episode --audio-provider openai
+
+# Avec répertoire de sortie personnalisé
+python app.py --audio-only --run-name nom-de-l-episode --output-dir custom_output
+```
+
+**Note :** L'option `--audio-only` nécessite que l'épisode existe déjà dans le répertoire spécifié. Le nom du run doit correspondre au nom du dossier contenant `episode.json`.
+
+**Alternative (régénération complète) :**
+```bash
+# Régénère l'épisode complet avec audio (si vous avez le scénario original)
+python app.py "Votre scénario" --audio --run-name nom-de-l-episode
 ```
 
 Voir `README_AUDIO.md` pour plus de détails.
