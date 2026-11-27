@@ -1,399 +1,231 @@
 # NEW TEMPS X
 
-Système narratif AI pour générer automatiquement des épisodes de qualité inspirés de l'esprit de l'émission française Temps X (années 1980), adaptés à la science, technologie et culture modernes.
+Système narratif AI qui génère des épisodes inspirés de l'émission française **Temps X** (années 1980), adaptés à la science, à la technologie et à la culture d'aujourd'hui.
+
+À partir d'un simple scénario, il produit un épisode en **7 actes**, une **nouvelle bonus** façon Twilight Zone, et optionnellement les **voix** et les **images** — le tout consultable dans un lecteur web local.
 
 ## Démarrage rapide
 
 ```bash
 git clone https://github.com/nmarchand73/new_tempsx.git && cd new_tempsx
-uv sync --extra dev            # ou: pip install -e ".[dev]"
-python app.py "Votre scénario" # génère output/<run>/ (JSON + Markdown)
-python ui/server.py            # visualisation sur http://127.0.0.1:8000
+uv sync --extra dev                # ou : pip install -e ".[dev]"
+python app.py "Votre scénario"     # génère output/<run>/
+python ui/server.py                # lecteur sur http://127.0.0.1:8000
 ```
 
-Reprise : `--resume <run>` relance un épisode interrompu en sautant les actes déjà générés (runs créés avec cette version). Le coût cumulé est enregistré dans `episode.json` (`cost_usd`).
+Il faut une authentification Claude (voir [Prérequis](#prérequis)). Audio et images sont optionnels : `--audio`, `--images`.
 
-Options utiles : `--audio` (TTS), `--images`, `--twilight-only`, `--audio-only --run-name <run>`, `--verbose`.
-Qualité : `uv run ruff check . && uv run pytest`. Le détail de l'installation et de la configuration suit.
+## Fonctionnalités
 
-## 📦 Dépôt GitHub
-
-Le projet est disponible sur GitHub : [https://github.com/nmarchand73/new_tempsx](https://github.com/nmarchand73/new_tempsx)
-
-Pour cloner le projet :
-```bash
-git clone https://github.com/nmarchand73/new_tempsx.git
-cd new_tempsx
-```
+- **Épisode en 7 actes** produit par des Skills spécialisés (arc narratif, science, fiction, dialogue, mémoire, transmission) puis relu par un Skill de validation.
+- **Sorties structurées** : chaque étape renvoie un JSON validé par un schéma, les étapes sont chaînées dans une même session.
+- **Histoire bonus Twilight Zone** (novelette de 8 000 à 15 000 mots).
+- **Audio** (ElevenLabs ou OpenAI TTS) avec deux narrateurs alternés, **images** (OpenAI) intégrées au texte.
+- **Reprise** d'un run interrompu (`--resume`) et **suivi du coût** de génération.
+- **Lecteur web** local : thème sombre/clair, navigation par acte, lecture audio, lightbox d'images.
 
 ## Prérequis
 
-Le SDK utilise **Claude Code comme runtime**. Vous avez deux options d'authentification :
+- **Python 3.11+**
+- **Claude Code** comme runtime du SDK, avec l'une de ces authentifications :
+  - une **souscription Claude Code** active (aucune clé à configurer, recommandé) ;
+  - ou une clé `ANTHROPIC_API_KEY` dans `.env` (prioritaire si les deux existent).
+- *Optionnel* : **ffmpeg** (concaténation propre des MP3 longs), clés **OpenAI** et/ou **ElevenLabs** pour les images et l'audio.
 
-### Option A : Utiliser Claude Code avec souscription (Recommandé) ⭐
+Installation de Claude Code : voir la [documentation officielle](https://docs.anthropic.com/en/docs/claude-code/setup).
 
-Si vous avez une **souscription Claude Code active**, vous n'avez **pas besoin** de configurer une API key. Le SDK utilisera automatiquement votre souscription.
-
-**Installation de Claude Code :**
-
-**macOS/Linux/WSL:**
-```bash
-curl -fsSL https://claude.ai/install.sh | bash
-```
-
-**Homebrew:**
-```bash
-brew install --cask claude-code
-```
-
-**npm:**
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
-Voir [Claude Code setup](https://docs.anthropic.com/en/docs/claude-code/setup) pour Windows et autres options.
-
-**Avantages :**
-- ✅ Pas besoin de gérer une API key
-- ✅ Utilise votre quota de souscription
-- ✅ Configuration plus simple
-
-### Option B : Utiliser une API Key
-
-Si vous préférez utiliser une API key (ou n'avez pas de souscription Claude Code), vous pouvez configurer `ANTHROPIC_API_KEY` dans votre fichier `.env` (voir section Configuration ci-dessous).
-
-**Note** : Les Skills utilisent les outils **WebFetch** et **WebSearch** pour rechercher et vérifier du contenu web (`allowed_tools=["Skill", "Read", "WebFetch", "WebSearch"]`). Chaque étape retourne une sortie structurée (JSON Schema) et les étapes sont chaînées dans une même session. Variables optionnelles : `NEWTEMPSX_MODEL` (modèle Claude) et `NEWTEMPSX_MAX_BUDGET_USD` (budget max par étape). Le coût total est affiché en fin de génération.
-
-Le serveur UI (`python ui/server.py`) écoute par défaut sur `127.0.0.1` uniquement (`--host`, `--port` pour changer). Tests : `pip install -e ".[dev]" && pytest`.
-
-Audio/images : les appels OpenAI/ElevenLabs sont réessayés automatiquement (429/5xx, backoff), exécutés en parallèle (3 simultanés) et les MP3 longs sont concaténés avec **ffmpeg** s'il est installé (recommandé). Modèles configurables via `OPENAI_IMAGE_MODEL` et `OPENAI_TTS_MODEL`.
-
-## Installation
+## Installation et configuration
 
 ```bash
-pip install -e .
+uv sync                            # ou : pip install -e .
+cp env.example .env                # Windows PowerShell : Copy-Item env.example .env
 ```
 
-## Configuration
+Toutes les variables sont optionnelles (les clés ne sont nécessaires que pour la fonctionnalité correspondante). Ne commitez jamais `.env`.
 
-### Option 1 : Utiliser Claude Code avec souscription (Recommandé)
-
-Si vous avez **Claude Code installé avec une souscription active**, vous n'avez **pas besoin** de configurer une API key. Le SDK utilisera automatiquement votre souscription Claude Code.
-
-**Avantages :**
-- Pas besoin de gérer une API key
-- Utilise votre quota de souscription Claude Code
-- Plus simple à configurer
-
-**Vérification :** Assurez-vous que Claude Code est installé et que vous êtes connecté avec une souscription active.
-
-### Option 2 : Utiliser une API Key
-
-Si vous préférez utiliser une API key (ou si vous n'avez pas de souscription Claude Code) :
-
-1. Créez un fichier `.env` à la racine du projet :
-```bash
-# Sur Linux/Mac
-cp env.example .env
-
-# Sur Windows PowerShell
-Copy-Item env.example .env
-```
-
-2. Éditez `.env` et ajoutez votre clé API Anthropic :
-```
-ANTHROPIC_API_KEY=your-api-key-here
-```
-
-Vous pouvez obtenir votre clé sur [console.anthropic.com](https://console.anthropic.com/).
-
-**Alternative :** Vous pouvez aussi définir la variable d'environnement directement :
-```bash
-export ANTHROPIC_API_KEY=your-api-key
-```
-
-**Note :** Si vous avez à la fois une souscription Claude Code active ET une API key configurée, le SDK utilisera l'API key en priorité.
+| Variable | Rôle | Défaut |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Clé API Anthropic (sinon souscription Claude Code) | — |
+| `NEWTEMPSX_MODEL` | Modèle Claude utilisé pour le texte | celui du SDK/CLI |
+| `NEWTEMPSX_MAX_BUDGET_USD` | Budget maximal **par étape** de génération | illimité |
+| `OPENAI_API_KEY` | Images et/ou TTS OpenAI | — |
+| `OPENAI_IMAGE_MODEL` | Modèle d'image (`dall-e-3`, `gpt-image-1`) | `dall-e-3` |
+| `OPENAI_TTS_MODEL` | Modèle TTS OpenAI (`tts-1`, `tts-1-hd`…) | `tts-1` |
+| `ELEVENLABS_API_KEY` | Audio ElevenLabs | — |
+| `ELEVENLABS_VOICE_ID_1` / `_2` | Voix des narrateurs 1 et 2 | Charlotte / Antoni |
+| `ELEVENLABS_VOICE_ID_TWILIGHT` | Voix de l'histoire bonus | Arnold |
+| `ELEVENLABS_COST_OPTIMIZED` | `true` : modèle turbo et réglages réduits (≈ −40 % de coût) | `false` |
 
 ## Usage
 
-### Génération d'un épisode (sans audio)
-
-Pour générer uniquement l'épisode (texte et structure, sans audio) :
-
 ```bash
-# Avec scénario personnalisé
-python app.py "Votre scénario ici"
-
-# Sans scénario (utilise le scénario par défaut)
-python app.py
-
-# Avec logs détaillés
-python app.py "Votre scénario ici" --verbose
-
-# Avec répertoire de sortie personnalisé
-python app.py "Votre scénario ici" --output-dir custom_output
-```
-
-Cela génère :
-- ✅ L'épisode complet avec 7 actes
-- ✅ L'histoire bonus Twilight Zone
-- ✅ Les fichiers JSON et Markdown
-- ❌ Pas de fichiers audio (plus rapide, pas besoin de clés API TTS)
-
-### Génération d'un épisode avec audio
-
-Pour générer l'épisode avec les fichiers audio :
-
-```bash
-# Avec ElevenLabs (meilleure qualité, recommandé)
-python app.py "Votre scénario ici" --audio
-
-# Avec OpenAI TTS (alternative économique)
-python app.py "Votre scénario ici" --audio --audio-provider openai
-
-# Avec toutes les options
-python app.py "Scénario" --output-dir custom_output --audio --verbose
-
-# Avec nom de run personnalisé
-python app.py "Scénario" --run-name mon-episode-personnalise --audio
-
-# Génération uniquement de l'histoire Twilight Zone
-python app.py "Scénario" --twilight-only
-```
-
-**Options disponibles :**
-- `scenario` : Texte du scénario (positionnel, optionnel) - Si non fourni, utilise le scénario par défaut
-- `--output-dir, -o` : Répertoire de sortie (défaut: `output`)
-- `--project-root, -p` : Racine du projet pour charger les Skills (défaut: répertoire courant)
-- `--verbose, -v` : Affiche les logs détaillés (mode DEBUG)
-- `--audio, -a` : Génère également les fichiers audio pour chaque acte
-- `--audio-provider` : Provider TTS (`elevenlabs` ou `openai`, défaut: `elevenlabs`)
-- `--run-name` : Nom personnalisé pour ce run (défaut: généré automatiquement à partir du scénario)
-- `--twilight-only` : Génère uniquement l'histoire bonus Twilight Zone (sans générer l'épisode complet)
-- `--audio-only` : Génère uniquement les fichiers audio pour un épisode existant (nécessite `--run-name`)
-
-Cela génère un épisode complet avec 7 actes et une histoire bonus Twilight Zone dans un répertoire de run nommé explicitement (ex: `output/intelligence_artificielle_conscience_20241213_182524/`).
-
-**Structure d'un run :**
-```
-output/nom-du-run/
-├── episode.json          # Épisode complet avec métadonnées
-├── episode.md            # Version Markdown complète
-├── act-I.md              # Acte I (exporté progressivement)
-├── act-II.md             # Acte II
-├── ...
-├── act-VII.md            # Acte VII
-├── twilight-zone-story.md # Histoire bonus Twilight Zone
-└── audio/                # Fichiers audio (si --audio activé)
-    ├── act-I.mp3
-    ├── act-II.mp3
-    └── ...
-```
-
-**Aide complète :**
-```bash
+python app.py "Votre scénario"                          # épisode seul (texte)
+python app.py "Votre scénario" --audio                  # + audio ElevenLabs
+python app.py "Votre scénario" --audio --audio-provider openai
+python app.py "Votre scénario" --images                 # + images
+python app.py "Votre scénario" --twilight-only          # uniquement l'histoire bonus
+python app.py                                           # scénario par défaut
 python app.py --help
 ```
 
-Cette commande affiche toutes les options disponibles avec leurs descriptions détaillées.
+Le script est aussi disponible sous le nom `newtempsx` après installation.
 
-### Visualisation de l'épisode (UI)
+### Options
 
-Une interface web moderne est disponible pour visualiser les épisodes générés :
+| Option | Description |
+|---|---|
+| `scenario` | Scénario d'entrée (positionnel, optionnel) |
+| `--output-dir`, `-o` | Répertoire de sortie (défaut : `output`) |
+| `--project-root`, `-p` | Racine du projet contenant `.claude/skills/` (défaut : répertoire courant) |
+| `--verbose`, `-v` | Logs détaillés (DEBUG, y compris SDK) |
+| `--audio`, `-a` | Génère l'audio de chaque acte (et de l'histoire bonus) |
+| `--audio-provider` | `elevenlabs` (défaut) ou `openai` |
+| `--images`, `-i` | Génère les images à partir des prompts des actes (`OPENAI_API_KEY`) |
+| `--run-name` | Nom du run (défaut : dérivé du titre de l'épisode + horodatage) |
+| `--resume RUN` | Reprend un run interrompu |
+| `--twilight-only` | Génère uniquement l'histoire bonus |
+| `--audio-only` | Audio seul pour un run existant (nécessite `--run-name`) |
+| `--images-only` | Images seules pour un run existant (nécessite `--run-name`) |
 
-```bash
-cd ui
-python server.py
+Codes de sortie : `0` succès · `1` erreur d'usage ou d'exécution · `2` épisode rejeté par la validation narrative · `3` sortie du modèle inexploitable · `130` interruption (Ctrl+C).
+
+### Structure d'un run
+
+```
+output/<run>/
+├── episode.json                 # épisode complet (+ themes, cost_usd)
+├── markdown/
+│   ├── 01_le_signal.md … 07_la_transmission.md
+│   └── twilight_zone_story.md
+├── audio/                       # avec --audio : acte_N_<titre>_<hash>.mp3, twilight_zone_*.mp3
+└── images/                      # avec --images : images PNG insérées dans le texte
 ```
 
-Puis ouvrez votre navigateur sur **http://localhost:8000**
+Les fichiers sont écrits **au fil de la génération** : l'arc, puis chaque acte, dès qu'ils existent. Le lecteur web les affiche en direct.
 
-L'UI offre :
-- 📖 Affichage immersif des 7 actes narratifs
-- 🎯 Navigation fluide entre les actes
-- 📊 Vue d'ensemble avec l'arc narratif
-- ⌨️ Navigation au clavier (flèches gauche/droite)
-- 🎨 Design moderne inspiré de l'esprit Temps X
-- 📁 **Sélection de runs** : Chaque génération crée un run avec un nom explicite basé sur le scénario
-- 🎧 **Audio intelligent** : Les boutons audio sont automatiquement désactivés si le fichier n'est pas disponible
-- 🌟 **Histoire bonus Twilight Zone** : Chaque épisode inclut une nouvelle complète (2000-4000 mots) style Twilight Zone, accessible via le bouton "🌟 Bonus"
-
-**Gestion des runs :**
-- Chaque génération crée un répertoire de run avec un nom explicite basé sur le scénario (ex: `intelligence_artificielle_conscience_20241213_182524`)
-- Les runs sont organisés dans `output/` (ou le répertoire spécifié avec `--output-dir`)
-- Le nom du run est généré automatiquement à partir du scénario, ou peut être personnalisé avec `--run-name`
-- L'UI permet de sélectionner et visualiser n'importe quel run précédent
-- Les runs affichent le titre de l'épisode, la date de création et un indicateur pour le plus récent
-
-Voir `ui/README.md` pour plus de détails.
-
-### Génération uniquement de l'histoire Twilight Zone
-
-Pour générer uniquement l'histoire bonus Twilight Zone (sans générer l'épisode complet) :
+### Reprendre un run interrompu
 
 ```bash
-# Génère uniquement l'histoire Twilight Zone
-python app.py "Votre scénario ici" --twilight-only
-
-# Avec logs détaillés
-python app.py "Votre scénario ici" --twilight-only --verbose
+python app.py --resume <run>
 ```
 
-Cela génère uniquement :
-- ✅ L'histoire bonus Twilight Zone (2000-4000 mots)
-- ✅ Un fichier JSON minimal pour l'UI
-- ❌ Pas d'épisode complet (plus rapide)
+Les étapes déjà faites (arc, actes, histoire bonus) sont sautées ; seules les manquantes sont générées, puis la validation. Les actes existants ne sont jamais écrasés et le dossier n'est pas renommé. Le coût cumulé s'additionne d'une reprise à l'autre.
 
-### Génération Audio (optionnel)
+Limites : les runs créés **avant** cette fonctionnalité n'ont pas les thèmes par acte et ne sont pas reprenables (refus explicite). La conversation du modèle n'est pas reprise : seuls les titres des actes déjà écrits servent de contexte.
 
-Vous pouvez générer des versions audio de chaque acte avec les meilleures APIs TTS du marché :
+### Audio
 
 ```bash
-# Avec ElevenLabs (meilleure qualité, recommandé)
-python app.py "Votre scénario ici" --audio
-
-# Avec OpenAI TTS (alternative économique)
-python app.py "Votre scénario ici" --audio --audio-provider openai
-
-# Avec nom de run personnalisé
-python app.py "Votre scénario ici" --audio --run-name mon-episode
+python app.py "Scénario" --audio                           # pendant la génération
+python app.py --audio-only --run-name <run>                # sur un épisode existant
+python app.py --audio-only --run-name <run> --audio-provider openai
 ```
 
-**Configuration :**
-- **ElevenLabs** : Ajoutez `ELEVENLABS_API_KEY=your-key` dans `.env`
-- **OpenAI** : Ajoutez `OPENAI_API_KEY=your-key` dans `.env`
+- Deux narrateurs alternés (actes impairs / pairs) et une voix dédiée à l'histoire bonus (`onyx` pour OpenAI).
+- Les textes longs sont **découpés** (4 096 caractères pour OpenAI, 9 500 pour ElevenLabs), synthétisés puis **concaténés avec ffmpeg** (repli binaire, moins précis, sans ffmpeg).
+- Appels **réessayés** (429/5xx, backoff), **3 actes en parallèle**, résultats mis en cache (un fichier existant n'est pas régénéré).
+- Pour réduire le coût : `ELEVENLABS_COST_OPTIMIZED=true`, ou `--audio-provider openai` (bien moins cher).
 
-**Réduction des coûts ElevenLabs :**
-Pour réduire les coûts (~40% d'économie), ajoutez dans `.env` :
-```bash
-ELEVENLABS_COST_OPTIMIZED=true
-```
-Cela active le mode économique qui :
-- Utilise le modèle `eleven_turbo_v2_5` (plus rapide et moins cher)
-- Réduit `similarity_boost` (économise des crédits)
-- Désactive `use_speaker_boost` (économise des crédits)
-- Qualité légèrement réduite mais toujours excellente
-
-**Autres stratégies pour réduire les coûts :**
-1. **Utiliser le cache** : Les fichiers audio sont mis en cache automatiquement
-2. **Utiliser OpenAI TTS** : Alternative économique (~20x moins cher) avec `--audio-provider openai`
-3. **Générer uniquement certains actes** : Modifiez le code pour générer seulement les actes importants
-4. **Optimiser le texte** : Réduire les répétitions et phrases longues avant génération
-
-Les fichiers audio sont générés dans `output/nom-du-run/audio/` et peuvent être lus directement dans l'UI.
-
-**Générer l'audio pour un épisode existant :**
-
-La méthode recommandée est d'utiliser l'option `--audio-only` :
+### Images
 
 ```bash
-# Génère uniquement l'audio pour un épisode existant
-python app.py --audio-only --run-name nom-de-l-episode
-
-# Avec provider spécifique
-python app.py --audio-only --run-name nom-de-l-episode --audio-provider openai
-
-# Avec répertoire de sortie personnalisé
-python app.py --audio-only --run-name nom-de-l-episode --output-dir custom_output
+python app.py "Scénario" --images
+python app.py --images-only --run-name <run>
 ```
 
-**Note :** L'option `--audio-only` nécessite que l'épisode existe déjà dans le répertoire spécifié. Le nom du run doit correspondre au nom du dossier contenant `episode.json`.
+Chaque acte peut fournir 1 à 3 prompts d'image ; les images sont générées en parallèle (3 max), puis insérées à un endroit pertinent du texte (JSON et Markdown mis à jour au fur et à mesure). `OPENAI_IMAGE_MODEL=gpt-image-1` est supporté.
 
-**Alternative (régénération complète) :**
+### Lecteur web
+
 ```bash
-# Régénère l'épisode complet avec audio (si vous avez le scénario original)
-python app.py "Votre scénario" --audio --run-name nom-de-l-episode
+python ui/server.py                      # http://127.0.0.1:8000
+python ui/server.py --port 9000
 ```
 
-Voir `README_AUDIO.md` pour plus de détails.
+- Écoute **uniquement en local** par défaut (`--host` pour changer, à vos risques).
+- Sélecteur de run, navigation par acte (flèches du clavier), barre de progression, arc narratif et scénario d'origine, sources de chaque acte, histoire bonus, lecteur audio et lecture vocale du navigateur.
+- Aucune dépendance CDN : `marked`, DOMPurify et les polices sont dans `ui/vendor/`. Le contenu généré est assaini avant affichage.
 
-### Progression affichée
+Détails : [`ui/README.md`](ui/README.md).
 
-Les logs affichent la progression de chaque étape :
-- 📐 Définition de l'arc narratif
-- 🔬 Génération des Actes I-III
-- ✍️ Génération de l'Acte IV (Fiction)
-- 💭 Génération de l'Acte V (Dialogue)
-- 📚 Génération de l'Acte VI (Mémoire)
-- 🎯 Génération de l'Acte VII (Transmission)
-- 🌟 Génération de l'histoire bonus Twilight Zone
-- 🔍 Validation narrative
-- 💾 Export progressif des fichiers (JSON, Markdown, Audio)
+## Structure d'un épisode
 
-**Export progressif :** Les fichiers sont créés au fur et à mesure de la génération :
-- L'arc narratif est exporté dès qu'il est défini
-- Chaque acte est exporté en Markdown dès qu'il est généré
-- Le JSON est mis à jour progressivement
-- L'histoire bonus Twilight Zone est exportée séparément
+| Acte | Titre | Rôle |
+|---|---|---|
+| I | Le Signal | Introduction, réveil de l'intérêt |
+| II | Le Décryptage | Explication scientifique |
+| III | La Tension | Questions et tensions |
+| IV | La Fiction | Segment fictionnel |
+| V | Le Dialogue | Dialogue intérieur, réflexion |
+| VI | La Mémoire | Pont entre les prédictions d'hier et le présent |
+| VII | La Transmission | Question ouverte laissée au public |
 
-### Exemples de scénarios
-
-40 exemples de scénarios par thème : voir [docs/scenarios.md](docs/scenarios.md).
-
-
-## Structure
-
-Chaque épisode suit une structure narrative stricte en 7 actes :
-
-1. **Acte I — Le Signal (Awaken)** - Introduction, réveil de l'intérêt
-2. **Acte II — Le Décryptage (Explain)** - Explication scientifique
-3. **Acte III — La Tension (Question)** - Questions, tensions
-4. **Acte IV — La Fiction (Feel)** - Segment fictionnel
-5. **Acte V — Le Dialogue (Reflect)** - Réflexion
-6. **Acte VI — La Mémoire (Remember)** - Connexion passé/présent
-7. **Acte VII — La Transmission (Open)** - Question ouverte finale
+Exemples de scénarios par thème : [`docs/scenarios.md`](docs/scenarios.md).
 
 ## Architecture
 
 ```
-app.py                   point d'entrée mince -> newtempsx/cli.py
-newtempsx/cli.py         arguments, modes (épisode, twilight-only, audio-only, images-only), codes de sortie
-newtempsx/orchestrator.py pipeline en 7 étapes: sorties structurées + session chaînée, retry sur rejet
-newtempsx/models.py      modèles Pydantic (Episode, Act, schémas des sorties structurées)
-newtempsx/audio_generator.py / image_generator.py   TTS et images (retries, parallélisme borné)
-newtempsx/http_utils.py  retries HTTP avec backoff
-ui/server.py + ui/app.js visualisation locale (lecture seule)
+app.py                      point d'entrée → newtempsx/cli.py
+newtempsx/
+  cli.py                    arguments, modes, codes de sortie
+  orchestrator.py           pipeline en 7 étapes (sorties structurées, session chaînée, retry, reprise)
+  models.py                 modèles Pydantic (Episode, Act, schémas de sortie)
+  exporters.py              JSON (écriture atomique) et Markdown
+  audio_generator.py        TTS ElevenLabs / OpenAI
+  image_generator.py        images OpenAI et intégration au texte
+  http_utils.py             retries HTTP avec backoff
+  validators.py             validation structurelle
+ui/                         lecteur web local (server.py, app.js, styles.css, vendor/)
+.claude/skills/             Skills de l'agent (un par rôle narratif)
+tests/                      pytest
 ```
 
-Le système utilise Claude Agents SDK avec des Skills spécialisés :
-- `narrative-conductor` - Orchestre l'arc narratif (utilise recherche web/YouTube)
-- `science-editor` - Explique les concepts scientifiques pour les Actes I-III (utilise recherche web/YouTube)
-- `fiction-writer` - Écrit la fiction pour l'Acte IV (utilise recherche web/YouTube pour inspiration)
-- `dialogue` - Crée la réflexion intime et le dialogue intérieur pour l'Acte V (utilise recherche web/YouTube)
-- `archivist` - Connecte passé/présent pour l'Acte VI (utilise recherche web/YouTube pour archives)
-- `audience` - Crée la question ouverte finale pour l'Acte VII (utilise recherche web/YouTube pour actualité)
-- `narrative-validator` - Valide la cohérence narrative
-- `twilight-zone-writer` - Génère une nouvelle complète (2000-4000 mots) style Twilight Zone inspirée par le sujet de l'épisode
+**Pipeline** : arc narratif → actes I-III → actes IV, V, VI, VII (un Skill chacun) → validation narrative → histoire bonus. Si la validation rejette l'épisode, **une** régénération est tentée avec des consignes renforcées (références vérifiées). Les Skills utilisent `WebFetch` et `WebSearch` pour actualiser les informations et vérifier les liens.
 
-**Recherche et enrichissement** : Chaque Skill utilise des outils de recherche web et YouTube pour :
-- Actualiser les informations scientifiques
-- Trouver des exemples concrets et applications réelles
-- Accéder aux archives et prédictions passées
-- Identifier les débats et questions ouvertes actuels
+| Skill | Rôle |
+|---|---|
+| `narrative-conductor` | Arc narratif en 7 actes |
+| `science-editor` | Actes I à III |
+| `fiction-writer` | Acte IV |
+| `dialogue` | Acte V |
+| `archivist` | Acte VI |
+| `audience` | Acte VII |
+| `narrative-validator` | Cohérence narrative et validité des liens |
+| `twilight-zone-writer` | Histoire bonus |
 
-**Histoire bonus Twilight Zone :**
-- Chaque épisode inclut une nouvelle complète et autonome (2000-4000 mots)
-- Inspirée par le sujet scientifique/technologique de l'épisode
-- Explore les implications philosophiques et humaines
-- Style authentique de Rod Serling avec twist inattendu
-- Référence obligatoire : `twilight_zone_episodes.json` (156 épisodes authentiques)
-- Accessible dans l'UI via le bouton "🌟 Bonus"
+> **À fournir** : le Skill `twilight-zone-writer` s'appuie sur un fichier `twilight_zone_episodes.json` (référence des épisodes de la série) qui n'est pas versionné dans ce dépôt (`*.json` est ignoré par Git). Sans lui, le Skill ne peut pas lire cette référence : ajoutez-le à la racine du projet.
 
-## 🤝 Contribution
+## Développement
 
-Les contributions sont les bienvenues ! Pour contribuer au projet :
+```bash
+uv sync --extra dev
+uv run ruff check . && uv run ruff format --check .
+uv run pytest
+```
 
-1. Forkez le dépôt
-2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/ma-fonctionnalite`)
-3. Committez vos changements (`git commit -m 'Ajout d'une nouvelle fonctionnalité'`)
-4. Poussez vers la branche (`git push origin feature/ma-fonctionnalite`)
-5. Ouvrez une Pull Request
+- La CI GitHub Actions exécute lint, format et tests sur Python 3.11 et 3.13.
+- Les tests simulent les appels aux API (Claude, OpenAI, ElevenLabs) : un run complet avec de vraies clés reste la validation de bout en bout.
+- Optionnel : `pre-commit install` (config ruff fournie).
 
-## 📝 Licence
+## Dépannage
 
-Ce projet est un projet personnel. Pour toute question ou demande d'utilisation, veuillez contacter le propriétaire du dépôt.
+| Symptôme | Piste |
+|---|---|
+| Erreur d'authentification | Vérifiez Claude Code (souscription) ou `ANTHROPIC_API_KEY` |
+| `Répertoire des Skills introuvable` | Lancez depuis la racine du projet ou utilisez `--project-root` |
+| MP3 avec durée fausse | Installez **ffmpeg** (sinon concaténation binaire) |
+| Codes de sortie 2 ou 3 | Épisode rejeté / sortie inexploitable : relancez, ou `--resume <run>` |
+| Run non reprenable | Run créé avant `--resume` (pas de thèmes enregistrés) : régénérez |
+| Pas d'audio dans le lecteur | Le bouton n'apparaît que si le fichier existe (`--audio` ou `--audio-only`) |
 
-## 🐛 Support
+## Contribution
 
-Pour signaler un bug ou proposer une amélioration, veuillez ouvrir une [issue](https://github.com/nmarchand73/new_tempsx/issues) sur GitHub.
+1. Forkez le dépôt et créez une branche (`git checkout -b feature/ma-fonctionnalite`).
+2. Vérifiez `ruff` et `pytest` en local.
+3. Ouvrez une Pull Request.
 
+Bugs et idées : [issues GitHub](https://github.com/nmarchand73/new_tempsx/issues).
+
+## Licence
+
+Projet personnel. Pour toute demande d'utilisation, contactez le propriétaire du dépôt. Les polices embarquées dans `ui/vendor/fonts/` sont sous licence SIL OFL.
