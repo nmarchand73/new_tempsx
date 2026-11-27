@@ -3,7 +3,6 @@
 import asyncio
 import logging
 import random
-from typing import Optional
 
 import httpx
 
@@ -12,7 +11,7 @@ logger = logging.getLogger(__name__)
 RETRYABLE_STATUS = {408, 409, 425, 429, 500, 502, 503, 504, 529}
 
 
-def _retry_after(response: httpx.Response) -> Optional[float]:
+def _retry_after(response: httpx.Response) -> float | None:
     value = response.headers.get("Retry-After")
     try:
         return min(float(value), 60.0) if value else None
@@ -39,8 +38,14 @@ async def request_with_retry(
             response = await client.request(method, url, **kwargs)
             if response.status_code in RETRYABLE_STATUS and attempt < max_attempts:
                 delay = _retry_after(response) or base_delay * 2 ** (attempt - 1)
-                logger.warning("⏳ HTTP %s sur %s, nouvel essai %d/%d dans %.1fs",
-                               response.status_code, httpx.URL(url).host, attempt + 1, max_attempts, delay)
+                logger.warning(
+                    "⏳ HTTP %s sur %s, nouvel essai %d/%d dans %.1fs",
+                    response.status_code,
+                    httpx.URL(url).host,
+                    attempt + 1,
+                    max_attempts,
+                    delay,
+                )
                 await asyncio.sleep(delay + random.uniform(0, 0.5))
                 continue
             response.raise_for_status()
@@ -49,7 +54,12 @@ async def request_with_retry(
             if attempt >= max_attempts:
                 raise
             delay = base_delay * 2 ** (attempt - 1)
-            logger.warning("⏳ Erreur réseau (%s), nouvel essai %d/%d dans %.1fs",
-                           type(exc).__name__, attempt + 1, max_attempts, delay)
+            logger.warning(
+                "⏳ Erreur réseau (%s), nouvel essai %d/%d dans %.1fs",
+                type(exc).__name__,
+                attempt + 1,
+                max_attempts,
+                delay,
+            )
             await asyncio.sleep(delay)
     raise AssertionError("unreachable")

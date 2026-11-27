@@ -28,3 +28,13 @@ include = ["newtempsx*"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["output"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "ASYNC"]
+ignore = ["E501", "B008", "B905", "ASYNC230", "ASYNC240", "UP042"]
+per-file-ignores = { "tests/*" = ["ASYNC221"] }

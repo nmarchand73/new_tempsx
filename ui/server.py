@@ -8,7 +8,6 @@ import re
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from typing import Optional
 from urllib.parse import parse_qs, unquote, urlparse
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -21,7 +20,7 @@ SAFE_NAME = re.compile(r"^[^/\\\x00]+$")
 IMAGE_TYPES = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}
 
 
-def safe_child(base: Path, name: str) -> Optional[Path]:
+def safe_child(base: Path, name: str) -> Path | None:
     """Retourne base/name s'il reste dans base, sinon None (anti path-traversal)."""
     if not name or name in (".", "..") or not SAFE_NAME.match(name):
         return None
@@ -64,9 +63,9 @@ class EpisodeHandler(SimpleHTTPRequestHandler):
                 return
             return self._send_file(run_dir / "episode.json", "application/json; charset=utf-8")
         if path.startswith("/api/audio/"):
-            return self._serve_audio(unquote(path[len("/api/audio/"):]), run)
+            return self._serve_audio(unquote(path[len("/api/audio/") :]), run)
         if path.startswith("/api/images/"):
-            return self._serve_image(unquote(path[len("/api/images/"):]), run)
+            return self._serve_image(unquote(path[len("/api/images/") :]), run)
         if path.startswith("/api/"):
             return self.send_error(HTTPStatus.NOT_FOUND)
         return super().do_GET()  # fichiers statiques (traversée gérée par la stdlib)
@@ -74,7 +73,7 @@ class EpisodeHandler(SimpleHTTPRequestHandler):
     do_HEAD = do_GET
 
     # --- helpers -----------------------------------------------------------
-    def _resolve_run(self, run: Optional[str]) -> Optional[Path]:
+    def _resolve_run(self, run: str | None) -> Path | None:
         """Dossier du run demandé (ou du plus récent). Envoie l'erreur HTTP si invalide."""
         if run is None:
             runs = list_runs()
@@ -99,13 +98,15 @@ class EpisodeHandler(SimpleHTTPRequestHandler):
                 continue
             mtime = episode_json.stat().st_mtime
             scenario = data.get("scenario_input", "")
-            payload.append({
-                "name": run_dir.name,
-                "title": data.get("episode_title", run_dir.name),
-                "scenario": scenario[:100] + "..." if len(scenario) > 100 else scenario,
-                "date": datetime.datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M"),
-                "timestamp": mtime,
-            })
+            payload.append(
+                {
+                    "name": run_dir.name,
+                    "title": data.get("episode_title", run_dir.name),
+                    "scenario": scenario[:100] + "..." if len(scenario) > 100 else scenario,
+                    "date": datetime.datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M"),
+                    "timestamp": mtime,
+                }
+            )
         return payload
 
     def _json(self, obj) -> None:
@@ -117,7 +118,7 @@ class EpisodeHandler(SimpleHTTPRequestHandler):
         if self.command != "HEAD":
             self.wfile.write(body)
 
-    def _serve_audio(self, act_key: str, run: Optional[str]) -> None:
+    def _serve_audio(self, act_key: str, run: str | None) -> None:
         if not re.fullmatch(r"[A-Za-z0-9_]+", act_key):
             return self.send_error(HTTPStatus.BAD_REQUEST, "Invalid act key")
         run_dir = self._resolve_run(run)
@@ -128,7 +129,7 @@ class EpisodeHandler(SimpleHTTPRequestHandler):
             return self.send_error(HTTPStatus.NOT_FOUND, "Audio not found")
         self._send_file(files[0], "audio/mpeg", ranges=True)
 
-    def _serve_image(self, filename: str, run: Optional[str]) -> None:
+    def _serve_image(self, filename: str, run: str | None) -> None:
         run_dir = self._resolve_run(run)
         if run_dir is None:
             return
@@ -190,7 +191,11 @@ def main() -> None:
     args = parser.parse_args()
 
     count = len(list_runs())
-    print(f"📊 {count} run(s) disponible(s)" if count else f"⚠️  Aucun run dans {OUTPUT_DIR} (lancez d'abord: python app.py)")
+    print(
+        f"📊 {count} run(s) disponible(s)"
+        if count
+        else f"⚠️  Aucun run dans {OUTPUT_DIR} (lancez d'abord: python app.py)"
+    )
     print(f"🚀 http://{args.host}:{args.port}  (Ctrl+C pour arrêter)")
     with ThreadingHTTPServer((args.host, args.port), EpisodeHandler) as httpd:
         try:

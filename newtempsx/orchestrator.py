@@ -6,22 +6,22 @@ import os
 import re
 import sys
 from pathlib import Path
-from typing import Optional, Type, TypeVar, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, TypeVar
 
 from claude_agent_sdk import (
-    ClaudeSDKClient,
-    ClaudeAgentOptions,
     AssistantMessage,
+    ClaudeAgentOptions,
+    ClaudeSDKClient,
     ResultMessage,
     TextBlock,
 )
 from pydantic import BaseModel, ValidationError
 
 from .models import (
+    Act,
     ActOutput,
     ActsOneToThreeOutput,
     ArcOutput,
-    Act,
     Episode,
     TwilightZoneStory,
     ValidationOutput,
@@ -66,7 +66,7 @@ class EpisodeOrchestrator:
 
     def __init__(
         self,
-        project_root: Optional[Path] = None,
+        project_root: Path | None = None,
         exporter: Optional["EpisodeExporter"] = None,
         debug: bool = False,
     ):
@@ -84,7 +84,7 @@ class EpisodeOrchestrator:
         self.exporter = exporter
         self.debug = debug
         self._is_retry = False
-        self._session_id: Optional[str] = None
+        self._session_id: str | None = None
         self.total_cost_usd = 0.0
 
         self.model = os.getenv("NEWTEMPSX_MODEL") or None
@@ -92,7 +92,7 @@ class EpisodeOrchestrator:
         self.max_budget_usd = float(budget) if budget else None
 
     # ------------------------------------------------------------------ SDK
-    def _options(self, output_model: Type[BaseModel]) -> ClaudeAgentOptions:
+    def _options(self, output_model: type[BaseModel]) -> ClaudeAgentOptions:
         """Options SDK pour une étape : schéma de sortie + reprise de la session en cours."""
         return ClaudeAgentOptions(
             setting_sources=["project"],  # Charge les Skills depuis .claude/skills/
@@ -106,7 +106,7 @@ class EpisodeOrchestrator:
             resume=self._session_id,
         )
 
-    async def _run_step(self, prompt: str, output_model: Type[T]) -> T:
+    async def _run_step(self, prompt: str, output_model: type[T]) -> T:
         """Exécute une étape et retourne la sortie validée par `output_model`."""
         text_parts: list[str] = []
         structured = None
@@ -299,9 +299,7 @@ class EpisodeOrchestrator:
             logger.error("❌ Validation échouée: %s (%s)", result.message, details)
             raise EpisodeRejectedError(f"Épisode rejeté: {result.message}\nProblèmes: {details}")
 
-    async def _generate_twilight_zone_story(
-        self, scenario: str, arc: ArcOutput, episode: Episode
-    ) -> TwilightZoneStory:
+    async def _generate_twilight_zone_story(self, scenario: str, arc: ArcOutput, episode: Episode) -> TwilightZoneStory:
         prompt = (
             "Utilise le Skill twilight-zone-writer pour générer une nouvelle complète (novelette, "
             "8000-15000 mots) EN FRANÇAIS inspirée par cet épisode NEW TEMPS X.\n\n"
@@ -311,7 +309,7 @@ class EpisodeOrchestrator:
         )
         return await self._run_step(prompt, TwilightZoneStory)
 
-    async def generate_twilight_zone_story_only(self, scenario: str) -> Optional[TwilightZoneStory]:
+    async def generate_twilight_zone_story_only(self, scenario: str) -> TwilightZoneStory | None:
         """Génère uniquement une histoire Twilight Zone (sans épisode)."""
         logger.info("🌟 Génération d'une histoire Twilight Zone standalone...")
         self._session_id = None
@@ -321,4 +319,3 @@ class EpisodeOrchestrator:
             "Le Skill contient toutes les instructions nécessaires. Réponds selon le schéma fourni."
         )
         return await self._run_step(prompt, TwilightZoneStory)
-

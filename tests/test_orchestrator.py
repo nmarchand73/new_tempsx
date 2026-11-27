@@ -36,8 +36,14 @@ def make_fake_client(responses, calls):
             else:
                 structured = item
             yield orch.ResultMessage(
-                subtype="success", duration_ms=1, duration_api_ms=1, is_error=False,
-                num_turns=1, session_id="sess-1", total_cost_usd=0.5, structured_output=structured,
+                subtype="success",
+                duration_ms=1,
+                duration_api_ms=1,
+                is_error=False,
+                num_turns=1,
+                session_id="sess-1",
+                total_cost_usd=0.5,
+                structured_output=structured,
             )
 
     return FakeClient
@@ -47,7 +53,10 @@ def full_run(validated=True):
     return [
         ARC,
         {"acte_1": ACT, "acte_2": ACT, "acte_3": ACT},
-        ACT, ACT, ACT, ACT,
+        ACT,
+        ACT,
+        ACT,
+        ACT,
         {"validated": validated, "message": "nope", "issues": ["bad url"]},
         {"title": "S", "story": "...", "theme": "th"},
     ]
@@ -59,7 +68,12 @@ async def test_full_episode_resumes_session_and_tracks_cost(monkeypatch):
     o = orch.EpisodeOrchestrator()
     ep = await o.generate_episode("scénario")
     assert ep.has_all_acts() and ep.twilight_zone_story.title == "S"
-    assert [ep.acts[f"acte_{i}"].narrator for i in (1, 2, 3, 4)] == ["narrator_1", "narrator_2", "narrator_1", "narrator_2"]
+    assert [ep.acts[f"acte_{i}"].narrator for i in (1, 2, 3, 4)] == [
+        "narrator_1",
+        "narrator_2",
+        "narrator_1",
+        "narrator_2",
+    ]
     assert calls[0].resume is None and all(c.resume == "sess-1" for c in calls[1:])
     assert all(c.output_format["type"] == "json_schema" for c in calls)
     assert o.total_cost_usd == pytest.approx(0.5 * 8)
@@ -85,7 +99,7 @@ async def test_other_errors_do_not_retry(monkeypatch):
 
 async def test_text_fallback_parsing(monkeypatch):
     calls = []
-    text = 'Voici:\n```json\n' + ActOutput(title="a", content="b").model_dump_json() + '\n```'
+    text = "Voici:\n```json\n" + ActOutput(title="a", content="b").model_dump_json() + "\n```"
     monkeypatch.setattr(orch, "ClaudeSDKClient", make_fake_client([("text", text)], calls))
     act = await orch.EpisodeOrchestrator()._run_step("p", ActOutput)
     assert act.title == "a"

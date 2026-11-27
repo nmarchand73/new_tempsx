@@ -9,12 +9,12 @@ import hashlib
 import logging
 import os
 from pathlib import Path
-from typing import Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 
 from .http_utils import request_with_retry
-from .models import Episode, Act, TwilightZoneStory
+from .models import Act, Episode, TwilightZoneStory
 
 if TYPE_CHECKING:
     from .exporters import EpisodeExporter
@@ -22,18 +22,28 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 ACT_FILE_NAMES = {
-    f"acte_{n}": name for n, name in enumerate(
-        ["01_le_signal", "02_le_decryptage", "03_la_tension", "04_la_fiction",
-         "05_le_dialogue", "06_la_memoire", "07_la_transmission"], start=1)
+    f"acte_{n}": name
+    for n, name in enumerate(
+        [
+            "01_le_signal",
+            "02_le_decryptage",
+            "03_la_tension",
+            "04_la_fiction",
+            "05_le_dialogue",
+            "06_la_memoire",
+            "07_la_transmission",
+        ],
+        start=1,
+    )
 }
 
 
 class ImageGenerator:
     """Génère des images à partir de prompts DALL-E."""
-    
-    def __init__(self, output_dir: Optional[Path] = None, max_concurrent: int = 3, model: Optional[str] = None):
+
+    def __init__(self, output_dir: Path | None = None, max_concurrent: int = 3, model: str | None = None):
         """Initialise le générateur d'images.
-        
+
         Args:
             output_dir: Répertoire de sortie pour les images
         """
@@ -41,7 +51,7 @@ class ImageGenerator:
             output_dir = Path("output") / "images"
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         self.model = model or os.getenv("OPENAI_IMAGE_MODEL", "dall-e-3")
         self._semaphore = asyncio.Semaphore(max(1, max_concurrent))
 
@@ -49,14 +59,14 @@ class ImageGenerator:
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         if not self.openai_api_key:
             logger.warning("⚠️  OPENAI_API_KEY non trouvée. La génération d'images ne fonctionnera pas.")
-    
+
     async def generate_image_from_prompt(
         self,
         prompt: str,
-        output_path: Optional[Path] = None,
-        size: Optional[str] = None,
-        model: Optional[str] = None,
-    ) -> Optional[Path]:
+        output_path: Path | None = None,
+        size: str | None = None,
+        model: str | None = None,
+    ) -> Path | None:
         """Génère une image via l'API OpenAI Images.
 
         Args:
@@ -112,15 +122,21 @@ class ImageGenerator:
         return None
 
     def _image_path(self, prefix: str, episode_title: str, index: int, prompt: str) -> Path:
-        safe_title = "".join(c for c in episode_title if c.isalnum() or c in (" ", "-", "_")).strip()[:30].replace(" ", "_")
+        safe_title = (
+            "".join(c for c in episode_title if c.isalnum() or c in (" ", "-", "_")).strip()[:30].replace(" ", "_")
+        )
         prompt_hash = hashlib.md5(prompt.encode("utf-8"), usedforsecurity=False).hexdigest()[:6]
         return self.output_dir / f"{prefix}_{safe_title}_{index}_{prompt_hash}.png"
 
-    async def _generate_many(self, prefix: str, episode_title: str, prompts: list[str]) -> list[Optional[Path]]:
+    async def _generate_many(self, prefix: str, episode_title: str, prompts: list[str]) -> list[Path | None]:
         """Génère les images d'une liste de prompts en parallèle (borné), dans l'ordre des prompts."""
-        async def one(i: int, prompt: str) -> Optional[Path]:
+
+        async def one(i: int, prompt: str) -> Path | None:
             async with self._semaphore:
-                return await self.generate_image_from_prompt(prompt, self._image_path(prefix, episode_title, i + 1, prompt))
+                return await self.generate_image_from_prompt(
+                    prompt, self._image_path(prefix, episode_title, i + 1, prompt)
+                )
+
         return list(await asyncio.gather(*(one(i, p) for i, p in enumerate(prompts))))
 
     async def generate_act_images(self, act: Act, act_key: str, episode_title: str) -> list[Path]:
@@ -174,21 +190,32 @@ class ImageGenerator:
 
         tasks = []
         for act_key, act in episode.acts.items():
-            tasks.append(process(
-                act_key, act_key, getattr(act, "image_prompts", []),
-                lambda path, i, n, prompt, act=act, act_key=act_key: self._integrate_single_image_into_act(
-                    act, path, act_key, i, total_images=n, prompt=prompt),
-                lambda act=act, act_key=act_key: exporter.export_act_markdown(
-                    act_key, act, ACT_FILE_NAMES.get(act_key, act_key)),
-            ))
+            tasks.append(
+                process(
+                    act_key,
+                    act_key,
+                    getattr(act, "image_prompts", []),
+                    lambda path, i, n, prompt, act=act, act_key=act_key: self._integrate_single_image_into_act(
+                        act, path, act_key, i, total_images=n, prompt=prompt
+                    ),
+                    lambda act=act, act_key=act_key: exporter.export_act_markdown(
+                        act_key, act, ACT_FILE_NAMES.get(act_key, act_key)
+                    ),
+                )
+            )
         story = episode.twilight_zone_story
         if story:
-            tasks.append(process(
-                "twilight_zone", "twilight_zone", getattr(story, "image_prompts", []),
-                lambda path, i, n, prompt: self._integrate_single_image_into_twilight_story(
-                    story, path, i, total_images=n, prompt=prompt),
-                lambda: exporter.export_twilight_zone_story(story),
-            ))
+            tasks.append(
+                process(
+                    "twilight_zone",
+                    "twilight_zone",
+                    getattr(story, "image_prompts", []),
+                    lambda path, i, n, prompt: self._integrate_single_image_into_twilight_story(
+                        story, path, i, total_images=n, prompt=prompt
+                    ),
+                    lambda: exporter.export_twilight_zone_story(story),
+                )
+            )
 
         results = await asyncio.gather(*tasks, return_exceptions=True)
         for res in results:
@@ -199,60 +226,48 @@ class ImageGenerator:
         logger.info("✅ %d image(s) générée(s) au total", total)
         return {k: all_images[k] for k in sorted(all_images)}
 
-    def _find_best_image_position(
-        self,
-        content: str,
-        image_index: int,
-        total_images: int,
-        prompt: str
-    ) -> int:
+    def _find_best_image_position(self, content: str, image_index: int, total_images: int, prompt: str) -> int:
         """Trouve la meilleure position pour insérer une image dans le contenu.
-        
+
         Args:
             content: Le contenu de l'acte
             image_index: Index de l'image (1, 2, 3, etc.)
             total_images: Nombre total d'images pour cet acte
             prompt: Le prompt de l'image (pour contexte)
-            
+
         Returns:
             Index du paragraphe où insérer l'image (-1 pour la fin)
         """
         # Diviser le contenu en paragraphes
-        paragraphs = [p.strip() for p in content.split('\n\n') if p.strip()]
-        
+        paragraphs = [p.strip() for p in content.split("\n\n") if p.strip()]
+
         if not paragraphs:
             return -1
-        
+
         # Si une seule image, la placer après le premier tiers du contenu
         if total_images == 1:
             return min(len(paragraphs) // 3, len(paragraphs) - 1)
-        
+
         # Distribuer les images de manière équilibrée
         # Diviser le contenu en sections égales
         section_size = len(paragraphs) / (total_images + 1)
-        
+
         # Positionner chaque image dans sa section
         position = int(section_size * image_index)
-        
+
         # S'assurer que l'image n'est pas au tout début ou à la toute fin
         position = max(1, min(position, len(paragraphs) - 2))
-        
+
         return position
-    
+
     def _integrate_single_image_into_act(
-        self, 
-        act: "Act", 
-        image_path: Path, 
-        act_key: str, 
-        image_index: int,
-        total_images: int = 1,
-        prompt: str = ""
+        self, act: "Act", image_path: Path, act_key: str, image_index: int, total_images: int = 1, prompt: str = ""
     ):
         """Intègre une seule image dans le contenu markdown de l'acte de manière harmonieuse.
-        
+
         Place l'image à un emplacement contextuel approprié dans le contenu plutôt qu'à la fin.
         Utilise des chemins compatibles avec le serveur web (/api/images/) et les fichiers markdown (../images/).
-        
+
         Args:
             act: L'acte à modifier
             image_path: Chemin de l'image générée
@@ -266,24 +281,21 @@ class ImageGenerator:
         # Créer un texte alternatif basé sur le titre de l'acte et l'index
         alt_text = f"{act.title} - Image {image_index}"
         image_markdown = f"\n\n![{alt_text}]({relative_path})\n\n"
-        
+
         # Trouver la meilleure position pour l'image
-        position = self._find_best_image_position(
-            act.content,
-            image_index,
-            total_images,
-            prompt
-        )
-        
+        position = self._find_best_image_position(act.content, image_index, total_images, prompt)
+
         if position >= 0:
             # Diviser le contenu en paragraphes
-            paragraphs = [p.strip() for p in act.content.split('\n\n') if p.strip()]
-            
+            paragraphs = [p.strip() for p in act.content.split("\n\n") if p.strip()]
+
             if position < len(paragraphs):
                 # Insérer l'image après le paragraphe à la position trouvée
                 paragraphs.insert(position + 1, image_markdown.strip())
-                act.content = '\n\n'.join(paragraphs)
-                logger.debug(f"📸 Image {image_index} intégrée harmonieusement à la position {position + 1}/{len(paragraphs)} dans {act_key}")
+                act.content = "\n\n".join(paragraphs)
+                logger.debug(
+                    f"📸 Image {image_index} intégrée harmonieusement à la position {position + 1}/{len(paragraphs)} dans {act_key}"
+                )
             else:
                 # Fallback : ajouter à la fin si la position est invalide
                 act.content = act.content.rstrip() + image_markdown
@@ -292,12 +304,12 @@ class ImageGenerator:
             # Ajouter à la fin si aucune position valide n'est trouvée
             act.content = act.content.rstrip() + image_markdown
             logger.debug(f"📸 Image {image_index} intégrée à la fin dans {act_key}")
-    
+
     def _integrate_images_into_act(self, act: "Act", image_paths: list[Path], act_key: str):
         """Intègre plusieurs images générées dans le contenu markdown de l'acte.
-        
+
         Méthode de compatibilité pour l'intégration en lot.
-        
+
         Args:
             act: L'acte à modifier
             image_paths: Liste des chemins des images générées
@@ -305,7 +317,7 @@ class ImageGenerator:
         """
         if not image_paths:
             return
-        
+
         # Pour le markdown : chemin relatif depuis markdown/ vers images/
         # Pour le web : chemin API /api/images/filename.png?run=run_name
         # On utilise le chemin relatif pour le markdown, le serveur web gérera l'API
@@ -314,25 +326,20 @@ class ImageGenerator:
             # Chemin relatif pour les fichiers markdown
             relative_path = f"../images/{image_path.name}"
             # Créer un texte alternatif basé sur le titre de l'acte et l'index
-            alt_text = f"{act.title} - Image {i+1}"
+            alt_text = f"{act.title} - Image {i + 1}"
             image_markdown += f"![{alt_text}]({relative_path})\n\n"
-        
+
         # Ajouter les images à la fin du contenu
         act.content = act.content.rstrip() + image_markdown
         logger.debug(f"📸 {len(image_paths)} image(s) intégrée(s) dans le contenu de {act_key}")
-    
+
     def _integrate_single_image_into_twilight_story(
-        self, 
-        story: "TwilightZoneStory", 
-        image_path: Path, 
-        image_index: int,
-        total_images: int = 1,
-        prompt: str = ""
+        self, story: "TwilightZoneStory", image_path: Path, image_index: int, total_images: int = 1, prompt: str = ""
     ):
         """Intègre une seule image dans l'histoire Twilight Zone de manière harmonieuse.
-        
+
         Place l'image à un emplacement contextuel approprié dans l'histoire.
-        
+
         Args:
             story: L'histoire Twilight Zone à modifier
             image_path: Chemin de l'image générée
@@ -343,24 +350,21 @@ class ImageGenerator:
         relative_path = f"../images/{image_path.name}"
         alt_text = f"{story.title} - Image {image_index}"
         image_markdown = f"\n\n![{alt_text}]({relative_path})\n\n"
-        
+
         # Trouver la meilleure position pour l'image
-        position = self._find_best_image_position(
-            story.story,
-            image_index,
-            total_images,
-            prompt
-        )
-        
+        position = self._find_best_image_position(story.story, image_index, total_images, prompt)
+
         if position >= 0:
             # Diviser l'histoire en paragraphes
-            paragraphs = [p.strip() for p in story.story.split('\n\n') if p.strip()]
-            
+            paragraphs = [p.strip() for p in story.story.split("\n\n") if p.strip()]
+
             if position < len(paragraphs):
                 # Insérer l'image après le paragraphe à la position trouvée
                 paragraphs.insert(position + 1, image_markdown.strip())
-                story.story = '\n\n'.join(paragraphs)
-                logger.debug(f"📸 Image {image_index} intégrée harmonieusement à la position {position + 1}/{len(paragraphs)} dans l'histoire Twilight Zone")
+                story.story = "\n\n".join(paragraphs)
+                logger.debug(
+                    f"📸 Image {image_index} intégrée harmonieusement à la position {position + 1}/{len(paragraphs)} dans l'histoire Twilight Zone"
+                )
             else:
                 # Fallback : ajouter à la fin si la position est invalide
                 story.story = story.story.rstrip() + image_markdown
@@ -369,27 +373,26 @@ class ImageGenerator:
             # Ajouter à la fin si aucune position valide n'est trouvée
             story.story = story.story.rstrip() + image_markdown
             logger.debug(f"📸 Image {image_index} intégrée à la fin dans l'histoire Twilight Zone")
-    
+
     def _integrate_images_into_twilight_story(self, story: "TwilightZoneStory", image_paths: list[Path]):
         """Intègre plusieurs images générées dans l'histoire Twilight Zone.
-        
+
         Méthode de compatibilité pour l'intégration en lot.
-        
+
         Args:
             story: L'histoire Twilight Zone à modifier
             image_paths: Liste des chemins des images générées
         """
         if not image_paths:
             return
-        
+
         # Calculer le chemin relatif depuis le répertoire markdown vers le répertoire images
         image_markdown = "\n\n"
         for i, image_path in enumerate(image_paths):
             relative_path = f"../images/{image_path.name}"
-            alt_text = f"{story.title} - Image {i+1}"
+            alt_text = f"{story.title} - Image {i + 1}"
             image_markdown += f"![{alt_text}]({relative_path})\n\n"
-        
+
         # Ajouter les images à la fin de l'histoire
         story.story = story.story.rstrip() + image_markdown
         logger.debug(f"📸 {len(image_paths)} image(s) intégrée(s) dans l'histoire Twilight Zone")
-
