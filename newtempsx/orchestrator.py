@@ -85,7 +85,8 @@ class EpisodeOrchestrator:
         self.debug = debug
         self._is_retry = False
         self._session_id: str | None = None
-        self.total_cost_usd = 0.0
+        self.total_cost_usd = 0.0  # coût de cette exécution
+        self._previous_cost = 0.0  # coût des exécutions précédentes (reprise)
 
         self.model = os.getenv("NEWTEMPSX_MODEL") or None
         budget = os.getenv("NEWTEMPSX_MAX_BUDGET_USD")
@@ -168,8 +169,14 @@ class EpisodeOrchestrator:
         )
 
     # ------------------------------------------------------------ pipeline
-    async def generate_episode(self, scenario: str) -> Episode:
+    async def generate_episode(self, scenario: str, resume: Episode | None = None) -> Episode:
         """Génère un épisode complet; une seule régénération en cas de rejet par la validation.
+
+        Args:
+            scenario: Scénario d'entrée.
+            resume: épisode partiel d'un run interrompu : les étapes déjà faites sont sautées
+                (la conversation n'est pas reprise, seuls les titres des actes existants servent de contexte).
+                Ignoré lors d'une régénération après rejet.
 
         Raises:
             EpisodeRejectedError: rejet persistant après la régénération.
@@ -184,8 +191,8 @@ class EpisodeOrchestrator:
             logger.info("🎬 Début de la génération d'un épisode NEW TEMPS X")
             logger.info("📝 Scénario: %s...", scenario[:100])
             try:
-                episode = await self._generate_episode_internal(scenario)
-                logger.info("💰 Coût total estimé: %.2f $", self.total_cost_usd)
+                episode = await self._generate_episode_internal(scenario, resume if attempt == 0 else None)
+                logger.info("💰 Coût de cette exécution: %.2f $", self.total_cost_usd)
                 return episode
             except EpisodeRejectedError as exc:
                 if attempt >= max_retries:
@@ -194,10 +201,14 @@ class EpisodeOrchestrator:
                 logger.warning("❌ %s", str(exc)[:200])
         raise AssertionError("unreachable")
 
-    def _export_act(self, partial: Episode, number: int, act: Act) -> None:
-        partial.acts[f"acte_{number}"] = act
+    def _save(self, partial: Episode, act: Act | None = None, number: int | None = None) -> None:
+        """Enregistre l'état courant (acte + JSON) pour l'UI et pour une éventuelle reprise."""
+        if act is not None and number is not None:
+            partial.acts[f"acte_{number}"] = act
+        partial.cost_usd = round(self._previous_cost + self.total_cost_usd, 4)
         if self.exporter:
-            self.exporter.export_act_markdown(f"acte_{number}", act, ACT_FILE_NAMES[number])
+            if act is not None and number is not None:
+                self.exporter.export_act_markdown(f"acte_{number}", act, ACT_FILE_NAMES[number])
             self.exporter.export_partial_json(partial)
 
     @staticmethod
@@ -206,25 +217,47 @@ class EpisodeOrchestrator:
 
     @staticmethod
     def _previous_titles(partial: Episode) -> str:
-        return "\n".join(f"- Acte {key.split('_')[1]}: {act.title}" for key, act in partial.acts.items())
+        return "\n".join(f"- Acte {key.split('_')[1]}: {act.title}" for key, act in sorted(partial.acts.items()))
 
-    async def _generate_episode_internal(self, scenario: str) -> Episode:
-        logger.info("📐 Étape 1/7: Définition de l'arc narratif...")
-        arc = await self._define_narrative_arc(scenario)
-        themes = arc.themes.model_dump()
-        partial = Episode(
-            episode_title=arc.episode_title,
-            scenario_input=scenario,
-            narrative_arc=arc.narrative_arc,
-            acts={},
-        )
-        if self.exporter:
-            self.exporter.export_partial_json(partial)
+    async def _generate_episode_internal(self, scenario: str, resume: Episode | None = None) -> Episode:
+        self._previous_cost = (resume.cost_usd or 0.0) if resume else 0.0
+        if resume and resume.acts and not resume.themes:
+            raise ValueError(
+                "Ce run ne contient pas les thèmes des actes (créé avant le support de --resume): "
+                "il ne peut pas être repris sans écraser les actes existants."
+            )
+        if resume:
+            partial = Episode(**resume.model_dump())
+            logger.info("♻️  Reprise: actes déjà présents: %s", ", ".join(sorted(partial.acts)) or "aucun")
+        else:
+            partial = None
 
-        logger.info("🔬 Étape 2/7: Actes I, II et III (Science Editor)...")
-        acts_1_3 = await self._generate_acts_1_3(scenario, arc)
-        for number, data in enumerate([acts_1_3.acte_1, acts_1_3.acte_2, acts_1_3.acte_3], start=1):
-            self._export_act(partial, number, self._to_act(data, number))
+        if partial and partial.themes:
+            themes = partial.themes
+            arc_text = partial.narrative_arc
+            logger.info("📐 Étape 1/7: arc narratif déjà défini, ignoré")
+        else:
+            logger.info("📐 Étape 1/7: Définition de l'arc narratif...")
+            arc = await self._define_narrative_arc(scenario)
+            themes = arc.themes.model_dump()
+            arc_text = arc.narrative_arc
+            partial = Episode(
+                episode_title=arc.episode_title,
+                scenario_input=scenario,
+                narrative_arc=arc.narrative_arc,
+                acts={},
+                themes=themes,
+            )
+            self._save(partial)
+        arc = ArcOutput(episode_title=partial.episode_title, narrative_arc=arc_text, themes=themes)
+
+        if all(f"acte_{n}" in partial.acts for n in (1, 2, 3)):
+            logger.info("🔬 Étape 2/7: Actes I-III déjà générés, ignorés")
+        else:
+            logger.info("🔬 Étape 2/7: Actes I, II et III (Science Editor)...")
+            acts_1_3 = await self._generate_acts_1_3(scenario, arc)
+            for number, data in enumerate([acts_1_3.acte_1, acts_1_3.acte_2, acts_1_3.acte_3], start=1):
+                self._save(partial, self._to_act(data, number), number)
 
         # Actes IV à VII : (numéro, skill, intitulé)
         remaining = [
@@ -234,6 +267,9 @@ class EpisodeOrchestrator:
             (7, "audience", "La Transmission"),
         ]
         for number, skill, label in remaining:
+            if f"acte_{number}" in partial.acts:
+                logger.info("⏭️  Acte %d déjà généré, ignoré", number)
+                continue
             logger.info("✍️  Étape %d/7: Acte %d (%s)...", number - 1, number, skill)
             prompt = (
                 f"Utilise le Skill {skill} pour générer l'Acte {number} ({label}) pour cet épisode NEW TEMPS X.\n\n"
@@ -246,24 +282,29 @@ class EpisodeOrchestrator:
             )
             act = self._to_act(await self._run_step(prompt, ActOutput), number)
             logger.info("✅ Acte %d généré: %s", number, act.title)
-            self._export_act(partial, number, act)
+            self._save(partial, act, number)
 
         episode = Episode(**partial.model_dump())
         logger.info("🔍 Étape 7/7: Validation narrative complète...")
         await self._validate_episode(episode)
         logger.info("✅ Validation réussie")
 
-        logger.info("🌟 Bonus: histoire Twilight Zone...")
-        try:
-            episode.twilight_zone_story = await self._generate_twilight_zone_story(scenario, arc, episode)
-        except StructuredOutputError as exc:  # bonus : n'invalide pas l'épisode
-            logger.warning("⚠️  Histoire Twilight Zone non générée: %s", exc)
+        if episode.twilight_zone_story:
+            logger.info("🌟 Histoire Twilight Zone déjà présente, ignorée")
         else:
-            story = episode.twilight_zone_story
-            logger.info("✅ Histoire Twilight Zone générée: %s", story.title)
-            if self.exporter:
-                self.exporter.export_twilight_zone_story(story)
-                self.exporter.export_partial_json(episode)
+            logger.info("🌟 Bonus: histoire Twilight Zone...")
+            try:
+                episode.twilight_zone_story = await self._generate_twilight_zone_story(scenario, arc, episode)
+            except StructuredOutputError as exc:  # bonus : n'invalide pas l'épisode
+                logger.warning("⚠️  Histoire Twilight Zone non générée: %s", exc)
+            else:
+                story = episode.twilight_zone_story
+                logger.info("✅ Histoire Twilight Zone générée: %s", story.title)
+                if self.exporter:
+                    self.exporter.export_twilight_zone_story(story)
+        episode.cost_usd = round(self._previous_cost + self.total_cost_usd, 4)
+        if self.exporter:
+            self.exporter.export_partial_json(episode)
         return episode
 
     async def _define_narrative_arc(self, scenario: str) -> ArcOutput:

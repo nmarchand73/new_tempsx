@@ -11,6 +11,8 @@ python app.py "Votre scénario" # génère output/<run>/ (JSON + Markdown)
 python ui/server.py            # visualisation sur http://127.0.0.1:8000
 ```
 
+Reprise : `--resume <run>` relance un épisode interrompu en sautant les actes déjà générés (runs créés avec cette version). Le coût cumulé est enregistré dans `episode.json` (`cost_usd`).
+
 Options utiles : `--audio` (TTS), `--images`, `--twilight-only`, `--audio-only --run-name <run>`, `--verbose`.
 Qualité : `uv run ruff check . && uv run pytest`. Le détail de l'installation et de la configuration suit.
 

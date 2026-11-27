@@ -46,6 +46,10 @@ class Episode(BaseModel):
     twilight_zone_story: TwilightZoneStory | None = Field(
         None, description="Histoire bonus style Twilight Zone (optionnelle)"
     )
+    themes: dict[str, str] | None = Field(
+        None, description="Thèmes par acte (acte_1..acte_7), nécessaires pour reprendre un run interrompu"
+    )
+    cost_usd: float | None = Field(None, description="Coût cumulé de génération du texte (USD)")
 
     def get_act(self, act_number: int) -> Act:
         """Récupère un acte par son numéro (1-7)."""

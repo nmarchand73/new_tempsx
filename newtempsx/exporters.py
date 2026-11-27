@@ -2,6 +2,7 @@
 
 import json
 import logging
+import os
 from pathlib import Path
 
 from .models import Act, Episode, TwilightZoneStory
@@ -40,98 +41,47 @@ class EpisodeExporter:
         self.export_json(episode)
         self.export_markdown(episode)
 
-    def export_json(self, episode: Episode, filename: str = "episode.json"):
-        """Exporte l'épisode en JSON.
-
-        Args:
-            episode: L'épisode à exporter
-            filename: Nom du fichier JSON
-        """
-        output_path = self.output_dir / filename
-        logger.debug(f"Export JSON vers: {output_path}")
-
-        # Convertir en dict pour l'export JSON
-        episode_dict = {
-            "episode_title": episode.episode_title,
-            "scenario_input": episode.scenario_input,
-            "narrative_arc": episode.narrative_arc,
-            "run_name": self.run_name,  # Ajouter le nom du run
-            "acts": {
-                act_key: {
-                    "title": act.title,
-                    "content": act.content,
-                    "narrator": getattr(act, "narrator", "narrator_1"),
-                    "image_prompts": getattr(act, "image_prompts", []),
-                    "references": [
-                        {"title": ref.title, "url": ref.url, "description": ref.description}
-                        for ref in getattr(act, "references", [])
-                    ],
-                }
-                for act_key, act in episode.acts.items()
-            },
-        }
-
-        # Ajouter l'histoire Twilight Zone si disponible
-        if episode.twilight_zone_story:
-            episode_dict["twilight_zone_story"] = {
-                "title": episode.twilight_zone_story.title,
-                "story": episode.twilight_zone_story.story,
-                "theme": episode.twilight_zone_story.theme,
-                "image_prompts": getattr(episode.twilight_zone_story, "image_prompts", []),
-            }
-
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(episode_dict, f, ensure_ascii=False, indent=2)
-
-        logger.info(f"✅ Épisode exporté en JSON: {output_path}")
-
-    def export_partial_json(self, episode: Episode, filename: str = "episode.json"):
-        """Exporte un JSON partiel (pour export progressif).
-
-        Permet d'exporter l'épisode même si tous les actes ne sont pas encore générés.
-
-        Args:
-            episode: L'épisode (peut être partiel)
-            filename: Nom du fichier JSON
-        """
-        output_path = self.output_dir / filename
-        logger.debug(f"Export JSON partiel vers: {output_path}")
-
-        # Convertir en dict pour l'export JSON (seulement les actes disponibles)
-        episode_dict = {
+    def _episode_dict(self, episode: Episode) -> dict:
+        """Représentation JSON de l'épisode (complet ou partiel), lue par l'UI et par --resume."""
+        data = {
             "episode_title": episode.episode_title,
             "scenario_input": episode.scenario_input,
             "narrative_arc": episode.narrative_arc,
             "run_name": self.run_name,
-            "acts": {},
+            "themes": episode.themes,
+            "cost_usd": episode.cost_usd,
+            "acts": {
+                act_key: {
+                    "title": act.title,
+                    "content": act.content,
+                    "narrator": act.narrator,
+                    "image_prompts": act.image_prompts,
+                    "references": [ref.model_dump() for ref in act.references],
+                }
+                for act_key, act in episode.acts.items()
+            },
         }
-
-        # Ajouter seulement les actes disponibles
-        for act_key, act in episode.acts.items():
-            episode_dict["acts"][act_key] = {
-                "title": act.title,
-                "content": act.content,
-                "narrator": getattr(act, "narrator", "narrator_1"),
-                "image_prompts": getattr(act, "image_prompts", []),
-                "references": [
-                    {"title": ref.title, "url": ref.url, "description": ref.description}
-                    for ref in getattr(act, "references", [])
-                ],
-            }
-
-        # Ajouter l'histoire Twilight Zone si disponible
         if episode.twilight_zone_story:
-            episode_dict["twilight_zone_story"] = {
-                "title": episode.twilight_zone_story.title,
-                "story": episode.twilight_zone_story.story,
-                "theme": episode.twilight_zone_story.theme,
-                "image_prompts": getattr(episode.twilight_zone_story, "image_prompts", []),
+            story = episode.twilight_zone_story
+            data["twilight_zone_story"] = {
+                "title": story.title,
+                "story": story.story,
+                "theme": story.theme,
+                "image_prompts": story.image_prompts,
             }
+        return data
 
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(episode_dict, f, ensure_ascii=False, indent=2)
+    def export_json(self, episode: Episode, filename: str = "episode.json"):
+        """Exporte l'épisode en JSON (écriture atomique : l'UI qui relit en continu ne voit jamais un fichier tronqué)."""
+        output_path = self.output_dir / filename
+        tmp_path = output_path.with_suffix(output_path.suffix + ".tmp")
+        tmp_path.write_text(json.dumps(self._episode_dict(episode), ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(tmp_path, output_path)
+        logger.debug(f"JSON exporté: {output_path}")
 
-        logger.debug(f"✅ JSON partiel exporté: {output_path}")
+    def export_partial_json(self, episode: Episode, filename: str = "episode.json"):
+        """Exporte un JSON partiel (export progressif) - identique à export_json."""
+        self.export_json(episode, filename)
 
     def export_markdown(self, episode: Episode):
         """Exporte chaque acte en fichier Markdown séparé.

@@ -147,15 +147,17 @@ def rename_run_after_title(episode: Episode, base_dir: Path, output_dir: Path, e
     return new_dir
 
 
-async def run_full_episode(args, scenario: str, orchestrator, exporter, base_dir: Path, output_dir: Path) -> None:
-    episode = await orchestrator.generate_episode(scenario)
+async def run_full_episode(
+    args, scenario: str, orchestrator, exporter, base_dir: Path, output_dir: Path, resume: Episode | None = None
+) -> None:
+    episode = await orchestrator.generate_episode(scenario, resume=resume)
 
     ok, message = NarrativeValidator().validate_episode(episode)
     if not ok:
         raise CliError(f"Validation structurelle échouée: {message}")
 
     exporter.export_all(episode)
-    if not args.run_name:
+    if not args.run_name and not args.resume:
         output_dir = rename_run_after_title(episode, base_dir, output_dir, exporter)
 
     # Audio et images sont optionnels : un échec ne fait pas perdre l'épisode.
@@ -195,6 +197,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--audio-provider", choices=["elevenlabs", "openai"], default="elevenlabs")
     parser.add_argument("--images", "-i", action="store_true", help="Génère aussi les images (OPENAI_API_KEY)")
     parser.add_argument("--run-name", default=None, help="Nom du run (défaut: auto, basé sur le titre)")
+    parser.add_argument(
+        "--resume", metavar="RUN", default=None, help="Reprend un run interrompu (saute les étapes déjà générées)"
+    )
     parser.add_argument("--twilight-only", action="store_true", help="Uniquement l'histoire bonus Twilight Zone")
     parser.add_argument("--audio-only", action="store_true", help="Audio seul pour un run existant (--run-name)")
     parser.add_argument("--images-only", action="store_true", help="Images seules pour un run existant (--run-name)")
@@ -216,6 +221,15 @@ async def run(args) -> None:
             await generate_images(episode, run_dir, EpisodeExporter(output_dir=run_dir, run_name=args.run_name))
         return
 
+    resume = None
+    if args.resume:
+        if args.twilight_only:
+            raise CliError("--resume est incompatible avec --twilight-only")
+        args.run_name = args.resume
+        resume = load_episode(Path(args.output_dir) / args.resume)
+        args.scenario = args.scenario or resume.scenario_input
+        logger.info("♻️  Reprise du run %s (%d acte(s) déjà généré(s))", args.resume, len(resume.acts))
+
     scenario = args.scenario
     if not scenario:
         scenario = DEFAULT_SCENARIO
@@ -236,7 +250,7 @@ async def run(args) -> None:
     if args.twilight_only:
         await run_twilight_only(orchestrator, exporter, scenario, output_dir)
     else:
-        await run_full_episode(args, scenario, orchestrator, exporter, base_dir, output_dir)
+        await run_full_episode(args, scenario, orchestrator, exporter, base_dir, output_dir, resume)
 
 
 def cli(argv: list[str] | None = None) -> None:
@@ -255,7 +269,7 @@ def cli(argv: list[str] | None = None) -> None:
         logger.error("❌ Sortie du modèle inexploitable: %s", exc)
         sys.exit(3)
     except KeyboardInterrupt:
-        logger.warning("Interrompu (les actes déjà générés restent dans le dossier du run).")
+        logger.warning("Interrompu. Reprenez avec: python app.py --resume <run> (voir le dossier output/).")
         sys.exit(130)
     except Exception:
         logger.exception("❌ Erreur lors de la génération")
