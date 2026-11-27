@@ -9,15 +9,34 @@ description = "Système narratif AI pour générer des épisodes NEW TEMPS X"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "claude-agent-sdk>=0.1.16",
+    "claude-agent-sdk>=0.2.0,<0.3",
     "pydantic>=2.0.0",
     "python-dotenv>=1.0.0",
     "httpx>=0.25.0",
 ]
 
-# Pas d'entry point CLI - utilisez app.py directement
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.9"]
+
+[project.scripts]
+newtempsx = "newtempsx.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["newtempsx*"]
 
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["output"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "ASYNC"]
+ignore = ["E501", "B008", "B905", "ASYNC230", "ASYNC240", "UP042"]
+per-file-ignores = { "tests/*" = ["ASYNC221"] }
