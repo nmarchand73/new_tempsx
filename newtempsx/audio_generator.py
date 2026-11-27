@@ -11,12 +11,14 @@ import json
 import logging
 import os
 import re
+import shutil
 from enum import Enum
 from pathlib import Path
 from typing import Optional
 
 import httpx
 
+from .http_utils import request_with_retry
 from .models import Episode, Act, TwilightZoneStory
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,10 @@ class AudioGenerator:
     # Voix OpenAI pour Twilight Zone - TOUJOURS utiliser "onyx" (voix masculine profonde, parfaite pour l'ambiance)
     # Cette voix est optimale et ne doit PAS être changée
     OPENAI_TWILIGHT_VOICE = "onyx"
+
+    # Limites de caractères par requête TTS
+    OPENAI_MAX_CHARS = 4096
+    ELEVENLABS_MAX_CHARS = 9500
     
     def __init__(
         self,
@@ -42,7 +48,7 @@ class AudioGenerator:
         voice_id: Optional[str] = None,
         voice_id_2: Optional[str] = None,
         model: Optional[str] = None,
-        max_concurrent: int = 5,
+        max_concurrent: int = 3,
         cost_optimized: bool = False,
     ):
         """Initialise le générateur audio.
@@ -113,7 +119,7 @@ class AudioGenerator:
                 return "eleven_turbo_v2_5"
             return "eleven_multilingual_v2"  # Support multilingue
         elif self.provider == TTSProvider.OPENAI:
-            return "tts-1"  # ou "tts-1-hd" pour meilleure qualité
+            return os.getenv("OPENAI_TTS_MODEL", "tts-1")  # ex: tts-1-hd
         return ""
     
     def _get_voice_settings(self) -> dict:
@@ -255,50 +261,68 @@ class AudioGenerator:
             logger.error(f"❌ Erreur lors de la génération audio pour {act_key}: {e}")
             return None
     
-    def _generate_elevenlabs(self, text: str, output_path: Path, voice_id: Optional[str] = None) -> Optional[Path]:
-        """Génère l'audio avec ElevenLabs (synchrone, pour compatibilité)."""
-        return asyncio.run(self._generate_elevenlabs_async(text, output_path, voice_id))
-    
-    async def _generate_elevenlabs_async(
-        self, 
-        text: str, 
-        output_path: Path, 
-        voice_id: Optional[str] = None
-    ) -> Optional[Path]:
-        """Génère l'audio avec ElevenLabs (asynchrone)."""
+    async def _generate_elevenlabs_single(self, text: str, output_path: Path, voice_id: Optional[str] = None) -> Path:
+        """Un appel ElevenLabs (texte <= ELEVENLABS_MAX_CHARS)."""
         if not self.elevenlabs_api_key:
             raise ValueError("ELEVENLABS_API_KEY non configurée")
-        
-        if voice_id is None:
-            voice_id = self.voice_id
-        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
-        
-        headers = {
-            "Accept": "audio/mpeg",
-            "Content-Type": "application/json",
-            "xi-api-key": self.elevenlabs_api_key
-        }
-        
-        data = {
-            "text": text,
-            "model_id": self.model,
-            "voice_settings": self._get_voice_settings()
-        }
-        
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id or self.voice_id}"
+        headers = {"Accept": "audio/mpeg", "xi-api-key": self.elevenlabs_api_key}
+        data = {"text": text, "model_id": self.model, "voice_settings": self._get_voice_settings()}
         async with httpx.AsyncClient(timeout=300.0) as client:
-            response = await client.post(url, json=data, headers=headers)
-            response.raise_for_status()
-            
-            # Sauvegarder le fichier audio
-            with open(output_path, "wb") as f:
-                f.write(response.content)
-        
+            response = await request_with_retry(client, "POST", url, json=data, headers=headers)
+        output_path.write_bytes(response.content)
         return output_path
-    
-    def _generate_openai(self, text: str, output_path: Path, voice: str = "fable") -> Optional[Path]:
-        """Génère l'audio avec OpenAI TTS (synchrone, pour compatibilité)."""
-        return asyncio.run(self._generate_openai_async(text, output_path, voice))
-    
+
+    async def _generate_openai_single(self, text: str, output_path: Path, voice: str = "fable") -> Path:
+        """Un appel OpenAI TTS (texte <= OPENAI_MAX_CHARS)."""
+        if not self.openai_api_key:
+            raise ValueError("OPENAI_API_KEY non configurée")
+        headers = {"Authorization": f"Bearer {self.openai_api_key}"}
+        data = {"model": self.model, "input": text, "voice": voice, "response_format": "mp3"}
+        async with httpx.AsyncClient(timeout=300.0) as client:
+            try:
+                response = await request_with_retry(
+                    client, "POST", "https://api.openai.com/v1/audio/speech", json=data, headers=headers
+                )
+            except httpx.HTTPStatusError as exc:
+                logger.error("❌ OpenAI TTS HTTP %s (modèle %s, voix %s, %d car.): %s",
+                             exc.response.status_code, self.model, voice, len(text), exc.response.text[:300])
+                raise
+        output_path.write_bytes(response.content)
+        return output_path
+
+    async def _generate_elevenlabs_async(self, text: str, output_path: Path, voice_id: Optional[str] = None) -> Path:
+        return await self._synthesize_chunked(
+            text, output_path, self.ELEVENLABS_MAX_CHARS,
+            lambda chunk, path: self._generate_elevenlabs_single(chunk, path, voice_id),
+        )
+
+    async def _generate_openai_async(self, text: str, output_path: Path, voice: str = "fable") -> Path:
+        return await self._synthesize_chunked(
+            text, output_path, self.OPENAI_MAX_CHARS,
+            lambda chunk, path: self._generate_openai_single(chunk, path, voice),
+        )
+
+    async def _synthesize_chunked(self, text: str, output_path: Path, max_chars: int, synth) -> Path:
+        """Découpe le texte si besoin, synthétise chaque segment, puis concatène les MP3."""
+        chunks = self._split_text_into_chunks(text, max_chars)
+        if len(chunks) == 1:
+            return await synth(chunks[0], output_path)
+
+        logger.info("📝 Texte long (%d car.): %d segments de %d car. max", len(text), len(chunks), max_chars)
+        temp_files = [output_path.with_name(f"{output_path.stem}_chunk_{i}{output_path.suffix}") for i in range(len(chunks))]
+        try:
+            for chunk, temp in zip(chunks, temp_files):
+                await synth(chunk, temp)
+            await self._concatenate_audio_files(temp_files, output_path)
+            return output_path
+        except BaseException:
+            output_path.unlink(missing_ok=True)  # pas de fichier partiel pris pour du cache
+            raise
+        finally:
+            for temp in temp_files:
+                temp.unlink(missing_ok=True)
+
     def _split_text_into_chunks(self, text: str, max_chars: int = 4096) -> list[str]:
         """Découpe un texte en segments de taille maximale, en respectant les phrases.
         
@@ -352,218 +376,41 @@ class AudioGenerator:
         
         return chunks
     
-    async def _generate_openai_async(
-        self, 
-        text: str, 
-        output_path: Path, 
-        voice: str = "fable"
-    ) -> Optional[Path]:
-        """Génère l'audio avec OpenAI TTS (asynchrone).
-        
-        OpenAI TTS a une limite de 4096 caractères. Si le texte est trop long,
-        il sera découpé en plusieurs segments qui seront générés séparément puis concaténés.
-        """
-        if not self.openai_api_key:
-            raise ValueError("OPENAI_API_KEY non configurée")
-        
-        # OpenAI TTS limite à 4096 caractères
-        MAX_CHARS = 4096
-        original_length = len(text)
-        
-        # Si le texte est court, générer directement
-        if original_length <= MAX_CHARS:
-            return await self._generate_openai_single_chunk(text, output_path, voice)
-        
-        # Sinon, découper en segments et concaténer
-        logger.info(f"📝 Texte long ({original_length} caractères), découpage en segments de {MAX_CHARS} caractères max")
-        chunks = self._split_text_into_chunks(text, MAX_CHARS)
-        logger.info(f"   Découpé en {len(chunks)} segment(s)")
-        
-        # Générer chaque segment
-        temp_files = []
-        try:
-            for i, chunk in enumerate(chunks):
-                logger.debug(f"   Génération segment {i+1}/{len(chunks)} ({len(chunk)} caractères)...")
-                temp_path = output_path.parent / f"{output_path.stem}_chunk_{i}{output_path.suffix}"
-                temp_audio = await self._generate_openai_single_chunk(chunk, temp_path, voice)
-                if temp_audio:
-                    temp_files.append(temp_audio)
-                else:
-                    raise ValueError(f"Échec de génération pour le segment {i+1}")
-            
-            # Concaténer les fichiers audio
-            logger.info(f"🔗 Concaténation de {len(temp_files)} fichier(s) audio...")
-            await self._concatenate_audio_files(temp_files, output_path)
-            
-            # Nettoyer les fichiers temporaires
-            for temp_file in temp_files:
-                try:
-                    temp_file.unlink()
-                except Exception as e:
-                    logger.warning(f"⚠️  Impossible de supprimer le fichier temporaire {temp_file}: {e}")
-            
-            logger.info(f"✅ Audio complet généré: {output_path.name} ({original_length} caractères)")
-            return output_path
-            
-        except Exception as e:
-            # Nettoyer les fichiers temporaires en cas d'erreur
-            for temp_file in temp_files:
-                try:
-                    temp_file.unlink()
-                except:
-                    pass
-            raise
-    
-    async def _generate_openai_single_chunk(
-        self,
-        text: str,
-        output_path: Path,
-        voice: str = "fable"
-    ) -> Optional[Path]:
-        """Génère l'audio pour un seul segment de texte (max 4096 caractères)."""
-        if len(text) > 4096:
-            raise ValueError(f"Segment trop long ({len(text)} caractères), maximum 4096")
-        
-        url = "https://api.openai.com/v1/audio/speech"
-        
-        headers = {
-            "Authorization": f"Bearer {self.openai_api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        data = {
-            "model": self.model,
-            "input": text,
-            "voice": voice,
-            "response_format": "mp3"
-        }
-        
-        try:
-            async with httpx.AsyncClient(timeout=300.0) as client:
-                response = await client.post(url, json=data, headers=headers)
-                
-                # Améliorer la gestion des erreurs
-                if response.status_code == 400:
-                    error_detail = ""
-                    try:
-                        error_json = response.json()
-                        error_detail = error_json.get("error", {}).get("message", "")
-                    except:
-                        error_detail = response.text[:500]
-                    
-                    logger.error(f"❌ Erreur 400 Bad Request de l'API OpenAI")
-                    logger.error(f"   Détail: {error_detail}")
-                    logger.error(f"   Longueur du texte: {len(text)} caractères")
-                    logger.error(f"   Modèle: {self.model}, Voix: {voice}")
-                    raise ValueError(f"Erreur API OpenAI: {error_detail}")
-                
-                response.raise_for_status()
-                
-                # Sauvegarder le fichier audio
-                with open(output_path, "wb") as f:
-                    f.write(response.content)
-            
-            return output_path
-            
-        except httpx.HTTPStatusError as e:
-            logger.error(f"❌ Erreur HTTP {e.response.status_code}: {e}")
-            if e.response.status_code == 400:
-                try:
-                    error_json = e.response.json()
-                    error_detail = error_json.get("error", {}).get("message", "Erreur inconnue")
-                    logger.error(f"   Message d'erreur: {error_detail}")
-                except:
-                    logger.error(f"   Réponse brute: {e.response.text[:500]}")
-            raise
-    
     async def _concatenate_audio_files(self, audio_files: list[Path], output_path: Path) -> Path:
-        """Concatène plusieurs fichiers audio MP3 en un seul fichier.
-        
-        Args:
-            audio_files: Liste des fichiers audio à concaténer
-            output_path: Chemin du fichier de sortie
-            
-        Returns:
-            Chemin du fichier concaténé
+        """Concatène des MP3 avec ffmpeg (concat demuxer, sans ré-encodage).
+
+        Sans ffmpeg, repli sur une concaténation binaire : lisible par la plupart des lecteurs
+        mais avec des en-têtes en double (durée affichée et navigation parfois inexactes).
         """
         if not audio_files:
             raise ValueError("Aucun fichier audio à concaténer")
-        
         if len(audio_files) == 1:
-            # Un seul fichier, juste le copier
-            import shutil
             shutil.copy2(audio_files[0], output_path)
             return output_path
-        
-        # Pour concaténer des MP3, on peut utiliser plusieurs méthodes:
-        # 1. pydub (nécessite ffmpeg)
-        # 2. ffmpeg directement
-        # 3. Lecture/écriture binaire simple (fonctionne pour MP3)
-        
-        # Méthode simple: lecture binaire et concaténation
-        # Note: Cette méthode fonctionne pour MP3 car le format permet la concaténation simple
-        try:
-            with open(output_path, 'wb') as outfile:
-                for audio_file in audio_files:
-                    with open(audio_file, 'rb') as infile:
-                        outfile.write(infile.read())
-            return output_path
-        except Exception as e:
-            logger.error(f"❌ Erreur lors de la concaténation audio: {e}")
-            raise
-        
-        url = "https://api.openai.com/v1/audio/speech"
-        
-        headers = {
-            "Authorization": f"Bearer {self.openai_api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        data = {
-            "model": self.model,
-            "input": text,
-            "voice": voice,
-            "response_format": "mp3"
-        }
-        
-        try:
-            async with httpx.AsyncClient(timeout=300.0) as client:
-                response = await client.post(url, json=data, headers=headers)
-                
-                # Améliorer la gestion des erreurs
-                if response.status_code == 400:
-                    error_detail = ""
-                    try:
-                        error_json = response.json()
-                        error_detail = error_json.get("error", {}).get("message", "")
-                    except:
-                        error_detail = response.text[:500]
-                    
-                    logger.error(f"❌ Erreur 400 Bad Request de l'API OpenAI")
-                    logger.error(f"   Détail: {error_detail}")
-                    logger.error(f"   Longueur du texte: {len(text)} caractères")
-                    logger.error(f"   Modèle: {self.model}, Voix: {voice}")
-                    raise ValueError(f"Erreur API OpenAI: {error_detail}")
-                
-                response.raise_for_status()
-                
-                # Sauvegarder le fichier audio
-                with open(output_path, "wb") as f:
-                    f.write(response.content)
-            
-            return output_path
-            
-        except httpx.HTTPStatusError as e:
-            logger.error(f"❌ Erreur HTTP {e.response.status_code}: {e}")
-            if e.response.status_code == 400:
-                try:
-                    error_json = e.response.json()
-                    error_detail = error_json.get("error", {}).get("message", "Erreur inconnue")
-                    logger.error(f"   Message d'erreur: {error_detail}")
-                except:
-                    logger.error(f"   Réponse brute: {e.response.text[:500]}")
-            raise
-    
+
+        if shutil.which("ffmpeg"):
+            list_file = output_path.with_suffix(".concat.txt")
+            list_file.write_text("".join(f"file '{f.resolve().as_posix().replace(chr(39), chr(39) + chr(92) + chr(39) + chr(39))}'\n" for f in audio_files), encoding="utf-8")
+            try:
+                proc = await asyncio.create_subprocess_exec(
+                    "ffmpeg", "-y", "-loglevel", "error", "-f", "concat", "-safe", "0",
+                    "-i", str(list_file), "-c", "copy", str(output_path),
+                    stdout=asyncio.subprocess.DEVNULL, stderr=asyncio.subprocess.PIPE,
+                )
+                _, stderr = await proc.communicate()
+            finally:
+                list_file.unlink(missing_ok=True)
+            if proc.returncode == 0:
+                return output_path
+            logger.warning("⚠️  ffmpeg a échoué (%s), repli sur concaténation binaire", stderr.decode()[:200])
+        else:
+            logger.warning("⚠️  ffmpeg introuvable: concaténation binaire (installez ffmpeg pour de meilleurs MP3)")
+
+        with open(output_path, "wb") as out:
+            for f in audio_files:
+                out.write(f.read_bytes())
+        return output_path
+
     async def generate_episode_audio(self, episode: Episode) -> dict[str, Optional[Path]]:
         """Génère l'audio pour tous les actes d'un épisode (séquentiel).
         
@@ -582,41 +429,25 @@ class AudioGenerator:
         return await self._generate_episode_audio_sequential(episode)
     
     async def _generate_episode_audio_sequential(self, episode: Episode) -> dict[str, Optional[Path]]:
-        """Génère l'audio pour tous les actes de manière séquentielle.
-        
-        Args:
-            episode: L'épisode complet
-            
-        Returns:
-            Dictionnaire {act_key: audio_path} pour chaque acte
-        """
-        audio_files = {}
-        acts_list = sorted(episode.acts.items())
-        total_acts = len(acts_list)
-        
-        logger.info(f"🔄 Génération séquentielle de {total_acts} fichiers audio...")
-        
-        # Générer chaque acte un par un
-        for idx, (act_key, act) in enumerate(acts_list, 1):
-            try:
-                logger.info(f"📝 [{idx}/{total_acts}] Génération audio pour {act_key}...")
-                audio_path = await self._generate_act_audio_async(act, act_key, episode.episode_title)
-                audio_files[act_key] = audio_path
-                
-                if audio_path:
-                    logger.info(f"✅ [{idx}/{total_acts}] Audio généré: {audio_path.name}")
-                else:
-                    logger.warning(f"⚠️  [{idx}/{total_acts}] Échec de génération pour {act_key}")
-                    
-            except Exception as e:
-                logger.error(f"❌ [{idx}/{total_acts}] Erreur lors de la génération audio pour {act_key}: {e}")
-                audio_files[act_key] = None
-        
-        generated_count = sum(1 for path in audio_files.values() if path is not None)
-        logger.info(f"✅ {generated_count}/{total_acts} fichiers audio générés avec succès")
-        
+        """Génère l'audio de tous les actes, `max_concurrent` en parallèle (nom conservé pour compatibilité)."""
+        acts = sorted(episode.acts.items())
+        semaphore = asyncio.Semaphore(max(1, self.max_concurrent))
+
+        async def one(act_key: str, act: Act) -> Optional[Path]:
+            async with semaphore:
+                return await self._generate_act_audio_async(act, act_key, episode.episode_title)
+
+        logger.info("🔄 Génération de %d fichiers audio (%d en parallèle)...", len(acts), self.max_concurrent)
+        results = await asyncio.gather(*(one(k, a) for k, a in acts), return_exceptions=True)
+        audio_files: dict[str, Optional[Path]] = {}
+        for (act_key, _), result in zip(acts, results):
+            if isinstance(result, BaseException):
+                logger.error("❌ Audio %s: %s", act_key, result)
+                result = None
+            audio_files[act_key] = result
+        logger.info("✅ %d/%d fichiers audio générés", sum(r is not None for r in audio_files.values()), len(acts))
         return audio_files
-    
+
     @staticmethod
     def load_episode_from_json(json_path: Path) -> Episode:
         """Charge un épisode depuis un fichier JSON.

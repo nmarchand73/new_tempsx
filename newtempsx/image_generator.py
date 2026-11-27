@@ -4,6 +4,7 @@ Utilise l'API OpenAI DALL-E pour générer des images à partir des prompts.
 """
 
 import asyncio
+import base64
 import hashlib
 import logging
 import os
@@ -12,6 +13,7 @@ from typing import Optional, TYPE_CHECKING
 
 import httpx
 
+from .http_utils import request_with_retry
 from .models import Episode, Act, TwilightZoneStory
 
 if TYPE_CHECKING:
@@ -19,11 +21,17 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+ACT_FILE_NAMES = {
+    f"acte_{n}": name for n, name in enumerate(
+        ["01_le_signal", "02_le_decryptage", "03_la_tension", "04_la_fiction",
+         "05_le_dialogue", "06_la_memoire", "07_la_transmission"], start=1)
+}
+
 
 class ImageGenerator:
     """Génère des images à partir de prompts DALL-E."""
     
-    def __init__(self, output_dir: Optional[Path] = None):
+    def __init__(self, output_dir: Optional[Path] = None, max_concurrent: int = 3, model: Optional[str] = None):
         """Initialise le générateur d'images.
         
         Args:
@@ -34,6 +42,9 @@ class ImageGenerator:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
+        self.model = model or os.getenv("OPENAI_IMAGE_MODEL", "dall-e-3")
+        self._semaphore = asyncio.Semaphore(max(1, max_concurrent))
+
         # Clé API OpenAI
         self.openai_api_key = os.getenv("OPENAI_API_KEY")
         if not self.openai_api_key:
@@ -43,285 +54,151 @@ class ImageGenerator:
         self,
         prompt: str,
         output_path: Optional[Path] = None,
-        size: str = "1024x1024",
-        model: str = "dall-e-3"
+        size: Optional[str] = None,
+        model: Optional[str] = None,
     ) -> Optional[Path]:
-        """Génère une image à partir d'un prompt DALL-E.
-        
+        """Génère une image via l'API OpenAI Images.
+
         Args:
-            prompt: Prompt de description de l'image
-            output_path: Chemin de sortie (optionnel, généré automatiquement si non fourni)
-            size: Taille de l'image ("1024x1024", "1792x1024", "1024x1792" pour dall-e-3, ou "256x256", "512x512", "1024x1024" pour dall-e-2)
-            model: Modèle DALL-E à utiliser ("dall-e-3" ou "dall-e-2", par défaut "dall-e-3")
-            
+            prompt: Description de l'image
+            output_path: Chemin de sortie (auto si absent)
+            size: Taille (défaut 1024x1024, valide pour tous les modèles)
+            model: Modèle (défaut: OPENAI_IMAGE_MODEL ou "dall-e-3"; "gpt-image-1" est supporté)
+
         Returns:
-            Chemin du fichier image généré, ou None en cas d'erreur
+            Chemin de l'image, ou None en cas d'erreur (après retries sur 429/5xx).
         """
         if not self.openai_api_key:
             raise ValueError("OPENAI_API_KEY non configurée")
-        
-        # Générer un nom de fichier si non fourni
+        model = model or self.model
+
         if output_path is None:
-            prompt_hash = hashlib.md5(prompt.encode('utf-8')).hexdigest()[:8]
+            prompt_hash = hashlib.md5(prompt.encode("utf-8"), usedforsecurity=False).hexdigest()[:8]
             output_path = self.output_dir / f"image_{prompt_hash}.png"
-        
-        # Vérifier le cache
         if output_path.exists():
-            logger.debug(f"✅ Image en cache: {output_path.name}")
+            logger.debug("✅ Image en cache: %s", output_path.name)
             return output_path
-        
-        url = "https://api.openai.com/v1/images/generations"
-        
-        headers = {
-            "Authorization": f"Bearer {self.openai_api_key}",
-            "Content-Type": "application/json"
-        }
-        
-        data = {
-            "model": model,
-            "prompt": prompt,
-            "size": size,
-            "n": 1
-        }
-        
-        # Le paramètre "quality" n'est supporté que par DALL-E 3
+
+        data = {"model": model, "prompt": prompt, "size": size or "1024x1024", "n": 1}
         if model == "dall-e-3":
             data["quality"] = "standard"
-        
+        elif model.startswith("gpt-image"):
+            data["quality"] = "medium"  # low | medium | high (renvoie toujours du base64)
+        headers = {"Authorization": f"Bearer {self.openai_api_key}"}
+
         try:
-            logger.info(f"🎨 Génération d'image: {prompt[:60]}...")
-            async with httpx.AsyncClient(timeout=60.0) as client:
-                response = await client.post(url, json=data, headers=headers)
-                response.raise_for_status()
-                
-                result = response.json()
-                image_url = result["data"][0]["url"]
-                
-                # Télécharger l'image
-                async with httpx.AsyncClient(timeout=30.0) as download_client:
-                    image_response = await download_client.get(image_url)
-                    image_response.raise_for_status()
-                    
-                    # Sauvegarder l'image
-                    with open(output_path, "wb") as f:
-                        f.write(image_response.content)
-            
-            logger.info(f"✅ Image générée: {output_path.name}")
+            logger.info("🎨 Génération d'image: %s...", prompt[:60])
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                response = await request_with_retry(
+                    client, "POST", "https://api.openai.com/v1/images/generations", json=data, headers=headers
+                )
+                item = response.json()["data"][0]
+                if item.get("b64_json"):
+                    content = base64.b64decode(item["b64_json"])
+                else:
+                    content = (await request_with_retry(client, "GET", item["url"])).content
+            output_path.write_bytes(content)
+            logger.info("✅ Image générée: %s", output_path.name)
             return output_path
-            
-        except httpx.HTTPStatusError as e:
-            logger.error(f"❌ Erreur HTTP {e.response.status_code} lors de la génération d'image: {e}")
-            if e.response.status_code == 400:
-                try:
-                    error_json = e.response.json()
-                    error_detail = error_json.get("error", {}).get("message", "Erreur inconnue")
-                    logger.error(f"   Message d'erreur: {error_detail}")
-                except:
-                    logger.error(f"   Réponse brute: {e.response.text[:500]}")
-            return None
-        except Exception as e:
-            logger.error(f"❌ Erreur lors de la génération d'image: {e}")
-            return None
-    
+        except httpx.HTTPStatusError as exc:
+            detail = exc.response.text[:300]
+            try:
+                detail = exc.response.json().get("error", {}).get("message", detail)
+            except ValueError:
+                pass
+            logger.error("❌ Image: HTTP %s: %s", exc.response.status_code, detail)
+        except (httpx.HTTPError, KeyError, IndexError, ValueError) as exc:
+            logger.error("❌ Image: %s: %s", type(exc).__name__, exc)
+        return None
+
+    def _image_path(self, prefix: str, episode_title: str, index: int, prompt: str) -> Path:
+        safe_title = "".join(c for c in episode_title if c.isalnum() or c in (" ", "-", "_")).strip()[:30].replace(" ", "_")
+        prompt_hash = hashlib.md5(prompt.encode("utf-8"), usedforsecurity=False).hexdigest()[:6]
+        return self.output_dir / f"{prefix}_{safe_title}_{index}_{prompt_hash}.png"
+
+    async def _generate_many(self, prefix: str, episode_title: str, prompts: list[str]) -> list[Optional[Path]]:
+        """Génère les images d'une liste de prompts en parallèle (borné), dans l'ordre des prompts."""
+        async def one(i: int, prompt: str) -> Optional[Path]:
+            async with self._semaphore:
+                return await self.generate_image_from_prompt(prompt, self._image_path(prefix, episode_title, i + 1, prompt))
+        return list(await asyncio.gather(*(one(i, p) for i, p in enumerate(prompts))))
+
     async def generate_act_images(self, act: Act, act_key: str, episode_title: str) -> list[Path]:
-        """Génère les images pour un acte à partir de ses prompts.
-        
-        Args:
-            act: L'acte contenant les image_prompts
-            act_key: Clé de l'acte (ex: "acte_1")
-            episode_title: Titre de l'épisode (pour le nom de fichier)
-            
-        Returns:
-            Liste des chemins des images générées
-        """
-        image_prompts = getattr(act, "image_prompts", [])
-        if not image_prompts:
-            logger.debug(f"📝 Aucun prompt d'image pour {act_key}")
-            return []
-        
-        logger.info(f"🎨 Génération de {len(image_prompts)} image(s) pour {act_key}...")
-        generated_images = []
-        
-        for i, prompt in enumerate(image_prompts):
-            # Créer un nom de fichier basé sur l'acte et l'index
-            safe_title = "".join(c for c in episode_title if c.isalnum() or c in (' ', '-', '_')).strip()[:30]
-            safe_title = safe_title.replace(' ', '_')
-            prompt_hash = hashlib.md5(prompt.encode('utf-8')).hexdigest()[:6]
-            filename = f"{act_key}_{safe_title}_{i+1}_{prompt_hash}.png"
-            output_path = self.output_dir / filename
-            
-            image_path = await self.generate_image_from_prompt(prompt, output_path)
-            if image_path:
-                generated_images.append(image_path)
-        
-        logger.info(f"✅ {len(generated_images)}/{len(image_prompts)} image(s) générée(s) pour {act_key}")
-        return generated_images
-    
-    async def generate_twilight_zone_images(
-        self,
-        twilight_story: TwilightZoneStory,
-        episode_title: str
-    ) -> list[Path]:
-        """Génère les images pour une histoire Twilight Zone.
-        
-        Args:
-            twilight_story: L'histoire Twilight Zone contenant les image_prompts
-            episode_title: Titre de l'épisode (pour le nom de fichier)
-            
-        Returns:
-            Liste des chemins des images générées
-        """
-        image_prompts = getattr(twilight_story, "image_prompts", [])
-        if not image_prompts:
-            logger.debug("📝 Aucun prompt d'image pour l'histoire Twilight Zone")
-            return []
-        
-        logger.info(f"🎬 Génération de {len(image_prompts)} image(s) pour l'histoire Twilight Zone...")
-        generated_images = []
-        
-        for i, prompt in enumerate(image_prompts):
-            # Créer un nom de fichier basé sur l'histoire
-            safe_title = "".join(c for c in episode_title if c.isalnum() or c in (' ', '-', '_')).strip()[:30]
-            safe_title = safe_title.replace(' ', '_')
-            prompt_hash = hashlib.md5(prompt.encode('utf-8')).hexdigest()[:6]
-            filename = f"twilight_zone_{safe_title}_{i+1}_{prompt_hash}.png"
-            output_path = self.output_dir / filename
-            
-            image_path = await self.generate_image_from_prompt(prompt, output_path)
-            if image_path:
-                generated_images.append(image_path)
-        
-        logger.info(f"✅ {len(generated_images)}/{len(image_prompts)} image(s) générée(s) pour l'histoire Twilight Zone")
-        return generated_images
-    
+        """Génère les images d'un acte à partir de ses prompts."""
+        prompts = getattr(act, "image_prompts", [])
+        results = await self._generate_many(act_key, episode_title, prompts) if prompts else []
+        return [p for p in results if p]
+
+    async def generate_twilight_zone_images(self, twilight_story: TwilightZoneStory, episode_title: str) -> list[Path]:
+        """Génère les images d'une histoire Twilight Zone."""
+        prompts = getattr(twilight_story, "image_prompts", [])
+        results = await self._generate_many("twilight_zone", episode_title, prompts) if prompts else []
+        return [p for p in results if p]
+
     async def generate_episode_images(
-        self, 
+        self,
         episode: Episode,
-        exporter: Optional["EpisodeExporter"] = None
+        exporter: Optional["EpisodeExporter"] = None,
     ) -> dict[str, list[Path]]:
-        """Génère toutes les images pour un épisode complet de manière progressive.
-        
-        Génère et intègre les images une par une, en mettant à jour le markdown
-        après chaque génération.
-        
-        Args:
-            episode: L'épisode complet
-            exporter: Exporteur optionnel pour mettre à jour le markdown progressivement
-            
-        Returns:
-            Dictionnaire {act_key: [image_paths]} pour chaque acte
+        """Génère les images de tout l'épisode (actes + Twilight Zone) en parallèle.
+
+        Les générations sont concurrentes (bornées par `max_concurrent`), mais l'intégration
+        dans le texte se fait dans l'ordre des prompts pour chaque cible, et les exports
+        (markdown + JSON lus par l'UI) sont sérialisés.
         """
         if not self.openai_api_key:
             logger.warning("⚠️  OPENAI_API_KEY non configurée, génération d'images ignorée")
             return {}
-        
-        logger.info(f"🎨 Génération progressive des images pour l'épisode: {episode.episode_title}")
-        all_images = {}
-        
-        # Mapping des noms de fichiers pour les actes
-        act_names = {
-            "acte_1": "01_le_signal",
-            "acte_2": "02_le_decryptage",
-            "acte_3": "03_la_tension",
-            "acte_4": "04_la_fiction",
-            "acte_5": "05_le_dialogue",
-            "acte_6": "06_la_memoire",
-            "acte_7": "07_la_transmission",
-        }
-        
-        # Générer les images pour chaque acte de manière progressive
+
+        logger.info("🎨 Génération des images pour l'épisode: %s", episode.episode_title)
+        export_lock = asyncio.Lock()
+        all_images: dict[str, list[Path]] = {}
+
+        async def process(key: str, prefix: str, prompts: list[str], integrate, export) -> None:
+            if not prompts:
+                return
+            paths = await self._generate_many(prefix, episode.episode_title, prompts)
+            generated = []
+            async with export_lock:
+                for i, (prompt, path) in enumerate(zip(prompts, paths), start=1):
+                    if not path:
+                        continue
+                    generated.append(path)
+                    integrate(path, i, len(prompts), prompt)
+                if generated and exporter:
+                    export()
+                    exporter.export_json(episode)
+            if generated:
+                all_images[key] = generated
+            logger.info("✅ %d/%d image(s) pour %s", len(generated), len(prompts), key)
+
+        tasks = []
         for act_key, act in episode.acts.items():
-            image_prompts = getattr(act, "image_prompts", [])
-            if not image_prompts:
-                logger.debug(f"📝 Aucun prompt d'image pour {act_key}")
-                continue
-            
-            logger.info(f"🎨 Génération de {len(image_prompts)} image(s) pour {act_key}...")
-            generated_images = []
-            
-            # Générer chaque image une par une
-            total_prompts = len(image_prompts)
-            for i, prompt in enumerate(image_prompts):
-                # Créer un nom de fichier basé sur l'acte et l'index
-                safe_title = "".join(c for c in episode.episode_title if c.isalnum() or c in (' ', '-', '_')).strip()[:30]
-                safe_title = safe_title.replace(' ', '_')
-                prompt_hash = hashlib.md5(prompt.encode('utf-8')).hexdigest()[:6]
-                filename = f"{act_key}_{safe_title}_{i+1}_{prompt_hash}.png"
-                output_path = self.output_dir / filename
-                
-                # Générer l'image
-                image_path = await self.generate_image_from_prompt(prompt, output_path)
-                if image_path:
-                    generated_images.append(image_path)
-                    logger.info(f"  ✅ Image {i+1}/{total_prompts} générée: {image_path.name}")
-                    
-                    # Intégrer immédiatement l'image dans le contenu de l'acte de manière harmonieuse
-                    self._integrate_single_image_into_act(
-                        act, 
-                        image_path, 
-                        act_key, 
-                        i+1,
-                        total_images=total_prompts,
-                        prompt=prompt
-                    )
-                    
-                    # Mettre à jour le markdown ET le JSON progressivement si un exporteur est fourni
-                    if exporter:
-                        act_filename = act_names.get(act_key, act_key)
-                        exporter.export_act_markdown(act_key, act, act_filename)
-                        # Mettre à jour aussi le JSON pour que l'UI voie les changements
-                        exporter.export_json(episode)
-                        logger.debug(f"  📝 Markdown et JSON mis à jour pour {act_key}")
-            
-            if generated_images:
-                all_images[act_key] = generated_images
-                logger.info(f"✅ {len(generated_images)}/{len(image_prompts)} image(s) générée(s) pour {act_key}")
-        
-        # Générer les images pour l'histoire Twilight Zone si disponible
-        if episode.twilight_zone_story:
-            image_prompts = getattr(episode.twilight_zone_story, "image_prompts", [])
-            if image_prompts:
-                logger.info(f"🎬 Génération de {len(image_prompts)} image(s) pour l'histoire Twilight Zone...")
-                generated_images = []
-                
-                total_prompts = len(image_prompts)
-                for i, prompt in enumerate(image_prompts):
-                    safe_title = "".join(c for c in episode.episode_title if c.isalnum() or c in (' ', '-', '_')).strip()[:30]
-                    safe_title = safe_title.replace(' ', '_')
-                    prompt_hash = hashlib.md5(prompt.encode('utf-8')).hexdigest()[:6]
-                    filename = f"twilight_zone_{safe_title}_{i+1}_{prompt_hash}.png"
-                    output_path = self.output_dir / filename
-                    
-                    image_path = await self.generate_image_from_prompt(prompt, output_path)
-                    if image_path:
-                        generated_images.append(image_path)
-                        logger.info(f"  ✅ Image {i+1}/{total_prompts} générée: {image_path.name}")
-                        
-                        # Intégrer immédiatement l'image dans l'histoire de manière harmonieuse
-                        self._integrate_single_image_into_twilight_story(
-                            episode.twilight_zone_story, 
-                            image_path, 
-                            i+1,
-                            total_images=total_prompts,
-                            prompt=prompt
-                        )
-                        
-                        # Mettre à jour le markdown ET le JSON progressivement
-                        if exporter:
-                            exporter.export_twilight_zone_story(episode.twilight_zone_story)
-                            # Mettre à jour aussi le JSON pour que l'UI voie les changements
-                            exporter.export_json(episode)
-                            logger.debug(f"  📝 Markdown et JSON Twilight Zone mis à jour")
-                
-                if generated_images:
-                    all_images["twilight_zone"] = generated_images
-                    logger.info(f"✅ {len(generated_images)}/{len(image_prompts)} image(s) générée(s) pour l'histoire Twilight Zone")
-        
-        total_generated = sum(len(images) for images in all_images.values())
-        logger.info(f"✅ {total_generated} image(s) générée(s) au total pour l'épisode")
-        
-        return all_images
-    
+            tasks.append(process(
+                act_key, act_key, getattr(act, "image_prompts", []),
+                lambda path, i, n, prompt, act=act, act_key=act_key: self._integrate_single_image_into_act(
+                    act, path, act_key, i, total_images=n, prompt=prompt),
+                lambda act=act, act_key=act_key: exporter.export_act_markdown(
+                    act_key, act, ACT_FILE_NAMES.get(act_key, act_key)),
+            ))
+        story = episode.twilight_zone_story
+        if story:
+            tasks.append(process(
+                "twilight_zone", "twilight_zone", getattr(story, "image_prompts", []),
+                lambda path, i, n, prompt: self._integrate_single_image_into_twilight_story(
+                    story, path, i, total_images=n, prompt=prompt),
+                lambda: exporter.export_twilight_zone_story(story),
+            ))
+
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        for res in results:
+            if isinstance(res, BaseException):
+                logger.error("❌ Génération d'images: %s", res)
+
+        total = sum(len(v) for v in all_images.values())
+        logger.info("✅ %d image(s) générée(s) au total", total)
+        return {k: all_images[k] for k in sorted(all_images)}
+
     def _find_best_image_position(
         self,
         content: str,

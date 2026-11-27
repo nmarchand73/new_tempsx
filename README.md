@@ -52,6 +52,8 @@ Si vous préférez utiliser une API key (ou n'avez pas de souscription Claude Co
 
 Le serveur UI (`python ui/server.py`) écoute par défaut sur `127.0.0.1` uniquement (`--host`, `--port` pour changer). Tests : `pip install -e ".[dev]" && pytest`.
 
+Audio/images : les appels OpenAI/ElevenLabs sont réessayés automatiquement (429/5xx, backoff), exécutés en parallèle (3 simultanés) et les MP3 longs sont concaténés avec **ffmpeg** s'il est installé (recommandé). Modèles configurables via `OPENAI_IMAGE_MODEL` et `OPENAI_TTS_MODEL`.
+
 ## Installation
 
 ```bash
