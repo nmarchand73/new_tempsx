@@ -48,7 +48,9 @@ Voir [Claude Code setup](https://docs.anthropic.com/en/docs/claude-code/setup) p
 
 Si vous préférez utiliser une API key (ou n'avez pas de souscription Claude Code), vous pouvez configurer `ANTHROPIC_API_KEY` dans votre fichier `.env` (voir section Configuration ci-dessous).
 
-**Note** : Les Skills utilisent l'outil **Browser** pour rechercher et consulter du contenu web (articles, YouTube, etc.) afin d'enrichir le contenu. L'outil Browser est activé dans la configuration du SDK (`allowed_tools=["Skill", "Read", "Browser"]`). Assurez-vous que votre environnement Claude Code supporte la navigation web.
+**Note** : Les Skills utilisent les outils **WebFetch** et **WebSearch** pour rechercher et vérifier du contenu web (`allowed_tools=["Skill", "Read", "WebFetch", "WebSearch"]`). Chaque étape retourne une sortie structurée (JSON Schema) et les étapes sont chaînées dans une même session. Variables optionnelles : `NEWTEMPSX_MODEL` (modèle Claude) et `NEWTEMPSX_MAX_BUDGET_USD` (budget max par étape). Le coût total est affiché en fin de génération.
+
+Le serveur UI (`python ui/server.py`) écoute par défaut sur `127.0.0.1` uniquement (`--host`, `--port` pour changer). Tests : `pip install -e ".[dev]" && pytest`.
 
 ## Installation
 

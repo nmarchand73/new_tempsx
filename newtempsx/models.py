@@ -64,3 +64,41 @@ class Episode(BaseModel):
             f"acte_{i}" in self.acts for i in range(1, 8)
         )
 
+
+
+# --- Schémas des sorties structurées demandées au SDK (output_format) -------
+
+class NarrativeThemes(BaseModel):
+    acte_1: str
+    acte_2: str
+    acte_3: str
+    acte_4: str
+    acte_5: str
+    acte_6: str
+    acte_7: str
+
+
+class ArcOutput(BaseModel):
+    episode_title: str
+    narrative_arc: str
+    themes: NarrativeThemes
+
+
+class ActOutput(BaseModel):
+    """Un acte tel que retourné par un Skill."""
+    title: str
+    content: str
+    references: List[Reference] = Field(default_factory=list)
+    image_prompts: List[str] = Field(default_factory=list)
+
+
+class ActsOneToThreeOutput(BaseModel):
+    acte_1: ActOutput
+    acte_2: ActOutput
+    acte_3: ActOutput
+
+
+class ValidationOutput(BaseModel):
+    validated: bool
+    message: str = ""
+    issues: List[str] = Field(default_factory=list)
