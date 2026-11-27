@@ -43,7 +43,7 @@ def list_runs() -> list[Path]:
 class EpisodeHandler(SimpleHTTPRequestHandler):
     """Sert l'UI statique et l'API /api/* (lecture seule)."""
 
-    extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".mp3": "audio/mpeg", ".js": "text/javascript"}
+    extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".mp3": "audio/mpeg", ".js": "text/javascript", ".woff2": "font/woff2"}
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(UI_DIR), **kwargs)
