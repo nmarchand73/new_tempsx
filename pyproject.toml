@@ -16,9 +16,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=8", "pytest-asyncio>=0.24"]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.9"]
 
-# Pas d'entry point CLI - utilisez app.py directement
+[project.scripts]
+newtempsx = "newtempsx.cli:cli"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -28,6 +29,7 @@ include = ["newtempsx*"]
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 testpaths = ["tests"]
+pythonpath = ["."]
 
 [tool.ruff]
 line-length = 120
