@@ -143,7 +143,9 @@ python ui/server.py --port 9000
 ```
 
 - Écoute **uniquement en local** par défaut (`--host` pour changer, à vos risques).
-- Sélecteur de run, navigation par acte (flèches du clavier), barre de progression, arc narratif et scénario d'origine, sources de chaque acte, histoire bonus, lecteur audio et lecture vocale du navigateur.
+- **Bibliothèque** : une carte par épisode (couverture, avancement sur 7 actes, médias, coût, badge « En cours » pendant la génération), recherche, et « Reprendre à l'acte N ».
+- **Lecteur** : navigation par acte (flèches du clavier), barre de progression, arc narratif et scénario d'origine, sources, histoire bonus, lecteur audio et lecture vocale du navigateur.
+- **Liens partageables** : `#/` (bibliothèque), `#/run/<nom>/acte-3`, `#/run/<nom>/bonus`. La position de lecture est mémorisée dans le navigateur.
 - Aucune dépendance CDN : `marked`, DOMPurify et les polices sont dans `ui/vendor/`. Le contenu généré est assaini avant affichage.
 
 Détails : [`ui/README.md`](ui/README.md).
@@ -175,7 +177,7 @@ newtempsx/
   image_generator.py        images OpenAI et intégration au texte
   http_utils.py             retries HTTP avec backoff
   validators.py             validation structurelle
-ui/                         lecteur web local (server.py, app.js, styles.css, vendor/)
+ui/                         lecteur web local (server.py, index.html, styles.css, js/ modules ES, vendor/, tests/)
 .claude/skills/             Skills de l'agent (un par rôle narratif)
 tests/                      pytest
 ```
@@ -206,6 +208,7 @@ uv run pytest
 - La CI GitHub Actions exécute lint, format et tests sur Python 3.11 et 3.13.
 - Les tests simulent les appels aux API (Claude, OpenAI, ElevenLabs) : un run complet avec de vraies clés reste la validation de bout en bout.
 - Optionnel : `pre-commit install` (config ruff fournie).
+- Front : `node ui/tests/e2e.mjs` (test E2E Playwright sur des données de démonstration) et `npx eslint -c ui/eslint.config.mjs ui/js` (identifiants non définis, imports).
 
 ## Dépannage
 

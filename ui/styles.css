@@ -1209,6 +1209,360 @@ body::after {
     cursor: not-allowed;
 }
 
+/* ---- Vues : bibliothèque / lecteur ------------------------------------- */
+[hidden] {
+    display: none !important;
+}
+.logo-link {
+    color: inherit;
+    text-decoration: none;
+}
+.logo-link:hover .logo-x {
+    text-shadow: 0 0 24px var(--accent);
+}
+body[data-view='library'] .run-selector-container {
+    display: none;
+}
+.reader,
+.library {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    animation: rise 0.55s var(--ease) both;
+}
+.nav-btn.back {
+    text-decoration: none;
+}
+
+/* ---- Boutons génériques ------------------------------------------------ */
+.btn {
+    font: 500 0.78rem/1 var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink);
+    background: transparent;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 0.8rem 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s, background 0.2s, transform 0.2s var(--ease);
+}
+.btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+.btn:active {
+    transform: scale(0.97);
+}
+.btn-primary {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+}
+.btn-primary:hover {
+    color: var(--accent-ink);
+    background: color-mix(in srgb, var(--accent) 86%, white);
+}
+
+/* ---- Bibliothèque ------------------------------------------------------ */
+.library-inner {
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: clamp(2rem, 6vw, 4.5rem) clamp(1rem, 4vw, 2.5rem) 6rem;
+}
+.library .hero {
+    margin-bottom: clamp(1.8rem, 4vw, 2.8rem);
+}
+.library .episode-title {
+    max-width: none;
+}
+.library-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+.library-toolbar.only-action .library-search {
+    display: none;
+}
+.library-toolbar.only-action {
+    justify-content: flex-end;
+}
+.library-search {
+    flex: 1;
+    max-width: 420px;
+    font: 400 0.95rem/1 var(--font-read);
+    color: var(--ink);
+    background: var(--bg-raised);
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    padding: 0.85rem 1.2rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.library-search::placeholder {
+    color: var(--ink-3);
+}
+.library-search:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.library-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr));
+    gap: clamp(1rem, 2.4vw, 1.6rem);
+}
+
+.run-card {
+    --hue: 30;
+    display: flex;
+    flex-direction: column;
+    color: inherit;
+    text-decoration: none;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.35s var(--ease), border-color 0.25s, box-shadow 0.35s var(--ease);
+    animation: rise 0.6s var(--ease) both;
+}
+.run-card:nth-child(2) { animation-delay: 0.04s; }
+.run-card:nth-child(3) { animation-delay: 0.08s; }
+.run-card:nth-child(4) { animation-delay: 0.12s; }
+.run-card:nth-child(n + 5) { animation-delay: 0.16s; }
+.run-card:hover,
+.run-card:focus-visible {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+    box-shadow: 0 22px 44px -22px rgba(0, 0, 0, 0.7), 0 0 0 1px var(--accent);
+}
+.run-card.is-last::after {
+    content: 'Dernière lecture';
+    position: absolute;
+    top: 0.8rem;
+    left: 0.8rem;
+    font: 500 0.6rem/1 var(--font-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-radius: 999px;
+    padding: 0.4rem 0.65rem;
+}
+.run-card {
+    position: relative;
+}
+
+.run-cover {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background:
+        radial-gradient(90% 120% at calc(20% + var(--hue) * 0.4%) 0%, hsl(var(--hue) 70% 55% / 0.35), transparent 62%),
+        radial-gradient(80% 100% at 100% 100%, var(--signal-soft), transparent 60%),
+        var(--bg-sunk);
+    border-bottom: 1px solid var(--line);
+}
+.run-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.8s var(--ease);
+}
+.run-card:hover .run-cover img {
+    transform: scale(1.05);
+}
+.run-cover-mark {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(3.4rem, 9vw, 5rem);
+    font-style: italic;
+    color: var(--accent);
+    opacity: 0.85;
+    text-shadow: 0 0 40px var(--accent-soft);
+}
+.run-badge {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    font: 500 0.6rem/1 var(--font-mono);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--signal);
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    backdrop-filter: blur(6px);
+    border: 1px solid color-mix(in srgb, var(--signal) 45%, transparent);
+    border-radius: 999px;
+    padding: 0.4rem 0.65rem;
+}
+.run-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--signal);
+    animation: pulse-dot 1.6s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    50% {
+        opacity: 0.25;
+    }
+}
+
+.run-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.1rem 1.2rem 1.2rem;
+}
+.run-meta {
+    font: 400 0.68rem/1 var(--font-mono);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+}
+.run-title {
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-size: 1.35rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+}
+.run-scenario {
+    font-size: 0.92rem;
+    line-height: 1.5;
+    color: var(--ink-2);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.run-progress {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-top: auto;
+    padding-top: 0.4rem;
+}
+.run-progress i {
+    height: 3px;
+    border-radius: 2px;
+    background: var(--line-strong);
+}
+.run-progress i.on {
+    background: var(--accent);
+}
+.run-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.8rem;
+    font: 400 0.68rem/1.4 var(--font-mono);
+    letter-spacing: 0.06em;
+    color: var(--ink-3);
+}
+.run-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.8rem;
+}
+.run-resume {
+    flex: none;
+    color: var(--accent);
+    transition: transform 0.25s var(--ease);
+}
+.run-card:hover .run-resume {
+    transform: translateX(3px);
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    max-width: 34rem;
+    margin: 6vh auto;
+    text-align: center;
+}
+.empty-mark {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 800;
+    font-size: 5rem;
+    line-height: 1;
+    color: var(--accent);
+    text-shadow: 0 0 40px var(--accent-soft);
+    margin-bottom: 1rem;
+}
+.empty-state h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 1.7rem;
+    margin-bottom: 0.6rem;
+}
+.empty-state p {
+    color: var(--ink-2);
+}
+
+/* ---- Dialogue ---------------------------------------------------------- */
+.dialog {
+    margin: auto;
+    width: min(92vw, 520px);
+    color: var(--ink);
+    background: var(--bg-raised);
+    border: 1px solid var(--line-strong);
+    border-radius: 16px;
+    padding: 1.8rem;
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.7);
+}
+.dialog::backdrop {
+    background: rgba(5, 6, 8, 0.7);
+    backdrop-filter: blur(4px);
+}
+.dialog h3 {
+    font-family: var(--font-display);
+    font-weight: 650;
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
+}
+.dialog p {
+    color: var(--ink-2);
+    font-size: 0.98rem;
+}
+.dialog-hint {
+    margin-top: 0.9rem;
+    font-size: 0.88rem !important;
+}
+.dialog-code {
+    margin: 1rem 0;
+    padding: 0.9rem 1.1rem;
+    overflow-x: auto;
+    text-align: left;
+    background: var(--bg-sunk);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+.dialog-code code {
+    font: 0.85rem/1.5 var(--font-mono);
+    color: var(--accent);
+}
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: 1.4rem;
+}
+
 /* ---- Responsive -------------------------------------------------------- */
 @media (max-width: 760px) {
     :root {
@@ -1239,6 +1593,13 @@ body::after {
     }
     .nav-btn.bonus::before {
         content: '★';
+    }
+    .library-toolbar {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+    .library-search {
+        max-width: none;
     }
     .act-header {
         flex-direction: column;

@@ -4,6 +4,7 @@
 import argparse
 import datetime
 import json
+import os
 import re
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -11,7 +12,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlparse
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = PROJECT_ROOT / "output"
+OUTPUT_DIR = Path(os.environ.get("NEWTEMPSX_OUTPUT_DIR") or PROJECT_ROOT / "output")
 UI_DIR = Path(__file__).resolve().parent
 
 # Un nom de run / de fichier ne contient jamais de séparateur de chemin.
@@ -38,6 +39,35 @@ def list_runs() -> list[Path]:
         return []
     runs = [d for d in OUTPUT_DIR.iterdir() if d.is_dir() and (d / "episode.json").is_file()]
     return sorted(runs, key=lambda d: (d / "episode.json").stat().st_mtime, reverse=True)
+
+
+def run_summary(run_dir: Path) -> dict | None:
+    """Résumé d'un run pour la bibliothèque (titre, avancement, médias, coût, image de couverture)."""
+    episode_json = run_dir / "episode.json"
+    try:
+        data = json.loads(episode_json.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        print(f"Warning: could not read {episode_json}: {exc}")
+        return None
+    mtime = episode_json.stat().st_mtime
+    scenario = data.get("scenario_input", "")
+    images = sorted((run_dir / "images").glob("*.png")) if (run_dir / "images").is_dir() else []
+    cover = next((i for i in images if i.name.startswith("acte_1")), images[0] if images else None)
+    acts = len(data.get("acts") or {})
+    return {
+        "name": run_dir.name,
+        "title": data.get("episode_title", run_dir.name),
+        "scenario": scenario[:100] + "..." if len(scenario) > 100 else scenario,
+        "date": datetime.datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M"),
+        "timestamp": mtime,
+        "acts": acts,
+        "complete": acts >= 7,
+        "has_twilight": bool(data.get("twilight_zone_story")),
+        "cost_usd": data.get("cost_usd"),
+        "audio": len(list((run_dir / "audio").glob("*.mp3"))) if (run_dir / "audio").is_dir() else 0,
+        "images": len(images),
+        "cover": cover.name if cover else None,
+    }
 
 
 class EpisodeHandler(SimpleHTTPRequestHandler):
@@ -93,26 +123,7 @@ class EpisodeHandler(SimpleHTTPRequestHandler):
         return run_dir
 
     def _runs_payload(self) -> list[dict]:
-        payload = []
-        for run_dir in list_runs():
-            episode_json = run_dir / "episode.json"
-            try:
-                data = json.loads(episode_json.read_text(encoding="utf-8"))
-            except (OSError, ValueError) as exc:
-                print(f"Warning: could not read {episode_json}: {exc}")
-                continue
-            mtime = episode_json.stat().st_mtime
-            scenario = data.get("scenario_input", "")
-            payload.append(
-                {
-                    "name": run_dir.name,
-                    "title": data.get("episode_title", run_dir.name),
-                    "scenario": scenario[:100] + "..." if len(scenario) > 100 else scenario,
-                    "date": datetime.datetime.fromtimestamp(mtime).strftime("%d/%m/%Y %H:%M"),
-                    "timestamp": mtime,
-                }
-            )
-        return payload
+        return [info for run_dir in list_runs() if (info := run_summary(run_dir))]
 
     def _json(self, obj) -> None:
         body = json.dumps(obj, ensure_ascii=False, indent=2).encode("utf-8")

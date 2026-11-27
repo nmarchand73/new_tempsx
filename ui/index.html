@@ -12,13 +12,13 @@
     <script src="vendor/marked.min.js"></script>
     <script src="vendor/purify.min.js"></script>
 </head>
-<body>
+<body data-view="library">
     <div class="app-container">
         <!-- Header -->
         <header class="header">
             <div class="header-content">
                 <div class="logo-container">
-                    <h1 class="logo">NEW TEMPS <span class="logo-x">X</span></h1>
+                    <a class="logo-link" href="#/" aria-label="Retour à la bibliothèque"><h1 class="logo">NEW TEMPS <span class="logo-x">X</span></h1></a>
                     <span class="logo-subtitle">Système narratif AI</span>
                 </div>
                 <div class="header-meta">
@@ -33,9 +33,46 @@
             <div class="reading-progress" id="reading-progress" role="presentation"></div>
         </header>
 
+        <!-- Vue bibliothèque -->
+        <div class="library" id="library-view">
+            <div class="library-inner">
+                <div class="hero">
+                    <p class="hero-eyebrow">Bibliothèque</p>
+                    <h2 class="episode-title">Vos épisodes</h2>
+                    <p class="hero-meta" id="library-meta"></p>
+                    <svg class="hero-wave" viewBox="0 0 600 40" preserveAspectRatio="none" aria-hidden="true">
+                        <path d="M0 20 H110 L125 6 L145 34 L160 12 L172 20 H300 L315 3 L335 37 L350 14 L362 20 H480 L492 9 L508 31 L520 20 H600"/>
+                    </svg>
+                </div>
+                <div class="library-toolbar" id="library-toolbar">
+                    <input type="search" id="library-search" class="library-search" placeholder="Rechercher un épisode…" aria-label="Rechercher un épisode" autocomplete="off">
+                    <button type="button" class="btn btn-primary" id="new-episode-btn">+ Nouvel épisode</button>
+                </div>
+                <div class="library-grid" id="library-grid" role="list"></div>
+            </div>
+        </div>
+
+        <dialog class="dialog" id="new-episode-dialog" aria-labelledby="new-episode-title">
+            <form method="dialog">
+                <h3 id="new-episode-title">Nouvel épisode</h3>
+                <p>Lancez la génération depuis un terminal à la racine du projet :</p>
+                <pre class="dialog-code"><code id="new-episode-cmd">python app.py "Votre scénario" --audio --images</code></pre>
+                <p class="dialog-hint">Le nouvel épisode apparaît ici dès que l'arc narratif est défini et se remplit acte par acte.</p>
+                <div class="dialog-actions">
+                    <button type="button" class="btn" id="copy-cmd-btn">Copier la commande</button>
+                    <button class="btn btn-primary" value="close">Fermer</button>
+                </div>
+            </form>
+        </dialog>
+
+        <!-- Vue lecteur -->
+        <div class="reader" id="reader-view" hidden>
         <!-- Navigation des actes -->
         <nav class="acts-navigation" id="acts-nav">
             <div class="nav-container">
+                <a class="nav-btn back" href="#/" id="nav-back" aria-label="Retour à la bibliothèque" title="Bibliothèque">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5L12 3l9 7.5V21H3z"/></svg>
+                </a>
                 <button class="nav-btn prev" id="nav-prev" aria-label="Acte précédent">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M15 18l-6-6 6-6"/>
@@ -97,6 +134,7 @@
                 </div>
             </section>
         </main>
+        </div>
     </div>
 
     <!-- Lightbox Modal -->
@@ -123,7 +161,7 @@
         </div>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>
 

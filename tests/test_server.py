@@ -62,3 +62,12 @@ def test_audio_range(base_url):
     assert (status, body) == (206, b"234")
     assert get(base_url + "/api/audio/acte_1?run=run1", {"Range": "bytes=50-60"})[0] == 416
     assert get(base_url + "/api/audio/..%2Fx?run=run1")[0] == 400
+
+
+def test_runs_summary_fields(base_url):
+    status, body = get(base_url + "/api/runs")
+    runs = {r["name"]: r for r in json.loads(body)}
+    r = runs["run1"]
+    assert status == 200 and r["acts"] == 0 and r["complete"] is False
+    assert r["audio"] == 1 and r["images"] == 1 and r["cover"] == "a.png"
+    assert r["has_twilight"] is False and r["cost_usd"] is None
