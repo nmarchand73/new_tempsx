@@ -35,6 +35,7 @@ let lastEpisodeHash = null; // Hash du dernier épisode chargé pour détecter l
 
 // Initialisation
 document.addEventListener('DOMContentLoaded', async () => {
+    setupReadingProgress();
     // Vérifier le support de la synthèse vocale
     if ('speechSynthesis' in window && window.speechSynthesis) {
         try {
@@ -156,7 +157,7 @@ function setupRunSelector() {
             
             // Ajouter un indicateur si c'est le plus récent
             if (index === 0) {
-                displayText = `⭐ ${displayText}`;
+                displayText = `● ${displayText}`;
             }
             
             option.textContent = displayText;
@@ -351,6 +352,35 @@ async function loadEpisode(forceUpdate = false) {
     }
 }
 
+// Métadonnées sous le titre : nombre d'actes, coût de génération, date du run
+function renderHeroMeta() {
+    const el = document.getElementById('hero-meta');
+    if (!el || !currentEpisode) return;
+    const parts = [];
+    const actCount = Object.keys(currentEpisode.acts || {}).length;
+    parts.push(`${actCount} acte${actCount > 1 ? 's' : ''}`);
+    if (currentEpisode.twilight_zone_story) parts.push('+ histoire bonus');
+    if (typeof currentEpisode.cost_usd === 'number') {
+        parts.push(`${currentEpisode.cost_usd.toFixed(2).replace('.', ',')} $ de génération`);
+    }
+    const run = availableRuns.find(r => r.name === currentRunName);
+    if (run && run.date) parts.push(run.date);
+    el.textContent = parts.join('  ·  ');
+}
+
+// Barre de progression de lecture
+function setupReadingProgress() {
+    const bar = document.getElementById('reading-progress');
+    if (!bar) return;
+    const update = () => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max) : 0})`;
+    };
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+    update();
+}
+
 // Afficher la vue d'ensemble
 function renderOverview() {
     if (!currentEpisode) return;
@@ -360,6 +390,7 @@ function renderOverview() {
     if (titleEl) {
         titleEl.textContent = currentEpisode.episode_title || 'Sans titre';
     }
+    renderHeroMeta();
     
     // Arc narratif (rendu Markdown)
     const narrativeArcEl = document.getElementById('narrative-arc');
@@ -408,8 +439,9 @@ function renderActs() {
         actsSection.appendChild(actCard);
     });
     
-    // Mettre en évidence le premier acte par défaut et scroller vers lui
-    showAct(0);
+    // Mettre en évidence le premier acte par défaut, sans scroller (la page démarre sur le titre
+    // de l'épisode, et un nouveau rendu pendant la génération ne doit pas faire sauter la lecture)
+    showAct(0, false);
     
     // Réinitialiser la détection de scroll après le rendu des actes
     setupScrollDetection();
@@ -430,9 +462,7 @@ function createActCard(actKey, act, index) {
     header.className = 'act-header';
     
     const headerLeft = document.createElement('div');
-    headerLeft.style.display = 'flex';
-    headerLeft.style.alignItems = 'baseline';
-    headerLeft.style.gap = 'var(--spacing-sm)';
+    headerLeft.className = 'act-heading';
     const narrator = act.narrator || 'narrator_1';
     const narratorLabel = narrator === 'narrator_1' ? 'Narrateur 1' : 'Narrateur 2';
     headerLeft.innerHTML = `
@@ -444,8 +474,6 @@ function createActCard(actKey, act, index) {
     // Container pour les boutons audio
     const audioControls = document.createElement('div');
     audioControls.className = 'audio-controls';
-    audioControls.style.display = 'flex';
-    audioControls.style.gap = '0.5rem';
     
     // Bouton audio (fichier MP3)
     const audioBtn = document.createElement('button');
@@ -566,14 +594,14 @@ function createActCard(actKey, act, index) {
             const sourceName = extractSourceName(ref.url);
             const sourceSpan = document.createElement('span');
             sourceSpan.className = 'reference-source';
-            sourceSpan.textContent = ` (${sourceName})`;
+            sourceSpan.textContent = sourceName;
             refItem.appendChild(sourceSpan);
             
             // Description
             if (ref.description) {
                 const refDesc = document.createElement('span');
                 refDesc.className = 'reference-description';
-                refDesc.textContent = ` — ${ref.description}`;
+                refDesc.textContent = ref.description;
                 refItem.appendChild(refDesc);
             }
             referencesList.appendChild(refItem);
@@ -591,7 +619,7 @@ function createActCard(actKey, act, index) {
 }
 
 // Afficher un acte spécifique (met en évidence et scroll vers l'acte)
-function showAct(index) {
+function showAct(index, scroll = true) {
     // Arrêter la synthèse vocale si on change d'acte
     if (currentSpeechIndex !== index) {
         stopSpeech();
@@ -613,6 +641,11 @@ function showAct(index) {
     if (actCard) {
         actCard.classList.add('active');
         currentActIndex = index;
+        
+        if (!scroll) {
+            updateNavigation();
+            return;
+        }
         
         // Scroll vers l'acte avec un offset pour le header sticky
         isNavigatingProgrammatically = true;
@@ -738,7 +771,7 @@ function updateNavigation() {
         const bonusDot = document.createElement('div');
         bonusDot.className = `act-dot bonus-dot ${isOnBonus ? 'active' : ''}`;
         bonusDot.title = 'Histoire bonus Twilight Zone';
-        bonusDot.innerHTML = '🌟';
+        bonusDot.textContent = '★';
         bonusDot.addEventListener('click', () => showBonus());
         indicator.appendChild(bonusDot);
     }
@@ -841,7 +874,8 @@ function detectActiveActOnScroll() {
     const navHeight = document.querySelector('.acts-navigation')?.offsetHeight || 0;
     const viewportTop = window.scrollY + headerHeight + navHeight + 100; // Offset pour considérer un acte comme "actif"
     
-    let closestActIndex = -1;
+    // -2 = aucun acte sous la ligne de lecture, -1 = section bonus, >= 0 = acte
+    let closestActIndex = -2;
     let closestDistance = Infinity;
     
     // Vérifier chaque acte
@@ -875,6 +909,14 @@ function detectActiveActOnScroll() {
             if (distance < closestDistance) {
                 closestActIndex = -1; // Bonus
             }
+        }
+    }
+    
+    // Au-dessus du premier acte (titre, arc narratif) : on considère le premier acte actif
+    if (closestActIndex === -2) {
+        const firstCard = document.getElementById('act-0');
+        if (firstCard && window.scrollY + firstCard.getBoundingClientRect().top > viewportTop) {
+            closestActIndex = 0;
         }
     }
     
@@ -973,10 +1015,10 @@ function showError(message) {
         return;
     }
     mainContent.innerHTML = `
-        <div style="text-align: center; padding: 3rem; color: #ff6b6b;">
-            <h2>⚠️ Erreur</h2>
-            <p style="margin-top: 1rem; font-size: 1.1rem;">${escapeHtml(message)}</p>
-            <p style="margin-top: 2rem; color: var(--color-text-secondary); font-size: 0.9rem;">
+        <div class="state-message error">
+            <h2>Signal perdu</h2>
+            <p class="state-detail">${escapeHtml(message)}</p>
+            <p class="state-hint">
                 Vérifiez que vous avez généré un épisode avec: <code>python app.py "Votre scénario"</code>
             </p>
         </div>

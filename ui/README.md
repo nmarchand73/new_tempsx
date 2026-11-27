@@ -42,3 +42,9 @@ ui/
 
 Les couleurs et styles peuvent être modifiés dans `styles.css` via les variables CSS dans `:root`.
 
+
+## Design et dépendances front
+
+- Aucun appel à un CDN : `marked`, DOMPurify et les polices (Fraunces, Source Serif 4, IBM Plex Mono, sous licence OFL) sont dans `ui/vendor/` — l'UI fonctionne hors ligne et sans hash SRI à maintenir.
+- Thème sombre par défaut, thème clair automatique (`prefers-color-scheme`). Les couleurs et polices sont des variables CSS en tête de `styles.css`.
+- Respecte `prefers-reduced-motion` et propose une feuille d'impression (navigation et boutons masqués).
