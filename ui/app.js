@@ -248,7 +248,7 @@ function updateEpisodeDisplay() {
             if (contentEl) {
                 // Re-rendre le contenu markdown
                 if (typeof marked !== 'undefined') {
-                    contentEl.innerHTML = marked.parse(act.content);
+                    contentEl.innerHTML = renderMarkdown(act.content);
                     // Traiter les images après le parsing markdown
                     processImages(contentEl);
                 } else {
@@ -366,7 +366,7 @@ function renderOverview() {
     if (narrativeArcEl) {
         if (currentEpisode.narrative_arc) {
     if (typeof marked !== 'undefined') {
-        narrativeArcEl.innerHTML = marked.parse(currentEpisode.narrative_arc);
+        narrativeArcEl.innerHTML = renderMarkdown(currentEpisode.narrative_arc);
     } else {
         // Fallback si marked n'est pas disponible
         const paragraphs = currentEpisode.narrative_arc.split('\n\n').filter(p => p.trim());
@@ -529,7 +529,7 @@ function createActCard(actKey, act, index) {
     const content = document.createElement('div');
     content.className = 'act-content';
     if (typeof marked !== 'undefined') {
-        content.innerHTML = marked.parse(act.content);
+        content.innerHTML = renderMarkdown(act.content);
         // Traiter les images après le parsing markdown
         processImages(content);
     } else {
@@ -886,6 +886,16 @@ function detectActiveActOnScroll() {
 }
 
 // Échapper le HTML pour éviter les injections
+// Rendu Markdown assaini : le contenu est généré par un LLM (et peut citer du web),
+// il ne doit jamais être injecté dans le DOM sans DOMPurify. Sans DOMPurify -> texte échappé.
+function renderMarkdown(text) {
+    const source = text || '';
+    if (typeof marked === 'undefined' || typeof DOMPurify === 'undefined') {
+        return source.split(/\n\n+/).map(p => `<p>${escapeHtml(p)}</p>`).join('');
+    }
+    return DOMPurify.sanitize(marked.parse(source), { USE_PROFILES: { html: true } });
+}
+
 function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -1189,7 +1199,7 @@ function renderTwilightZoneStory() {
                 </div>
             </div>
             <div class="twilight-zone-content">
-                ${marked.parse(story.story)}
+                ${renderMarkdown(story.story)}
             </div>
         `;
     } else {
